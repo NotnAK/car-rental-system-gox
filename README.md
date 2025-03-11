@@ -4,6 +4,8 @@
 
 GoX je systém na prenájom automobilov, ktorý umožňuje používateľom vyhľadávať dostupné vozidlá, rezervovať ich na určité obdobie a spravovať svoje prenájmy. Používatelia si môžu vybrať vozidlo podľa rôznych parametrov, ako je značka, model, cena alebo typ paliva. Používatelia si môžu ukladať obľúbené vozidlá do zoznamu želaní, aby si ich mohli rýchlo rezervovať v budúcnosti. V rámci vernostného programu GoX môžu pravidelní zákazníci získavať zľavy za časté prenájmy. Administrátor systému spravuje databázu automobilov, schvaľuje rezervácie a monitoruje ich stav. Po dokončení prenájmu môže zákazník hodnotiť vozidlo a zanechať recenziu, čím pomáha ostatným používateľom pri výbere. 
 
+---
+
 ## Zber požiadaviek
 
 - **RQ01** Systém umožní používateľom vyhľadávať dostupné vozidlá podľa rôznych kritérií (značka, model, cena, rok, typ paliva).
@@ -26,16 +28,16 @@ GoX je systém na prenájom automobilov, ktorý umožňuje používateľom vyhľ
 
 | **Pojem**                | **Anglický názov** | **Definícia**                                                                                                                         |
 |--------------------------|--------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| **Používateľ (User)**    | User               | Osoba využívajúca GoX na rezerváciu auta. Môže prezerať vozidlá, vytvárať rezervácie, hodnotiť autá a dostávať notifikácie.            |
+| **Používateľ**    | User               | Osoba využívajúca GoX na rezerváciu auta. Môže prezerať vozidlá, vytvárať rezervácie, hodnotiť autá a dostávať notifikácie.            |
 | **Administrátor**        | Administrator      | Používateľ s rozšírenými právami: správa databázy vozidiel (CRUD), schvaľovanie/rušenie rezervácií, prezeranie štatistík.              |
-| **Vozidlo (Car)**        | Car                | Automobil dostupný na prenájom. Obsahuje informácie o značke, modeli, roku, cene za deň, stave (AVAILABLE, RENTED, UNAVAILABLE).       |
-| **Rezervácia (Booking)** | Booking            | Záznam o prenájme vozidla na určené obdobie (od-do). Uchováva dátumy, cenu, stav a referenciu na používateľa a vozidlo.                |
-| **Recenzia (Review)**    | Review             | Hodnotenie (rating) a textový komentár, ktorý používateľ pridá po skončení prenájmu.                                                  |
+| **Vozidlo**        | Car                | Automobil dostupný na prenájom. Obsahuje informácie o značke, modeli, roku, cene za deň, stave (AVAILABLE, RENTED, UNAVAILABLE).       |
+| **Rezervácia** | Booking            | Záznam o prenájme vozidla na určené obdobie (od-do). Uchováva dátumy, cenu, stav a referenciu na používateľa a vozidlo.                |
+| **Recenzia**    | Review             | Hodnotenie (rating) a textový komentár, ktorý používateľ pridá po skončení prenájmu.                                                  |
 | **Notifikácia**          | Notification       | Správa zasielaná používateľovi (napr. email s PDF) pri udalostiach ako vytvorenie rezervácie, schválenie, oneskorenie vrátenia auta.  |
 | **Wishlist**             | Wishlist           | Zoznam obľúbených vozidiel, ktoré si používateľ ukladá pre neskoršiu rýchlu rezerváciu.                                               |
-| **Penalta (Penalty)**    | Penalty            | Pokuta, ktorá sa pripočíta k cene prenájmu, ak používateľ vráti vozidlo oneskorene. Systém vypočíta výšku pokuty a zašle email.        |
+| **Pokuta**    | Penalty            | Pokuta, ktorá sa pripočíta k cene prenájmu, ak používateľ vráti vozidlo oneskorene. Systém vypočíta výšku pokuty a zašle email.        |
 | **Program vernosti**     | Loyalty Program    | Mechanizmus, v ktorom používateľ získava body za každú rezerváciu. Body ho posúvajú na vyššiu úroveň (napr. SILVER, GOLD) a znižujú cenu budúcich prenájmov. |
 | **Miesto vyzdvihnutia** (PickUp) | Pickup Location  | Adresa, kde si používateľ vyzdvihne auto. Môže to byť oficiálna pobočka alebo iná lokalita na mape.                                     |
-| **Miesto odovzdania** (DropOff) | DropOff Location | Adresa, kde môže používateľ auto vrátiť. V prípade inej lokality než pobočka môže byť účtovaný poplatok navyše.                         |
+| **Miesto odovzdania** | DropOff Location | Adresa, kde môže používateľ auto vrátiť. V prípade inej lokality než pobočka môže byť účtovaný poplatok navyše.                         |
 | **PDF potvrdenie**       | PDF Receipt        | Dokument generovaný systémom s detailmi rezervácie (vozidlo, dátumy, cena). Posiela sa emailom a je dostupný na stiahnutie.           |
 | **Analytika**            | Analytics          | Prehľad pre administrátora: počet prenájmov, obľúbené vozidlá, priemerné hodnotenie, príjmy.                                          |
