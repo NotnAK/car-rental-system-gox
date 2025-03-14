@@ -7,7 +7,7 @@ GoX je systém na prenájom automobilov, ktorý umožňuje používateľom vyhľ
 
 ## Zber požiadaviek
 
-- **RQ01** Systém umožní používateľom vyhľadávať dostupné vozidlá podľa rôznych kritérií (značka, model, cena, rok, typ paliva).
+- **RQ01** Systém umožní používateľom vyhľadávať dostupné vozidlá podľa rôznych kritérií (značka, model, cena, rok, typ paliva atď.).
 - **RQ02** Systém umožní rezerváciu vozidiel na definované obdobie (od-do) s overením dostupnosti.
 - **RQ03** Systém bude uchovávať históriu prenájmov (rezervácií) pre každého používateľa.
 - **RQ04** Systém umožní správu databázy vozidiel (pridanie, úprava, odstránenie) a správu stavu (AVAILABLE, RENTED, UNAVAILABLE, IN_TRANSIT).
