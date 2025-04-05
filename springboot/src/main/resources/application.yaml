@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/goxdb
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    mapping-resources:
+      - persistence/gox-orm.xml
+    show-sql: false
+
+# Дополнительно можно включить/отключить логи SQL:
+# logging:
+#   level:
+#     org.hibernate.SQL: DEBUG
