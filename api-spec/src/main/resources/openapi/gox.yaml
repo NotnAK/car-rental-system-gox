@@ -38,6 +38,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Car'
+  /users:
+    get:
+      summary: Retrieve all users
+      operationId: getUsers
+      tags:
+        - User
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
 
 
 components:
@@ -79,3 +94,54 @@ components:
         - RENTED
         - UNAVAILABLE
         - IN_TRANSIT
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier of the user.
+        name:
+          type: string
+          description: Full name of the user.
+        email:
+          type: string
+          format: email
+          description: Unique email of the user.
+        role:
+          $ref: '#/components/schemas/UserRole'
+        loyaltyLevel:
+          $ref: '#/components/schemas/LoyaltyLevel'
+        address:
+          type: string
+          description: Postal address of the user.
+        phone:
+          type: string
+          description: Phone number of the user.
+    UserShort:
+      type: object
+      description: A lightweight user model for authentication and security contexts.
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email used for login.
+        name:
+          type: string
+          description: Full name of the user.
+        role:
+          $ref: '#/components/schemas/UserRole'
+    UserRole:
+      type: string
+      enum:
+        - ADMIN
+        - CUSTOMER
+      description: Role of the user within the system.
+
+    LoyaltyLevel:
+      type: string
+      enum:
+        - STANDARD
+        - SILVER
+        - GOLD
+      description: Loyalty level of the user.

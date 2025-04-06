@@ -13,22 +13,22 @@
             </id>
 
             <basic name="brand">
-                <column name="brand" nullable="false"/>
+                <column name="brand"/>
             </basic>
             <basic name="model">
-                <column name="model" nullable="false"/>
+                <column name="model"/>
             </basic>
             <basic name="year">
-                <column name="year" nullable="false"/>
+                <column name="year"/>
             </basic>
             <basic name="seats">
-                <column name="seats" nullable="false"/>
+                <column name="seats"/>
             </basic>
             <basic name="pricePerDay">
-                <column name="price_per_day" nullable="false"/>
+                <column name="price_per_day"/>
             </basic>
             <basic name="state">
-                <column name="state" nullable="false"/>
+                <column name="state"/>
                 <convert converter="com.gox.jpa.converter.CarStateConverter"/>
             </basic>
             <basic name="description">
@@ -36,5 +36,33 @@
             </basic>
         </attributes>
     </entity>
-
+    <!-- Маппинг для User -->
+    <entity class="com.gox.domain.entity.User" access="FIELD">
+        <table name="users"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="name">
+                <column name="name"/>
+            </basic>
+            <basic name="email">
+                <column name="email" unique="true"/>
+            </basic>
+            <basic name="role">
+                <column name="role"/>
+                <convert converter="com.gox.jpa.converter.UserRoleConverter"/>
+            </basic>
+            <basic name="loyaltyLevel">
+                <column name="loyalty_level"/>
+                <convert converter="com.gox.jpa.converter.LoyaltyLevelConverter"/>
+            </basic>
+            <basic name="address">
+                <column name="address" nullable="true"/>
+            </basic>
+            <basic name="phone">
+                <column name="phone" nullable="true"/>
+            </basic>
+        </attributes>
+    </entity>
 </entity-mappings>

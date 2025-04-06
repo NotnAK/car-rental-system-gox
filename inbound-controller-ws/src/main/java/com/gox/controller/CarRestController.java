@@ -30,9 +30,9 @@ public class CarRestController implements CarsApi {
     @Override
     public ResponseEntity<List<CarDto>> getCars() {
         List<Car> cars = carFacade.getAll();
-        List<CarDto> dtos = cars.stream()
+        List<CarDto> carDtos = cars.stream()
                 .map(carMapper::toDto)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(carDtos);
     }
 }

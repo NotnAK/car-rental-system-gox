@@ -13,6 +13,16 @@ services:
     volumes:
       - gox_db_disk:/var/lib/postgresql/data
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+
+
 volumes:
   gox_db_disk:
     driver: local
