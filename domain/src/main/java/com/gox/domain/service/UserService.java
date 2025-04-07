@@ -21,4 +21,9 @@ public class UserService implements UserFacade{
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    @Override
+    public User create(User user) {
+        return userRepository.create(user);
+    }
 }

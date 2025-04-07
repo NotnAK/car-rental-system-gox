@@ -687,28 +687,7 @@
         "_id" : "3ffa322e-0135-4662-8b0d-ad403fb17f27",
         "uris" : [ "/*" ]
       } ],
-      "policies" : [ {
-        "id" : "5145c8dc-b59b-47c0-85e4-fc38a7036550",
-        "name" : "Default Policy",
-        "description" : "A policy that grants access only for users within this realm",
-        "type" : "js",
-        "logic" : "POSITIVE",
-        "decisionStrategy" : "AFFIRMATIVE",
-        "config" : {
-          "code" : "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
-        }
-      }, {
-        "id" : "72e5154e-53bc-4e7f-8f23-7705b1a9d956",
-        "name" : "Default Permission",
-        "description" : "A permission that applies to the default resource type",
-        "type" : "resource",
-        "logic" : "POSITIVE",
-        "decisionStrategy" : "UNANIMOUS",
-        "config" : {
-          "defaultResourceType" : "urn:gox-client:resources:default",
-          "applyPolicies" : "[\"Default Policy\"]"
-        }
-      } ],
+      "policies" : [ ],
       "scopes" : [ ],
       "decisionStrategy" : "UNANIMOUS"
     }

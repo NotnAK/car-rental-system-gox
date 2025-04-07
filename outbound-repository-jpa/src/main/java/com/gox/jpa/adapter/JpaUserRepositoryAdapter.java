@@ -23,4 +23,9 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     public List<User> findAll() {
         return userSpringDataRepository.findAll();
     }
+
+    @Override
+    public User create(User user) {
+        return userSpringDataRepository.save(user);
+    }
 }

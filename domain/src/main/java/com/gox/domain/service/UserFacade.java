@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface UserFacade {
     User getByEmail(String email);
+    User create(User user);
     List<User> getAllUsers();
 }
