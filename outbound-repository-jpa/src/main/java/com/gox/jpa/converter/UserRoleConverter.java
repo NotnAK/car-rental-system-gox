@@ -1,6 +1,6 @@
 package com.gox.jpa.converter;
 
-import com.gox.domain.entity.UserRole;
+import com.gox.domain.entity.user.UserRole;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

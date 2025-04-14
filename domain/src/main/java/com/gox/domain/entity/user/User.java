@@ -1,4 +1,6 @@
-package com.gox.domain.entity;
+package com.gox.domain.entity.user;
+
+import com.gox.domain.entity.wishlist.Wishlist;
 
 public class User {
     private Long id;            // PK in our database
@@ -8,7 +10,7 @@ public class User {
     private LoyaltyLevel loyaltyLevel; // STANDARD, SILVER, GOLD
     private String address;     // e.g. postal address
     private String phone;       // phone number
-
+    private Wishlist wishlist;
     public User() {}
 
     public Long getId() {
@@ -65,5 +67,13 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Wishlist getWishlist() {
+        return wishlist;
+    }
+
+    public void setWishlist(Wishlist wishlist) {
+        this.wishlist = wishlist;
     }
 }

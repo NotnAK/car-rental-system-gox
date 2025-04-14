@@ -1,6 +1,6 @@
 package com.gox.domain.repository;
 
-import com.gox.domain.entity.Car;
+import com.gox.domain.entity.car.Car;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.gox.security;
 
-import com.gox.domain.entity.User;
+import com.gox.domain.entity.user.User;
 import com.gox.domain.service.UserFacade;
 import com.gox.rest.dto.UserShortDto;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -1,6 +1,6 @@
 package com.gox.jpa.converter;
 
-import com.gox.domain.entity.CarState;
+import com.gox.domain.entity.car.CarState;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

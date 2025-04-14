@@ -1,4 +1,4 @@
-package com.gox.domain.entity;
+package com.gox.domain.entity.car;
 
 import java.math.BigDecimal;
 

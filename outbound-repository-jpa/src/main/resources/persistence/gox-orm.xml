@@ -5,7 +5,7 @@
         xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/orm
                         https://jakarta.ee/xml/ns/persistence/orm/orm_3_0.xsd"
         version="3.0">
-    <entity class="com.gox.domain.entity.Car" access="FIELD">
+    <entity class="com.gox.domain.entity.car.Car" access="FIELD">
         <table name="cars"/>
         <attributes>
             <id name="id">
@@ -37,7 +37,7 @@
         </attributes>
     </entity>
     <!-- Маппинг для User -->
-    <entity class="com.gox.domain.entity.User" access="FIELD">
+    <entity class="com.gox.domain.entity.user.User" access="FIELD">
         <table name="users"/>
         <attributes>
             <id name="id">
@@ -63,6 +63,30 @@
             <basic name="phone">
                 <column name="phone" nullable="true"/>
             </basic>
+            <one-to-one name="wishlist">
+                <join-column name="wishlist_id" referenced-column-name="id" unique="true"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-one>
+        </attributes>
+    </entity>
+    <!-- Маппинг для сущности Wishlist -->
+    <entity class="com.gox.domain.entity.wishlist.Wishlist" access="FIELD">
+        <table name="wishlists"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <one-to-one name="user">
+            </one-to-one>
+            <!-- Связь M:N с Car через таблицу wishlist_cars -->
+            <many-to-many name="cars" fetch="LAZY">
+                <join-table name="wishlist_cars">
+                    <join-column name="wishlist_id" referenced-column-name="id"/>
+                    <inverse-join-column name="car_id" referenced-column-name="id"/>
+                </join-table>
+            </many-to-many>
         </attributes>
     </entity>
 </entity-mappings>

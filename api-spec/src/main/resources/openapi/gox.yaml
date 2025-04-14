@@ -38,7 +38,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Car'
-  /users:
+  /admin/users:
     get:
       summary: Retrieve all users
       operationId: getUsers
@@ -53,6 +53,45 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+  /customer/wishlist/cars/{carId}:
+    post:
+      summary: Add a car to the current user's Wishlist
+      operationId: addCarToWishlist
+      tags:
+        - User
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Car has been successfully added to the Wishlist.
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      summary: Remove a car from the current user's Wishlist
+      operationId: removeCarFromWishlist
+      tags:
+        - User
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Car has been successfully removed from your Wishlist.
+          content:
+            text/plain:
+              schema:
+                type: string
 
 
 components:
@@ -118,6 +157,8 @@ components:
         phone:
           type: string
           description: Phone number of the user.
+        wishlist:
+          $ref: '#/components/schemas/Wishlist'
     UserShort:
       type: object
       description: A lightweight user model for authentication and security contexts.
@@ -145,3 +186,15 @@ components:
         - SILVER
         - GOLD
       description: Loyalty level of the user.
+    Wishlist:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique Wishlist ID.
+        cars:
+          type: array
+          items:
+            $ref: '#/components/schemas/Car'
+      description: User's Wishlist with selected cars.

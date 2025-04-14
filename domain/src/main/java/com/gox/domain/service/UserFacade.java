@@ -1,6 +1,6 @@
 package com.gox.domain.service;
 
-import com.gox.domain.entity.User;
+import com.gox.domain.entity.user.User;
 
 import java.util.List;
 

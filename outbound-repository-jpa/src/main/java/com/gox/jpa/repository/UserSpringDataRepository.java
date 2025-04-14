@@ -1,6 +1,6 @@
 package com.gox.jpa.repository;
 
-import com.gox.domain.entity.User;
+import com.gox.domain.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

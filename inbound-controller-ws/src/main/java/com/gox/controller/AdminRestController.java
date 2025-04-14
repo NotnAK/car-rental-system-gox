@@ -1,9 +1,9 @@
 package com.gox.controller;
 
-import com.gox.domain.entity.User;
+import com.gox.domain.entity.user.User;
 import com.gox.domain.service.UserFacade;
 import com.gox.mapper.UserMapper;
-import com.gox.rest.api.UsersApi;
+import com.gox.rest.api.AdminApi;
 import com.gox.rest.dto.UserDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 @RestController
-public class UserRestController implements UsersApi {
+public class AdminRestController implements AdminApi {
     private final UserFacade userFacade;
     private final UserMapper userMapper;
 
-    public UserRestController(UserFacade userFacade, UserMapper userMapper) {
+    public AdminRestController(UserFacade userFacade, UserMapper userMapper) {
         this.userFacade = userFacade;
         this.userMapper = userMapper;
     }

@@ -1,4 +1,4 @@
-package com.gox.domain.entity;
+package com.gox.domain.entity.user;
 
 public enum UserRole {
     ADMIN,

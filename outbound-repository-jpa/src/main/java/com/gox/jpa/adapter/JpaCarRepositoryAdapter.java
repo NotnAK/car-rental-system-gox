@@ -1,6 +1,6 @@
 package com.gox.jpa.adapter;
 
-import com.gox.domain.entity.Car;
+import com.gox.domain.entity.car.Car;
 import com.gox.domain.repository.CarRepository;
 import com.gox.jpa.repository.CarSpringDataRepository;
 import org.springframework.stereotype.Repository;

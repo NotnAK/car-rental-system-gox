@@ -1,7 +1,7 @@
 package com.gox.security;
 
-import com.gox.domain.entity.LoyaltyLevel;
-import com.gox.domain.entity.UserRole;
+import com.gox.domain.entity.user.LoyaltyLevel;
+import com.gox.domain.entity.user.UserRole;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.gox.domain.entity.User;
+import com.gox.domain.entity.user.User;
 import com.gox.domain.service.UserFacade;
 import com.gox.rest.dto.UserShortDto;
 
@@ -39,7 +39,12 @@ public class UserSynchronizationFilter extends OncePerRequestFilter {
                 User newUser = new User();
                 newUser.setEmail(principal.getEmail());
                 newUser.setName(principal.getName());
-                newUser.setRole(UserRole.valueOf(principal.getRole().name()));
+                // Default to CUSTOMER if role is null
+                if (principal.getRole() != null) {
+                    newUser.setRole(UserRole.valueOf(principal.getRole().name()));
+                } else {
+                    newUser.setRole(UserRole.CUSTOMER);
+                }
                 newUser.setLoyaltyLevel(LoyaltyLevel.STANDARD);
                 userFacade.create(newUser);
             }

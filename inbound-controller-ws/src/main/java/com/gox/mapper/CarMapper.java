@@ -1,6 +1,6 @@
 package com.gox.mapper;
 
-import com.gox.domain.entity.Car;
+import com.gox.domain.entity.car.Car;
 import com.gox.rest.dto.CarDto;
 import org.mapstruct.*;
 import org.springframework.stereotype.Component;

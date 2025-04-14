@@ -1,6 +1,6 @@
 package com.gox.jpa.converter;
 
-import com.gox.domain.entity.LoyaltyLevel;
+import com.gox.domain.entity.user.LoyaltyLevel;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

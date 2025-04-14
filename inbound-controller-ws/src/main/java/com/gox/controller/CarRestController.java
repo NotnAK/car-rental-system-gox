@@ -1,6 +1,6 @@
 package com.gox.controller;
 
-import com.gox.domain.entity.Car;
+import com.gox.domain.entity.car.Car;
 import com.gox.domain.service.CarFacade;
 import com.gox.mapper.CarMapper;
 import com.gox.rest.api.CarsApi;
