@@ -29,7 +29,6 @@ public class SecurityConfiguration {
                 // Если нужно, чтобы администратор имел также доступ к этим эндпоинтам, можно использовать:
                 // .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "ADMIN")
                 .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/cars").hasRole("ADMIN") // Only ADMIN can do POST /cars
                 .anyRequest().permitAll(); // Everything else is open to everyone (without authentication)
     }
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface UserRepository {
     User read(Long id);
-    User readByEmail(String email);
+    User findByEmail(String email);
     User create(User user);
     User update(User user);
     List<User> findAll();

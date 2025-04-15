@@ -20,8 +20,68 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Car'
+  /cars/{carId}:
+    get:
+      summary: Get a specific car by ID
+      operationId: getCarById
+      tags:
+        - Car
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: The requested car
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '404':
+          description: Car not found
+  /cars/{carId}/reviews:
+    get:
+      summary: Get all reviews for a car
+      operationId: getReviewsForCar
+      tags:
+        - Review
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of reviews for the car
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+  /admin/users:
+    get:
+      summary: Retrieve all users
+      operationId: getUsers
+      tags:
+        - User
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /admin/cars:
     post:
-      summary: Create a new car
+      summary: Create a new car (admin only)
       operationId: createCar
       tags:
         - Car
@@ -38,21 +98,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Car'
-  /admin/users:
-    get:
-      summary: Retrieve all users
-      operationId: getUsers
+  /admin/reviews/{reviewId}:
+    delete:
+      summary: Delete a review by admin
+      operationId: adminDeleteReview
       tags:
-        - User
+        - Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: A list of users
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+          description: Review successfully deleted by admin
   /customer/wishlist/cars/{carId}:
     post:
       summary: Add a car to the current user's Wishlist
@@ -92,6 +152,76 @@ paths:
             text/plain:
               schema:
                 type: string
+  /customer/reviews:
+    post:
+      summary: Create a review by the current user
+      operationId: createReview
+      tags:
+        - Review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreateRequest'
+      responses:
+        '201':
+          description: Review successfully created
+          content:
+            text/plain:
+              schema:
+                type: string
+    get:
+      summary: Get all reviews by the current user
+      operationId: getOwnReviews
+      tags:
+        - Review
+      responses:
+        '200':
+          description: A list of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+  /customer/reviews/{reviewId}:
+    put:
+      summary: Update a review by the current user
+      operationId: updateReview
+      tags:
+        - Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdateRequest'
+      responses:
+        '200':
+          description: Review successfully updated
+    delete:
+      summary: Delete a review by the current user
+      operationId: deleteReview
+      tags:
+        - Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Review successfully deleted
+
+
 
 
 components:
@@ -198,3 +328,50 @@ components:
           items:
             $ref: '#/components/schemas/Car'
       description: User's Wishlist with selected cars.
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        rating:
+          type: integer
+        comment:
+          type: string
+        userId:
+          type: integer
+        carId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when the review was created.
+
+    ReviewCreateRequest:
+      type: object
+      required:
+        - rating
+        - comment
+        - carId
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        carId:
+          type: integer
+          format: int64
+
+    ReviewUpdateRequest:
+      type: object
+      required:
+        - rating
+        - comment
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string

@@ -20,7 +20,7 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public User readByEmail(String email) {
+    public User findByEmail(String email) {
         return userSpringDataRepository.findByEmail(email).orElse(null);
     }
 

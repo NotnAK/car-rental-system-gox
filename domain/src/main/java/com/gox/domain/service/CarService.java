@@ -28,7 +28,7 @@ public class CarService implements CarFacade {
     }
 
     @Override
-    public List<Car> getAll() {
+    public List<Car> getAllCars() {
         return carRepository.findAll();
     }
 

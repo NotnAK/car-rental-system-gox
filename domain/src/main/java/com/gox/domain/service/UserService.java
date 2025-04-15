@@ -1,8 +1,6 @@
 package com.gox.domain.service;
 
-import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.user.User;
-import com.gox.domain.entity.user.UserRole;
 import com.gox.domain.entity.wishlist.Wishlist;
 import com.gox.domain.exception.UserException;
 import com.gox.domain.repository.CarRepository;
@@ -13,20 +11,16 @@ import java.util.List;
 
 public class UserService implements UserFacade{
     private final UserRepository userRepository;
-    private final WishlistRepository wishlistRepository;
-    private final CarRepository carRepository;
 
     public UserService(UserRepository userRepository,
                        WishlistRepository wishlistRepository,
                        CarRepository carRepository) {
         this.userRepository = userRepository;
-        this.wishlistRepository = wishlistRepository;
-        this.carRepository = carRepository;
     }
 
     @Override
     public User getByEmail(String email) {
-        return userRepository.readByEmail(email);
+        return userRepository.findByEmail(email);
     }
 
     @Override
@@ -55,7 +49,7 @@ public class UserService implements UserFacade{
             throw new UserException("User email must not be empty.");
         }
 
-        if (userRepository.readByEmail(user.getEmail()) != null) {
+        if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new UserException("User with email '" + user.getEmail() + "' already exists.");
         }
 

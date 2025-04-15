@@ -78,8 +78,6 @@
             <id name="id">
                 <generated-value strategy="IDENTITY"/>
             </id>
-            <one-to-one name="user">
-            </one-to-one>
             <!-- Связь M:N с Car через таблицу wishlist_cars -->
             <many-to-many name="cars" fetch="LAZY">
                 <join-table name="wishlist_cars">
@@ -87,6 +85,36 @@
                     <inverse-join-column name="car_id" referenced-column-name="id"/>
                 </join-table>
             </many-to-many>
+        </attributes>
+    </entity>
+    <!-- Маппинг для сущности Review -->
+    <entity class="com.gox.domain.entity.review.Review" access="FIELD">
+        <table name="reviews"/>
+        <attributes>
+            <!-- Первичный ключ -->
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <!-- Поле rating (оценка) -->
+            <basic name="rating">
+                <column name="rating" nullable="false"/>
+            </basic>
+            <!-- Поле comment (текст отзыва) -->
+            <basic name="comment">
+                <column name="comment" nullable="true"/>
+            </basic>
+            <!-- Поле createdAt (время создания отзыва) -->
+            <basic name="createdAt">
+                <column name="created_at" nullable="false"/>
+            </basic>
+            <!-- Односторонняя связь: Review имеет ссылку на User -->
+            <many-to-one name="user" fetch="LAZY">
+                <join-column name="user_id" referenced-column-name="id" nullable="false"/>
+            </many-to-one>
+            <!-- Односторонняя связь: Review имеет ссылку на Car -->
+            <many-to-one name="car" fetch="LAZY">
+                <join-column name="car_id" referenced-column-name="id" nullable="false"/>
+            </many-to-one>
         </attributes>
     </entity>
 </entity-mappings>
