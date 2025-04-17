@@ -3,7 +3,8 @@ package com.gox.domain.service;
 import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.review.Review;
 import com.gox.domain.entity.user.User;
-import com.gox.domain.exception.ReviewException;
+import com.gox.domain.exception.CarNotFoundException;
+import com.gox.domain.exception.ReviewValidationException;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.ReviewRepository;
 
@@ -18,23 +19,23 @@ public class ReviewFactory {
         this.reviewRepository = reviewRepository;
     }
 
-    public Review createReview(Long carId, User user, int rating, String comment) throws ReviewException {
+    public Review createReview(Long carId, User user, int rating, String comment) throws ReviewValidationException {
         // Проверка и загрузка автомобиля
         Car car = carRepository.read(carId);
         if (car == null) {
-            throw new ReviewException("Car not found with id: " + carId);
+            throw new CarNotFoundException("Car not found with id: " + carId);
         }
         // Проверка пользователя
         if (user == null) {
-            throw new ReviewException("User must not be null");
+            throw new ReviewValidationException("User must not be null");
         }
         // Валидация рейтинга
         if (rating < 1 || rating > 5) {
-            throw new ReviewException("Rating must be between 1 and 5");
+            throw new ReviewValidationException("Rating must be between 1 and 5");
         }
         // Проверка комментария
         if (comment == null || comment.trim().isEmpty()) {
-            throw new ReviewException("Review comment must not be blank");
+            throw new ReviewValidationException("Review comment must not be blank");
         }
         // Создаем новый Review и устанавливаем поля
         Review review = new Review();

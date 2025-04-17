@@ -1,7 +1,8 @@
 package com.gox.domain.service;
 
 import com.gox.domain.entity.car.Car;
-import com.gox.domain.exception.CarException;
+import com.gox.domain.exception.CarNotFoundException;
+import com.gox.domain.exception.CarValidationException;
 import com.gox.domain.repository.CarRepository;
 
 import java.math.BigDecimal;
@@ -18,11 +19,11 @@ public class CarService implements CarFacade {
     @Override
     public Car get(Long id) {
         if (id == null || id <= 0) {
-            throw new CarException("Car ID must be positive");
+            throw new CarValidationException("Car ID must be positive");
         }
         Car car = carRepository.read(id);
         if (car == null) {
-            throw new CarException("Car with ID " + id + " not found");
+            throw new CarNotFoundException("Car with ID " + id + " not found");
         }
         return car;
     }
@@ -41,26 +42,26 @@ public class CarService implements CarFacade {
     @Override
     public void delete(Long id) {
         if (id == null || id <= 0) {
-            throw new CarException("Invalid ID for deletion");
+            throw new CarValidationException("Invalid ID for deletion");
         }
         Car existing = carRepository.read(id);
         if (existing == null) {
-            throw new CarException("Cannot delete non-existing car with ID " + id);
+            throw new CarNotFoundException("Cannot delete non-existing car with ID " + id);
         }
         carRepository.delete(id);
     }
     private void validateCar(Car car) {
         if (car == null) {
-            throw new CarException("Car must not be null");
+            throw new CarValidationException("Car must not be null");
         }
         if (car.getBrand() == null || car.getBrand().isBlank()) {
-            throw new CarException("Car brand is required");
+            throw new CarValidationException("Car brand is required");
         }
         if (car.getModel() == null || car.getModel().isBlank()) {
-            throw new CarException("Car model is required");
+            throw new CarValidationException("Car model is required");
         }
         if (car.getPricePerDay() == null || car.getPricePerDay().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new CarException("Price per day must be positive");
+            throw new CarValidationException("Price per day must be positive");
         }
     }
 }

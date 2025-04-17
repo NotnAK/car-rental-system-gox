@@ -2,19 +2,16 @@ package com.gox.domain.service;
 
 import com.gox.domain.entity.user.User;
 import com.gox.domain.entity.wishlist.Wishlist;
-import com.gox.domain.exception.UserException;
-import com.gox.domain.repository.CarRepository;
+import com.gox.domain.exception.UserAlreadyExistsException;
+import com.gox.domain.exception.UserValidationException;
 import com.gox.domain.repository.UserRepository;
-import com.gox.domain.repository.WishlistRepository;
 
 import java.util.List;
 
 public class UserService implements UserFacade{
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository,
-                       WishlistRepository wishlistRepository,
-                       CarRepository carRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -42,23 +39,20 @@ public class UserService implements UserFacade{
     }
     private void validateUser(User user) {
         if (user == null) {
-            throw new UserException("User object must not be null.");
+            throw new UserValidationException("User object must not be null.");
         }
-
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new UserException("User email must not be empty.");
+            throw new UserValidationException("User email must not be empty.");
         }
-
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new UserException("User with email '" + user.getEmail() + "' already exists.");
+            throw new UserAlreadyExistsException(user.getEmail());
         }
-
         if (user.getName() == null || user.getName().isBlank()) {
-            throw new UserException("User name must not be empty.");
+            throw new UserValidationException("User name must not be empty.");
+        }
+        if (user.getRole() == null) {
+            throw new UserValidationException("User role must be specified.");
         }
 
-        if (user.getRole() == null) {
-            throw new UserException("User role must be specified.");
-        }
     }
 }

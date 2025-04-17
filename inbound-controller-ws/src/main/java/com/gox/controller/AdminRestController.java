@@ -3,6 +3,7 @@ package com.gox.controller;
 import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.service.CarFacade;
+import com.gox.domain.service.ReviewFacade;
 import com.gox.domain.service.UserFacade;
 import com.gox.mapper.CarMapper;
 import com.gox.mapper.UserMapper;
@@ -18,14 +19,20 @@ import java.util.stream.Collectors;
 public class AdminRestController implements AdminApi {
     private final UserFacade userFacade;
     private final UserMapper userMapper;
-    private final CarMapper carMapper;
     private final CarFacade carFacade;
+    private final CarMapper carMapper;
+    private final ReviewFacade reviewFacade;
 
-    public AdminRestController(UserFacade userFacade, UserMapper userMapper, CarMapper carMapper, CarFacade carFacade) {
+    public AdminRestController(UserFacade userFacade,
+                               UserMapper userMapper,
+                               CarFacade carFacade,
+                               CarMapper carMapper,
+                               ReviewFacade reviewFacade) {
         this.userFacade = userFacade;
         this.userMapper = userMapper;
-        this.carMapper = carMapper;
         this.carFacade = carFacade;
+        this.carMapper = carMapper;
+        this.reviewFacade = reviewFacade;
     }
     @Override
     public ResponseEntity<CarDto> createCar(CarDto carDto) {
@@ -36,7 +43,8 @@ public class AdminRestController implements AdminApi {
 
     @Override
     public ResponseEntity<Void> adminDeleteReview(Integer reviewId) {
-        return null;
+        reviewFacade.deleteReview(reviewId.longValue());
+        return ResponseEntity.ok().build();
     }
 
     @Override

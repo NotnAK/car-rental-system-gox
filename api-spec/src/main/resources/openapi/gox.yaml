@@ -206,6 +206,10 @@ paths:
       responses:
         '200':
           description: Review successfully updated
+          content:
+            text/plain:
+              schema:
+                type: string
     delete:
       summary: Delete a review by the current user
       operationId: deleteReview

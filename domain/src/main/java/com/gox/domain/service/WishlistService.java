@@ -3,9 +3,7 @@ package com.gox.domain.service;
 import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.entity.wishlist.Wishlist;
-import com.gox.domain.exception.CarException;
-import com.gox.domain.exception.UserException;
-import com.gox.domain.exception.WishlistException;
+import com.gox.domain.exception.*;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.UserRepository;
 import com.gox.domain.repository.WishlistRepository;
@@ -29,23 +27,23 @@ public class WishlistService implements WishlistFacade {
         // 1. Проверяем пользователя
         User user = userRepository.read(userId);
         if (user == null) {
-            throw new UserException("User not found with id = " + userId);
+            throw new UserNotFoundException("User not found with id = " + userId);
         }
         // 2. Проверяем вишлист
         Wishlist wishlist = user.getWishlist();
         if (wishlist == null) {
-            throw new WishlistException("Wishlist not found for user id = " + userId);
+            throw new WishlistNotFoundException("Wishlist not found for user id = " + userId);
         }
         // 3. Проверяем автомобиль
         Car car = carRepository.read(carId);
         if (car == null) {
-            throw new CarException("Car not found with id = " + carId);
+            throw new CarNotFoundException("Car not found with id = " + carId);
         }
         // 4. Логическая проверка: автомобиль уже в вишлисте?
         boolean alreadyInWishlist = wishlist.getCars().stream()
                 .anyMatch(c -> c.getId().equals(car.getId()));
         if (alreadyInWishlist) {
-            throw new WishlistException("Car (id=" + carId + ") is already in user's wishlist");
+            throw new WishlistValidationException("Car (id=" + carId + ") is already in user's wishlist");
         }
         // 5. Добавляем автомобиль
         wishlist.addCar(car);
@@ -57,23 +55,23 @@ public class WishlistService implements WishlistFacade {
         // 1. Проверяем пользователя
         User user = userRepository.read(userId);
         if (user == null) {
-            throw new UserException("User not found with id = " + userId);
+            throw new UserNotFoundException("User not found with id = " + userId);
         }
         // 2. Проверяем вишлист
         Wishlist wishlist = user.getWishlist();
         if (wishlist == null) {
-            throw new WishlistException("Wishlist not found for user id = " + userId);
+            throw new WishlistNotFoundException("Wishlist not found for user id = " + userId);
         }
         // 3. Проверяем автомобиль
         Car car = carRepository.read(carId);
         if (car == null) {
-            throw new CarException("Car not found with id = " + carId);
+            throw new CarNotFoundException("Car not found with id = " + carId);
         }
         // 4. Логическая проверка: автомобиль в вишлисте?
         boolean isInWishlist = wishlist.getCars().stream()
                 .anyMatch(c -> c.getId().equals(car.getId()));
         if (!isInWishlist) {
-            throw new WishlistException("Car (id=" + carId + ") is not in user's wishlist");
+            throw new WishlistValidationException("Car (id=" + carId + ") is not in user's wishlist");
         }
         wishlist.removeCar(car);
         wishlistRepository.update(wishlist);

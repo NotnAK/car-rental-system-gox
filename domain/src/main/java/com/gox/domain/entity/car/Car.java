@@ -1,6 +1,9 @@
 package com.gox.domain.entity.car;
 
+import com.gox.domain.entity.photo.Photo;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Car {
     private Long id;
@@ -11,7 +14,8 @@ public class Car {
     private BigDecimal pricePerDay;
     private CarState state;
     private String description;
-
+    private Photo preview;
+    private List<Photo> photos;
     public Car() {
     }
 
@@ -77,5 +81,21 @@ public class Car {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Photo getPreview() {
+        return preview;
+    }
+
+    public void setPreview(Photo preview) {
+        this.preview = preview;
+    }
+
+    public List<Photo> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
     }
 }

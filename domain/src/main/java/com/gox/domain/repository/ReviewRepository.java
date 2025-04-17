@@ -12,4 +12,5 @@ public interface ReviewRepository {
     List<Review> findByRating(Integer rating);
     Review update(Review user);
     List<Review> findAll();
+    void delete(Long id);
 }

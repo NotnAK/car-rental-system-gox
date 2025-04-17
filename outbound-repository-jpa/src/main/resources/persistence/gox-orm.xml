@@ -31,9 +31,18 @@
                 <column name="state"/>
                 <convert converter="com.gox.jpa.converter.CarStateConverter"/>
             </basic>
+            <!-- 1:1 на preview-изображение -->
             <basic name="description">
                 <column name="description" nullable="true"/>
             </basic>
+            <one-to-many name="photos" target-entity="com.gox.domain.entity.photo.Photo">
+                <join-column name="car_id"/>
+            </one-to-many>
+
+            <one-to-one name="preview" fetch="LAZY">
+                <!-- в таблице cars будет колонка preview_photo_id -->
+                <join-column name="preview_photo_id" referenced-column-name="id"/>
+            </one-to-one>
         </attributes>
     </entity>
     <!-- Маппинг для User -->
@@ -115,6 +124,36 @@
             <many-to-one name="car" fetch="LAZY">
                 <join-column name="car_id" referenced-column-name="id" nullable="false"/>
             </many-to-one>
+        </attributes>
+    </entity>
+
+
+    <!-- Маппинг для Photo -->
+    <entity class="com.gox.domain.entity.photo.Photo" access="FIELD">
+        <table name="photo"/>
+        <attributes>
+            <!-- PK -->
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+
+            <!-- Имя файла или логический alias -->
+            <basic name="name">
+                <column name="name" nullable="false"/>
+            </basic>
+
+            <!-- Содержимое картинки как LOB -->
+            <basic name="content">
+                <!-- Сначала описание колонки -->
+                <column name="content" nullable="false"/>
+                <!-- А потом LOB -->
+                <lob/>
+            </basic>
+
+            <!-- Флаг, является ли это preview-изображением -->
+            <basic name="isPreview">
+                <column name="is_preview" nullable="false"/>
+            </basic>
         </attributes>
     </entity>
 </entity-mappings>

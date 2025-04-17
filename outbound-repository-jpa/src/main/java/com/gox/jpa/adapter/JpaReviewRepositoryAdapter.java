@@ -49,4 +49,8 @@ public class JpaReviewRepositoryAdapter implements ReviewRepository {
     public List<Review> findAll() {
         return reviewSpringDataRepository.findAll();
     }
+    @Override
+    public void delete(Long id) {
+        reviewSpringDataRepository.deleteById(id);
+    }
 }
