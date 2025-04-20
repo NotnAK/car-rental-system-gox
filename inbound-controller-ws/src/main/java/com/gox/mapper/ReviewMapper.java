@@ -26,6 +26,7 @@ public interface ReviewMapper {
 
     @Mapping(source = "car.id", target = "carId")
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.name", target = "userName")
     @Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "mapDate")
     ReviewDto toDto(Review review);
 

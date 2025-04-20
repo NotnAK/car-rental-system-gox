@@ -6,10 +6,12 @@ import com.gox.domain.service.ReviewFacade;
 import com.gox.domain.service.ReviewFactory;
 import com.gox.domain.service.WishlistFacade;
 import com.gox.mapper.ReviewMapper;
+import com.gox.mapper.UserMapper;
 import com.gox.rest.api.CustomerApi;
 import com.gox.rest.dto.ReviewCreateRequestDto;
 import com.gox.rest.dto.ReviewDto;
 import com.gox.rest.dto.ReviewUpdateRequestDto;
+import com.gox.rest.dto.UserDto;
 import com.gox.security.CurrentUserDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,17 +26,20 @@ public class CustomerRestController implements CustomerApi {
     private final WishlistFacade wishlistFacade;
     private final CurrentUserDetailService currentUserDetailService;
     private final ReviewFactory reviewFactory;
+    private final UserMapper userMapper;
 
     public CustomerRestController(ReviewFacade reviewFacade,
                                   ReviewMapper reviewMapper,
                                   WishlistFacade wishlistFacade,
                                   CurrentUserDetailService currentUserDetailService,
-                                  ReviewFactory reviewFactory) {
+                                  ReviewFactory reviewFactory,
+                                  UserMapper userMapper) {
         this.reviewFacade = reviewFacade;
         this.reviewMapper = reviewMapper;
         this.wishlistFacade = wishlistFacade;
         this.currentUserDetailService = currentUserDetailService;
         this.reviewFactory = reviewFactory;
+        this.userMapper = userMapper;
     }
     @Override
     public ResponseEntity<String> addCarToWishlist(Long carId) {
@@ -101,4 +106,10 @@ public class CustomerRestController implements CustomerApi {
         return ResponseEntity.ok().build();
     }
 
+    @Override
+    public ResponseEntity<UserDto> getProfile() {
+        User currentUser = currentUserDetailService.getFullCurrentUser();
+        UserDto dto = userMapper.toDto(currentUser);
+        return ResponseEntity.ok(dto);
+    }
 }

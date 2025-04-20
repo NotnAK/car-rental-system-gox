@@ -14,8 +14,6 @@ public class Car {
     private BigDecimal pricePerDay;
     private CarState state;
     private String description;
-    private Photo preview;
-    private List<Photo> photos;
     public Car() {
     }
 
@@ -83,19 +81,5 @@ public class Car {
         this.description = description;
     }
 
-    public Photo getPreview() {
-        return preview;
-    }
 
-    public void setPreview(Photo preview) {
-        this.preview = preview;
-    }
-
-    public List<Photo> getPhotos() {
-        return photos;
-    }
-
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
-    }
 }

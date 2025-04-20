@@ -3,7 +3,8 @@ info:
   title: GoX API
   version: 1.0.0
   description: API for managing cars in the GoX car rental system.
-
+servers:
+  - url: /api
 paths:
   /cars:
     get:
@@ -113,6 +114,19 @@ paths:
       responses:
         '200':
           description: Review successfully deleted by admin
+  /customer/profile:
+    get:
+      summary: Get own profile
+      operationId: getProfile
+      tags:
+        - User
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
   /customer/wishlist/cars/{carId}:
     post:
       summary: Add a car to the current user's Wishlist
@@ -343,6 +357,9 @@ components:
           type: string
         userId:
           type: integer
+        userName:
+          type: string
+          description: Name of the user who wrote the review.
         carId:
           type: integer
         createdAt:
