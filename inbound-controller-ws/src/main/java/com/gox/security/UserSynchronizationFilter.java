@@ -46,6 +46,12 @@ public class UserSynchronizationFilter extends OncePerRequestFilter {
                     newUser.setRole(UserRole.CUSTOMER);
                 }
                 newUser.setLoyaltyLevel(LoyaltyLevel.STANDARD);
+                if(principal.getAddress()!=null){
+                    newUser.setAddress(principal.getAddress());
+                }
+                if(principal.getPhone()!=null){
+                    newUser.setPhone(principal.getPhone());
+                }
                 userFacade.create(newUser);
             }
         }

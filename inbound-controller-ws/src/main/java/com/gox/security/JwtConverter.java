@@ -32,10 +32,12 @@ public class JwtConverter extends AbstractAuthenticationToken {
         user.setEmail(source.getClaimAsString("email"));
         user.setName(source.getClaimAsString("given_name")); // или "name", если не используешь given_name
         user.setRole(extractRole(source));
+        user.setAddress(source.getClaimAsString("address"));
+        user.setPhone(source.getClaimAsString("phone"));
         return user;
     }
 
-    private UserRoleDto extractRole(Jwt jwt) {
+/*    private UserRoleDto extractRole(Jwt jwt) {
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
         if (realmAccess == null || realmAccess.get("roles") == null) return null;
 
@@ -49,8 +51,43 @@ public class JwtConverter extends AbstractAuthenticationToken {
                 .map(UserRoleDto::valueOf)
                 .findFirst()
                 .orElse(null);
+    }*/
+    private UserRoleDto extractRole(Jwt jwt) {
+        List<String> roles = Optional.ofNullable(jwt.getClaimAsMap("realm_access"))
+                .map(m -> (List<String>) m.get("roles"))
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(String::toUpperCase)
+                .collect(Collectors.toList());
+
+        if (roles.contains("ADMIN")) {
+            return UserRoleDto.ADMIN;
+        }
+        if (roles.contains("CUSTOMER")) {
+            return UserRoleDto.CUSTOMER;
+        }
+        return null;
     }
     private static Collection<? extends GrantedAuthority> extractAuthorities(Jwt jwt) {
+        List<String> roles = Optional.ofNullable(jwt.getClaimAsMap("realm_access"))
+                .map(m -> (List<String>) m.get("roles"))
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(String::toUpperCase)
+                .collect(Collectors.toList());
+
+        // Если у пользователя есть ADMIN — возвращаем только ROLE_ADMIN
+        if (roles.contains("ADMIN")) {
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
+
+        // Иначе мапим все остальные роли
+        return roles.stream()
+                .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
+                .collect(Collectors.toList());
+    }
+
+/*    private static Collection<? extends GrantedAuthority> extractAuthorities(Jwt jwt) {
         // Пример для извлечения ролей из realm_access
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
         if (realmAccess == null || realmAccess.get("roles") == null) {
@@ -63,5 +100,5 @@ public class JwtConverter extends AbstractAuthenticationToken {
                 .map(String::toUpperCase)
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
-    }
+    }*/
 }

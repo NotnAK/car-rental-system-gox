@@ -320,6 +320,12 @@ components:
           description: Full name of the user.
         role:
           $ref: '#/components/schemas/UserRole'
+        address:
+          type: string
+          description: Postal address of the user.
+        phone:
+          type: string
+          description: Phone number of the user.
     UserRole:
       type: string
       enum:

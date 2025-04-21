@@ -28,7 +28,8 @@ public class SecurityConfiguration {
                 // Эндпоинты для заказчиков (пользователей)
                 // Если нужно, чтобы администратор имел также доступ к этим эндпоинтам, можно использовать:
                 // .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "ADMIN")
-                .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers("/customer/profile").hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers("/customer/**").hasAnyRole("CUSTOMER")
                 .anyRequest().permitAll(); // Everything else is open to everyone (without authentication)
     }
 
