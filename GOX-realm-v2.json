@@ -1,8 +1,6 @@
 {
   "id" : "9c3126c2-06b1-4f58-b883-5436ce05fce2",
   "realm" : "GOX",
-  "displayName" : "",
-  "displayNameHtml" : "",
   "notBefore" : 0,
   "defaultSignatureAlgorithm" : "RS256",
   "revokeRefreshToken" : false,
@@ -28,7 +26,7 @@
   "oauth2DeviceCodeLifespan" : 600,
   "oauth2DevicePollingInterval" : 5,
   "enabled" : true,
-  "sslRequired" : "none",
+  "sslRequired" : "external",
   "registrationAllowed" : true,
   "registrationEmailAsUsername" : false,
   "rememberMe" : false,
@@ -462,31 +460,6 @@
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-gox", "CUSTOMER" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "8330d877-9fc7-4721-ab0d-b14096d6d862",
-    "username" : "ttt",
-    "firstName" : "ttt",
-    "lastName" : "ttt",
-    "email" : "ttt@gmail.com",
-    "emailVerified" : false,
-    "attributes" : {
-      "address" : [ "ttt" ]
-    },
-    "createdTimestamp" : 1746375845332,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "e2a30d98-4818-4ad4-a15e-c3a76c020461",
-      "type" : "password",
-      "createdDate" : 1746375845573,
-      "secretData" : "{\"value\":\"8xvFcUf+HuSb1touoY+1yApW2tbMODuSEWL73Q0JXZPx3jCHGO+stRyrVpL+5kRLdNnZor17yud9/WqkYwqB8g==\",\"salt\":\"/TVJ1RagExpju4r/puyF/g==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-gox" ],
     "notBefore" : 0,
     "groups" : [ ]
   } ],
@@ -1365,7 +1338,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "saml-user-property-mapper", "oidc-usermodel-attribute-mapper", "saml-user-attribute-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-address-mapper", "oidc-usermodel-property-mapper", "oidc-full-name-mapper", "saml-role-list-mapper" ]
+        "allowed-protocol-mapper-types" : [ "oidc-address-mapper", "saml-role-list-mapper", "saml-user-attribute-mapper", "oidc-full-name-mapper", "oidc-usermodel-property-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-usermodel-attribute-mapper", "saml-user-property-mapper" ]
       }
     }, {
       "id" : "15e6b0db-c1b3-43b8-9e00-1c2e09c3bbd0",
@@ -1374,7 +1347,7 @@
       "subType" : "authenticated",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "saml-role-list-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-address-mapper", "oidc-usermodel-property-mapper", "oidc-usermodel-attribute-mapper", "saml-user-attribute-mapper", "saml-user-property-mapper", "oidc-full-name-mapper" ]
+        "allowed-protocol-mapper-types" : [ "oidc-sha256-pairwise-sub-mapper", "saml-user-property-mapper", "oidc-address-mapper", "saml-role-list-mapper", "oidc-usermodel-property-mapper", "oidc-full-name-mapper", "oidc-usermodel-attribute-mapper", "saml-user-attribute-mapper" ]
       }
     }, {
       "id" : "50643b93-8e9c-4759-9fb9-e92545a41052",
@@ -2019,19 +1992,17 @@
   "firstBrokerLoginFlow" : "first broker login",
   "attributes" : {
     "cibaBackchannelTokenDeliveryMode" : "poll",
+    "cibaExpiresIn" : "120",
     "cibaAuthRequestedUserHint" : "login_hint",
+    "oauth2DeviceCodeLifespan" : "600",
     "clientOfflineSessionMaxLifespan" : "0",
     "oauth2DevicePollingInterval" : "5",
     "clientSessionIdleTimeout" : "0",
-    "clientOfflineSessionIdleTimeout" : "0",
-    "cibaInterval" : "5",
-    "realmReusableOtpCode" : "false",
-    "cibaExpiresIn" : "120",
-    "oauth2DeviceCodeLifespan" : "600",
     "parRequestUriLifespan" : "60",
     "clientSessionMaxLifespan" : "0",
-    "frontendUrl" : "",
-    "acr.loa.map" : "{}"
+    "clientOfflineSessionIdleTimeout" : "0",
+    "cibaInterval" : "5",
+    "realmReusableOtpCode" : "false"
   },
   "keycloakVersion" : "24.0.1",
   "userManagedAccessAllowed" : false,
