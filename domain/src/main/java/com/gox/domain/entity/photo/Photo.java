@@ -1,11 +1,13 @@
 package com.gox.domain.entity.photo;
 
+import com.gox.domain.entity.car.Car;
+
 public class Photo {
     private Long id;
     private String name;
     private byte[] content;
     private boolean isPreview;
-
+    private Car car;       // связь «много к одному»
     public Long getId() {
         return id;
     }
@@ -36,5 +38,13 @@ public class Photo {
 
     public void setPreview(boolean preview) {
         isPreview = preview;
+    }
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
     }
 }

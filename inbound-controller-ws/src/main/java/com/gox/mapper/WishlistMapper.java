@@ -8,10 +8,8 @@ import org.mapstruct.MappingConstants;
 import org.springframework.stereotype.Component;
 
 @Component
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = "spring", uses = {CarMapper.class})
 public interface WishlistMapper {
-
-    WishlistDto toDto(Wishlist wishlist);
-
     Wishlist toEntity(WishlistDto dto);
+    WishlistDto toDto(Wishlist entity);
 }

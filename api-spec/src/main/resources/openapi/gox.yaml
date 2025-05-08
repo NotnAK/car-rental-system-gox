@@ -64,6 +64,50 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
+  /cars/{carId}/photos:
+    post:
+      summary: Upload photo for a car
+      operationId: uploadPhoto        # теперь будет в CarsApi
+      tags: [ Photo ]
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PhotoCreateRequest'
+      responses:
+        '201':
+          description: Photo uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+  /photos/{photoId}/content:
+    get:
+      summary: Download raw bytes of a photo
+      operationId: getPhotoContent  # остаётся в PhotosApi
+      tags: [ Photo ]
+      parameters:
+        - name: photoId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Binary image
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
   /admin/users:
     get:
       summary: Retrieve all users
@@ -272,6 +316,12 @@ components:
         description:
           type: string
           description: Optional description of the car.
+        preview:
+          $ref: '#/components/schemas/Photo'
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Photo'
 
     CarState:
       type: string
@@ -402,3 +452,21 @@ components:
           maximum: 5
         comment:
           type: string
+    Photo:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        isPreview: { type: boolean }
+        url:
+          type: string
+          description: URL to download raw content of this photo
+    PhotoCreateRequest:
+      type: object
+      required: [ name, isPreview, file ]
+      properties:
+        name: { type: string }
+        isPreview: { type: boolean }
+        file:
+          type: string
+          format: binary

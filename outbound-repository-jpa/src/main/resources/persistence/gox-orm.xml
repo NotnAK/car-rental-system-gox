@@ -119,5 +119,27 @@
         </attributes>
     </entity>
 
+    <entity class="com.gox.domain.entity.photo.Photo" access="FIELD">
+        <table name="photos"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="name">
+                <column name="name"/>
+            </basic>
+            <basic name="content">
+                <column name="content" columnDefinition="BYTEA"/>
+                <lob/>
+            </basic>
+
+            <basic name="isPreview">
+                <column name="is_preview"/>
+            </basic>
+            <many-to-one name="car" fetch="LAZY">
+                <join-column name="car_id" referenced-column-name="id" nullable="false"/>
+            </many-to-one>
+        </attributes>
+    </entity>
 
 </entity-mappings>

@@ -8,9 +8,12 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CarMapper {
 
-    Car toEntity(CarDto dto);
-
+    // При преобразовании Car → CarDto говорим MapStruct:
+    // - не заполнять preview
+    // - не заполнять photos
+    @Mapping(target = "preview", ignore = true)
+    @Mapping(target = "photos", ignore = true)
     CarDto toDto(Car car);
 
-
+    Car toEntity(CarDto dto);
 }
