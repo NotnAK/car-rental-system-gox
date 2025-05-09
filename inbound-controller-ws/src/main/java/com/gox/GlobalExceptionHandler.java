@@ -57,7 +57,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleWishlistValidation(WishlistValidationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+    // --- PHOTO ---
+    @ExceptionHandler(PhotoNotFoundException.class)
+    public ResponseEntity<String> handlePhotoNotFound(PhotoNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 
+    @ExceptionHandler(PhotoValidationException.class)
+    public ResponseEntity<String> handlePhotoValidation(PhotoValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
     // --- DEFAULT ---
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAll(Exception ex) {

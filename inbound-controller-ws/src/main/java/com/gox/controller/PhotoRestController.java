@@ -11,11 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class PhotoContentRestController implements PhotosApi {
+public class PhotoRestController implements PhotosApi {
 
     private final PhotoFacade photoFacade;
 
-    public PhotoContentRestController(PhotoFacade photoFacade) {
+    public PhotoRestController(PhotoFacade photoFacade) {
         this.photoFacade = photoFacade;
     }
 
@@ -23,10 +23,10 @@ public class PhotoContentRestController implements PhotosApi {
     public ResponseEntity<Resource> getPhotoContent(Long photoId) {
         Photo p = photoFacade.get(photoId);
         ByteArrayResource resource = new ByteArrayResource(p.getContent());
-        MediaType mediaType = MediaType.IMAGE_JPEG;
         return ResponseEntity.ok()
+                // inline – чтобы браузер сразу отобразил картинку
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + p.getName() + "\"")
-                .contentType(mediaType)
+                .contentType(MediaType.IMAGE_JPEG)
                 .body(resource);
     }
 }

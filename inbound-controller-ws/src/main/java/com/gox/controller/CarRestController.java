@@ -2,17 +2,21 @@ package com.gox.controller;
 
 import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.photo.Photo;
+import com.gox.domain.entity.user.User;
 import com.gox.domain.exception.CarValidationException;
 import com.gox.domain.service.CarFacade;
 import com.gox.domain.service.PhotoFacade;
 import com.gox.domain.service.ReviewFacade;
+import com.gox.domain.service.ReviewFactory;
 import com.gox.mapper.CarMapper;
 import com.gox.mapper.PhotoMapper;
 import com.gox.mapper.ReviewMapper;
 import com.gox.rest.api.CarsApi;
 import com.gox.rest.dto.CarDto;
 import com.gox.rest.dto.PhotoDto;
+import com.gox.rest.dto.ReviewCreateRequestDto;
 import com.gox.rest.dto.ReviewDto;
+import com.gox.security.CurrentUserDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,19 +34,24 @@ public class CarRestController implements CarsApi {
     private final ReviewMapper reviewMapper;
     private final PhotoFacade photoFacade;
     private final PhotoMapper photoMapper;
-
+    private final CurrentUserDetailService currentUserDetailService;
+    private final ReviewFactory reviewFactory;
     public CarRestController(CarFacade carFacade,
                              CarMapper carMapper,
                              ReviewFacade reviewFacade,
                              ReviewMapper reviewMapper,
                              PhotoFacade photoFacade,
-                             PhotoMapper photoMapper) {
+                             PhotoMapper photoMapper,
+                             CurrentUserDetailService currentUserDetailService,
+                             ReviewFactory reviewFactory) {
         this.carFacade = carFacade;
         this.carMapper = carMapper;
         this.reviewFacade = reviewFacade;
         this.reviewMapper = reviewMapper;
         this.photoFacade = photoFacade;
         this.photoMapper = photoMapper;
+        this.currentUserDetailService = currentUserDetailService;
+        this.reviewFactory = reviewFactory;
     }
 
     @Override
@@ -63,6 +72,30 @@ public class CarRestController implements CarsApi {
     }
 
     @Override
+    public ResponseEntity<CarDto> createCar(CarDto carDto) {
+        Car car = carMapper.toEntity(carDto);
+        Car created = carFacade.create(car);
+        return ResponseEntity.status(201).body(carMapper.toDto(created));
+    }
+
+    // POST /customer/reviews
+    @Override
+    public ResponseEntity<String> createReview(Integer carId,
+                                               ReviewCreateRequestDto dto) {
+        // Получаем залогиненного пользователя
+        User currentUser = currentUserDetailService.getFullCurrentUser();
+        // Создаём отзыв в доменном слое, передаём carId из path-а
+        reviewFactory.createReview(
+                carId.longValue(),
+                currentUser,
+                dto.getRating(),
+                dto.getComment()
+        );
+        // Возвращаем 201 Created без тела
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Override
     public ResponseEntity<CarDto> getCarById(Long carId) {
         Car car = carFacade.get(carId);
         CarDto dto = carMapper.toDto(car);
@@ -80,7 +113,6 @@ public class CarRestController implements CarsApi {
 
         return ResponseEntity.ok(dto);
     }
-
 
 
     @Override

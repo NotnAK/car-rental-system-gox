@@ -4,11 +4,11 @@ import com.gox.domain.entity.review.Review;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.service.ReviewFacade;
 import com.gox.domain.service.ReviewFactory;
+import com.gox.domain.service.UserFacade;
 import com.gox.domain.service.WishlistFacade;
 import com.gox.mapper.ReviewMapper;
 import com.gox.mapper.UserMapper;
-import com.gox.rest.api.CustomerApi;
-import com.gox.rest.dto.ReviewCreateRequestDto;
+import com.gox.rest.api.UsersApi;
 import com.gox.rest.dto.ReviewDto;
 import com.gox.rest.dto.ReviewUpdateRequestDto;
 import com.gox.rest.dto.UserDto;
@@ -20,26 +20,29 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 @RestController
-public class CustomerRestController implements CustomerApi {
+public class UserRestController implements UsersApi {
     private final ReviewFacade reviewFacade;
     private final ReviewMapper reviewMapper;
     private final WishlistFacade wishlistFacade;
     private final CurrentUserDetailService currentUserDetailService;
     private final ReviewFactory reviewFactory;
     private final UserMapper userMapper;
+    private final UserFacade userFacade;
 
-    public CustomerRestController(ReviewFacade reviewFacade,
-                                  ReviewMapper reviewMapper,
-                                  WishlistFacade wishlistFacade,
-                                  CurrentUserDetailService currentUserDetailService,
-                                  ReviewFactory reviewFactory,
-                                  UserMapper userMapper) {
+    public UserRestController(ReviewFacade reviewFacade,
+                              ReviewMapper reviewMapper,
+                              WishlistFacade wishlistFacade,
+                              CurrentUserDetailService currentUserDetailService,
+                              ReviewFactory reviewFactory,
+                              UserMapper userMapper,
+                              UserFacade userFacade) {
         this.reviewFacade = reviewFacade;
         this.reviewMapper = reviewMapper;
         this.wishlistFacade = wishlistFacade;
         this.currentUserDetailService = currentUserDetailService;
         this.reviewFactory = reviewFactory;
         this.userMapper = userMapper;
+        this.userFacade = userFacade;
     }
     @Override
     public ResponseEntity<String> addCarToWishlist(Long carId) {
@@ -55,31 +58,6 @@ public class CustomerRestController implements CustomerApi {
         return ResponseEntity.ok("Car removed successfully from wishlist.");
     }
 
-    // POST /customer/reviews
-    @Override
-    public ResponseEntity<String> createReview(ReviewCreateRequestDto reviewCreateRequestDto) {
-        User currentUser = currentUserDetailService.getFullCurrentUser();
-        reviewFactory.createReview(
-                reviewCreateRequestDto.getCarId(),
-                currentUser,
-                reviewCreateRequestDto.getRating(),
-                reviewCreateRequestDto.getComment()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-    // DELETE /customer/reviews/{reviewId} – удаление отзыва текущего пользователя
-    @Override
-    public ResponseEntity<Void> deleteReview(Integer reviewId) {
-        Review existing = reviewFacade.get(reviewId.longValue());
-        User currentUser = currentUserDetailService.getFullCurrentUser();
-
-        if (!existing.getUser().getId().equals(currentUser.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        reviewFacade.deleteReview(reviewId.longValue());
-        return ResponseEntity.ok().build();
-    }
     // GET /customer/reviews
     @Override
     public ResponseEntity<List<ReviewDto>> getOwnReviews() {
@@ -90,26 +68,20 @@ public class CustomerRestController implements CustomerApi {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
-    // PUT /customer/reviews/{reviewId} – обновление отзыва текущего пользователя
-    @Override
-    public ResponseEntity<String> updateReview(Integer reviewId, ReviewUpdateRequestDto dto) {
-        Review existing = reviewFacade.get(reviewId.longValue());
-        User currentUser = currentUserDetailService.getFullCurrentUser();
-
-        if (!existing.getUser().getId().equals(currentUser.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        existing.setRating(dto.getRating());
-        existing.setComment(dto.getComment());
-        reviewFacade.update(existing);
-        return ResponseEntity.ok().build();
-    }
 
     @Override
     public ResponseEntity<UserDto> getProfile() {
         User currentUser = currentUserDetailService.getFullCurrentUser();
         UserDto dto = userMapper.toDto(currentUser);
         return ResponseEntity.ok(dto);
+    }
+
+    @Override
+    public ResponseEntity<List<UserDto>> getUsers() {
+        List<User> users = userFacade.getAllUsers();
+        List<UserDto> userDtos = users.stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userDtos);
     }
 }

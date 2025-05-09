@@ -8,7 +8,7 @@ servers:
 paths:
   /cars:
     get:
-      summary: Retrieve a list of cars
+      summary: Retrieve a list of cars (ALL)
       operationId: getCars
       tags:
         - Car
@@ -21,9 +21,27 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Car'
+    post:
+      summary: Create a new car (ADMIN)
+      operationId: createCar
+      tags:
+        - Car
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Car'
+      responses:
+        '201':
+          description: Car successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
   /cars/{carId}:
     get:
-      summary: Get a specific car by ID
+      summary: Get a specific car by ID (ALL)
       operationId: getCarById
       tags:
         - Car
@@ -45,7 +63,7 @@ paths:
           description: Car not found
   /cars/{carId}/reviews:
     get:
-      summary: Get all reviews for a car
+      summary: Get all reviews for a car (ALL)
       operationId: getReviewsForCar
       tags:
         - Review
@@ -64,9 +82,33 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
+    post:
+      summary: Create a review by the current user (CUSTOMER)
+      operationId: createReview
+      tags:
+        - Review
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreateRequest'
+      responses:
+        '201':
+          description: Review successfully created
+          content:
+            text/plain:
+              schema:
+                type: string
   /cars/{carId}/photos:
     post:
-      summary: Upload photo for a car
+      summary: Upload photo for a car (ADMIN)
       operationId: uploadPhoto        # теперь будет в CarsApi
       tags: [ Photo ]
       parameters:
@@ -88,11 +130,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Photo'
-  /photos/{photoId}/content:
+  /photos/{photoId}:
     get:
-      summary: Download raw bytes of a photo
-      operationId: getPhotoContent  # остаётся в PhotosApi
-      tags: [ Photo ]
+      summary: Get raw bytes of a photo (ALL)
+      operationId: getPhotoContent
+      tags:
+        - Photo
       parameters:
         - name: photoId
           in: path
@@ -108,9 +151,9 @@ paths:
               schema:
                 type: string
                 format: binary
-  /admin/users:
+  /users:
     get:
-      summary: Retrieve all users
+      summary: Retrieve all users (ADMIN)
       operationId: getUsers
       tags:
         - User
@@ -124,43 +167,10 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
 
-  /admin/cars:
-    post:
-      summary: Create a new car (admin only)
-      operationId: createCar
-      tags:
-        - Car
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Car'
-      responses:
-        '201':
-          description: Car successfully created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Car'
-  /admin/reviews/{reviewId}:
-    delete:
-      summary: Delete a review by admin
-      operationId: adminDeleteReview
-      tags:
-        - Review
-      parameters:
-        - name: reviewId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Review successfully deleted by admin
-  /customer/profile:
+
+  /users/me:
     get:
-      summary: Get own profile
+      summary: Get own profile (CUSTOMER)
       operationId: getProfile
       tags:
         - User
@@ -171,9 +181,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-  /customer/wishlist/cars/{carId}:
+  /users/me/wishlist/{carId}:
     post:
-      summary: Add a car to the current user's Wishlist
+      summary: Add a car to the current user's Wishlist (CUSTOMER)
       operationId: addCarToWishlist
       tags:
         - User
@@ -192,7 +202,7 @@ paths:
               schema:
                 type: string
     delete:
-      summary: Remove a car from the current user's Wishlist
+      summary: Remove a car from the current user's Wishlist (CUSTOMER)
       operationId: removeCarFromWishlist
       tags:
         - User
@@ -210,27 +220,9 @@ paths:
             text/plain:
               schema:
                 type: string
-  /customer/reviews:
-    post:
-      summary: Create a review by the current user
-      operationId: createReview
-      tags:
-        - Review
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ReviewCreateRequest'
-      responses:
-        '201':
-          description: Review successfully created
-          content:
-            text/plain:
-              schema:
-                type: string
+  /users/me/reviews:
     get:
-      summary: Get all reviews by the current user
+      summary: Get all reviews by the current user (CUSTOMER)
       operationId: getOwnReviews
       tags:
         - Review
@@ -243,9 +235,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
-  /customer/reviews/{reviewId}:
+  /reviews/{reviewId}:
     put:
-      summary: Update a review by the current user
+      summary: Update a review by the current user (CUSTOMER)
       operationId: updateReview
       tags:
         - Review
@@ -269,7 +261,7 @@ paths:
               schema:
                 type: string
     delete:
-      summary: Delete a review by the current user
+      summary: Delete a review by the current user or Admin (CUSTOMER, ADMIN)
       operationId: deleteReview
       tags:
         - Review
@@ -428,7 +420,6 @@ components:
       required:
         - rating
         - comment
-        - carId
       properties:
         rating:
           type: integer
@@ -436,9 +427,6 @@ components:
           maximum: 5
         comment:
           type: string
-        carId:
-          type: integer
-          format: int64
 
     ReviewUpdateRequest:
       type: object

@@ -33,6 +33,6 @@ public interface PhotoMapper {
 
     /** Вспомогательный метод: возвращает строковый URL */
     default String makeUrl(Photo photo) {
-        return "/api/photos/" + photo.getId() + "/content";
+        return "/api/photos/" + photo.getId();
     }
 }
