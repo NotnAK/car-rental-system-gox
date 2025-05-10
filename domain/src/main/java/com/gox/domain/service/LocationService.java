@@ -25,7 +25,7 @@ public class LocationService implements LocationFacade {
     @Override
     public Location get(Long id) {
         return repo.read(id)
-                .orElseThrow(() -> new LocationNotFoundException(id));
+                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + id));
     }
 
     @Override
@@ -35,8 +35,8 @@ public class LocationService implements LocationFacade {
 
     @Override
     public Location update(Location location) {
-        if (location.getId() == null || !repo.read(location.getId()).isPresent()) {
-            throw new LocationNotFoundException(location.getId());
+        if (location.getId() == null || repo.read(location.getId()).isEmpty()) {
+            throw new LocationNotFoundException("Location not found with id: " + location.getId());
         }
         if (location.getCity() == null || location.getCity().isBlank() ||
                 location.getStreet() == null || location.getStreet().isBlank()) {
@@ -47,8 +47,8 @@ public class LocationService implements LocationFacade {
 
     @Override
     public void delete(Long id) {
-        if (!repo.read(id).isPresent()) {
-            throw new LocationNotFoundException(id);
+        if (repo.read(id).isEmpty()) {
+            throw new LocationNotFoundException("Location not found with id: " + id);
         }
         repo.delete(id);
     }

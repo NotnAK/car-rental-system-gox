@@ -167,4 +167,49 @@
             </basic>
         </attributes>
     </entity>
+    <!-- Маппинг сущности Booking -->
+    <entity class="com.gox.domain.entity.booking.Booking" access="FIELD">
+        <table name="bookings"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+
+            <basic name="startDate">
+                <column name="start_date" nullable="false"/>
+            </basic>
+            <basic name="endDate">
+                <column name="end_date" nullable="false"/>
+            </basic>
+            <basic name="totalPrice">
+                <column name="total_price" nullable="false"/>
+            </basic>
+            <basic name="transferFee">
+                <column name="transfer_fee" nullable="false"/>
+            </basic>
+            <basic name="urgent">
+                <column name="urgent" nullable="false"/>
+            </basic>
+            <basic name="penalty">
+                <column name="penalty" nullable="false"/>
+            </basic>
+            <basic name="status">
+                <column name="status" nullable="false"/>
+                <convert converter="com.gox.jpa.converter.BookingStatusConverter"/>
+            </basic>
+            <!-- связи -->
+            <many-to-one name="user" fetch="LAZY">
+                <join-column name="user_id" referenced-column-name="id" nullable="false"/>
+            </many-to-one>
+            <many-to-one name="car" fetch="LAZY">
+                <join-column name="car_id" referenced-column-name="id" nullable="false"/>
+            </many-to-one>
+            <many-to-one name="pickupLocation" fetch="LAZY">
+                <join-column name="pickup_location_id" referenced-column-name="id" nullable="false"/>
+            </many-to-one>
+            <many-to-one name="dropoffLocation" fetch="LAZY">
+                <join-column name="dropoff_location_id" referenced-column-name="id" nullable="false"/>
+            </many-to-one>
+        </attributes>
+    </entity>
 </entity-mappings>
