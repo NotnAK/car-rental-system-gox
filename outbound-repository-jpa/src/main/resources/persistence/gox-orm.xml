@@ -35,6 +35,10 @@
             <basic name="description">
                 <column name="description" nullable="true"/>
             </basic>
+            <!-- связь ManyToOne на Location -->
+            <many-to-one name="location" fetch="LAZY">
+                <join-column name="location_id" referenced-column-name="id" nullable="true"/>
+            </many-to-one>
         </attributes>
     </entity>
     <!-- Маппинг для User -->
@@ -142,4 +146,25 @@
         </attributes>
     </entity>
 
+    <!-- Новая сущность Location -->
+    <entity class="com.gox.domain.entity.location.Location" access="FIELD">
+        <table name="locations"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="city">
+                <column name="city"/>
+            </basic>
+            <basic name="street">
+                <column name="street"/>
+            </basic>
+            <basic name="latitude">
+                <column name="latitude"/>
+            </basic>
+            <basic name="longitude">
+                <column name="longitude"/>
+            </basic>
+        </attributes>
+    </entity>
 </entity-mappings>

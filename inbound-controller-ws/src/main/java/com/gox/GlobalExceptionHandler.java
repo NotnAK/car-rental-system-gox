@@ -67,6 +67,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handlePhotoValidation(PhotoValidationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    // --- LOCATION ---
+    @ExceptionHandler(LocationNotFoundException.class)
+    public ResponseEntity<String> handleLocationNotFound(LocationNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(LocationValidationException.class)
+    public ResponseEntity<String> handleLocationValidation(LocationValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     // --- DEFAULT ---
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAll(Exception ex) {

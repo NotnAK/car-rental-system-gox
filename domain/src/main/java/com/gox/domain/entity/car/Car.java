@@ -1,5 +1,6 @@
 package com.gox.domain.entity.car;
 
+import com.gox.domain.entity.location.Location;
 import com.gox.domain.entity.photo.Photo;
 
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ public class Car {
     private BigDecimal pricePerDay;
     private CarState state;
     private String description;
+    private Location location;
     public Car() {
     }
 
@@ -81,4 +83,11 @@ public class Car {
         this.description = description;
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 }
