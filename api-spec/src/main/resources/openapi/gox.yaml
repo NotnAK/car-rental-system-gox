@@ -439,6 +439,25 @@ paths:
       responses:
         '200':
           description: Booking updated
+  /bookings/estimate:
+    post:
+      summary: Estimate cost of a booking without creating (CUSTOMER)
+      operationId: estimateBooking
+      tags:
+        - Booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreateRequest'
+      responses:
+        '200':
+          description: Detailed estimate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingEstimate'
 
 
 
@@ -711,3 +730,25 @@ components:
         - CANCELLED
         - COMPLETED
       description: Status of a Booking
+    BookingEstimate:
+      type: object
+      properties:
+        days:
+          type: integer
+        basePrice:
+          type: number
+          format: double
+        loyaltyDiscount:
+          type: number
+          format: double
+        discountedPrice:
+          type: number
+          format: double
+        urgent:
+          type: boolean
+        transferFee:
+          type: number
+          format: double
+        totalPrice:
+          type: number
+          format: double

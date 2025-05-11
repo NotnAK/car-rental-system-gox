@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BookingBeanConfiguration {
     @Bean
-    public BookingFacade bookingFacade(BookingRepository repo) {
-        return new BookingService(repo);
+    public BookingFacade bookingFacade(BookingRepository repo, CarRepository carRepo, LocationRepository locRepo) {
+        return new BookingService(repo, carRepo, locRepo);
     }
     @Bean
     public BookingFactory bookingFactory(CarRepository carRepo,
