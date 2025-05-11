@@ -63,11 +63,15 @@ public class BookingFactory {
         if (car == null) {
             throw new CarNotFoundException("Car not found with id: " + carId);
         }
-        Location pickup = locationRepository.read(pickupLocationId)
-                .orElseThrow(() -> new LocationNotFoundException("Pickup location not found: " + pickupLocationId));
+        Location pickup = locationRepository.read(pickupLocationId);
+        if (pickup == null) {
+            throw new LocationNotFoundException("Pickup location not found: " + pickupLocationId);
+        }
 
-        Location dropoff = locationRepository.read(dropoffLocationId)
-                .orElseThrow(() -> new LocationNotFoundException("Dropoff location not found: " + dropoffLocationId));
+        Location dropoff = locationRepository.read(dropoffLocationId);
+        if (dropoff == null) {
+            throw new LocationNotFoundException("Dropoff location not found: " + dropoffLocationId);
+        }
 
         // --- Собираем бронирование ---
         Booking b = new Booking();

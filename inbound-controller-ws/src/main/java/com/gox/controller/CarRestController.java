@@ -4,21 +4,17 @@ import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.photo.Photo;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.exception.CarValidationException;
-import com.gox.domain.service.CarFacade;
-import com.gox.domain.service.PhotoFacade;
-import com.gox.domain.service.ReviewFacade;
-import com.gox.domain.service.ReviewFactory;
+import com.gox.domain.service.*;
+import com.gox.mapper.BookingIntervalMapper;
 import com.gox.mapper.CarMapper;
 import com.gox.mapper.PhotoMapper;
 import com.gox.mapper.ReviewMapper;
 import com.gox.rest.api.CarsApi;
-import com.gox.rest.dto.CarDto;
-import com.gox.rest.dto.PhotoDto;
-import com.gox.rest.dto.ReviewCreateRequestDto;
-import com.gox.rest.dto.ReviewDto;
+import com.gox.rest.dto.*;
 import com.gox.security.CurrentUserDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,8 +32,12 @@ public class CarRestController implements CarsApi {
     private final PhotoMapper photoMapper;
     private final CurrentUserDetailService currentUserDetailService;
     private final ReviewFactory reviewFactory;
+    private final BookingFacade bookingFacade;
+    private final BookingIntervalMapper intervalMapper;
     public CarRestController(CarFacade carFacade,
                              CarMapper carMapper,
+                             BookingFacade bookingFacade,
+                             BookingIntervalMapper intervalMapper,
                              ReviewFacade reviewFacade,
                              ReviewMapper reviewMapper,
                              PhotoFacade photoFacade,
@@ -52,6 +52,8 @@ public class CarRestController implements CarsApi {
         this.photoMapper = photoMapper;
         this.currentUserDetailService = currentUserDetailService;
         this.reviewFactory = reviewFactory;
+        this.bookingFacade    = bookingFacade;
+        this.intervalMapper   = intervalMapper;
     }
 
     @Override
@@ -141,5 +143,12 @@ public class CarRestController implements CarsApi {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .build();
         }
+    }
+    public ResponseEntity<List<BookingIntervalDto>> getBusyIntervals(
+            @PathVariable Long carId) {
+        List<BookingIntervalDto> dto = bookingFacade.getBusyIntervals(carId).stream()
+                .map(intervalMapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dto);
     }
 }

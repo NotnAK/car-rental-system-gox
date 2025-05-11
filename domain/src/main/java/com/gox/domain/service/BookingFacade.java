@@ -4,6 +4,7 @@ import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.booking.BookingStatus;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.vo.BookingEstimate;
+import com.gox.domain.vo.BookingInterval;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -18,4 +19,5 @@ public interface BookingFacade {
                              User user,
                              OffsetDateTime start,
                              OffsetDateTime end);
+    List<BookingInterval> getBusyIntervals(Long carId);
 }

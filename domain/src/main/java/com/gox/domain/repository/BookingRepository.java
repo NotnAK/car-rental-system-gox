@@ -20,4 +20,5 @@ public interface BookingRepository {
                                                                                              BookingStatus excludedStatus,
                                                                                              OffsetDateTime endPlusGap,
                                                                                              OffsetDateTime startMinusGap);
+    List<Booking> findByCarIdAndStatusIn(Long carId, List<BookingStatus> statuses);
 }

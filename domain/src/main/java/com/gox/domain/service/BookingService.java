@@ -12,11 +12,13 @@ import com.gox.domain.repository.BookingRepository;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.LocationRepository;
 import com.gox.domain.vo.BookingEstimate;
+import com.gox.domain.vo.BookingInterval;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BookingService implements BookingFacade {
     private final BookingRepository repo;
@@ -64,10 +66,14 @@ public class BookingService implements BookingFacade {
         if (car == null) {
             throw new CarNotFoundException("Car not found with id: " + carId);
         }
-        locRepo.read(pickupLocationId)
-                .orElseThrow(() -> new LocationNotFoundException("Pickup location not found: " + pickupLocationId));
-        locRepo.read(dropoffLocationId)
-                .orElseThrow(() -> new LocationNotFoundException("Dropoff location not found: " + dropoffLocationId));
+        if (locRepo.read(pickupLocationId) == null) {
+            throw new LocationNotFoundException("Pickup location not found: " + pickupLocationId);
+        }
+
+        if (locRepo.read(dropoffLocationId) == null) {
+            throw new LocationNotFoundException("Dropoff location not found: " + dropoffLocationId);
+        }
+
         if (start.isAfter(end) || start.isEqual(end)) {
             throw new BookingValidationException("Start must be strictly before end");
         }
@@ -126,5 +132,25 @@ public class BookingService implements BookingFacade {
                 totalPrice
         );
     }
+    @Override
+    public List<BookingInterval> getBusyIntervals(Long carId) {
+        // проверка, что машина существует
+        Car car = carRepo.read(carId);
+        if (car == null) {
+            throw new CarNotFoundException("Car not found with id: " + carId);
+        }
+
+        // получаем все APPROVED-брони
+        List<Booking> bookings = repo.findByCarIdAndStatusIn(
+                carId,
+                List.of(BookingStatus.APPROVED)
+        );
+
+        // мапим в VO
+        return bookings.stream()
+                .map(b -> new BookingInterval(b.getStartDate(), b.getEndDate()))
+                .collect(Collectors.toList());
+    }
+
 
 }

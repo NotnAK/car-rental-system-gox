@@ -131,6 +131,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Photo'
+  /cars/{carId}/busy-intervals:
+    get:
+      summary: Get occupied intervals for this car (ALL)
+      operationId: getBusyIntervals
+      tags:
+        - Car
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of occupied time intervals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingInterval'
   /photos/{photoId}:
     get:
       summary: Get raw bytes of a photo (ALL)
@@ -752,3 +774,14 @@ components:
         totalPrice:
           type: number
           format: double
+    BookingInterval:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+          description: Interval start (inclusive)
+        end:
+          type: string
+          format: date-time
+          description: Interval end (exclusive)

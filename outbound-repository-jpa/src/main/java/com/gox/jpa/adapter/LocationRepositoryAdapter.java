@@ -6,7 +6,6 @@ import com.gox.jpa.repository.LocationSpringDataRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class LocationRepositoryAdapter implements LocationRepository {
@@ -22,8 +21,8 @@ public class LocationRepositoryAdapter implements LocationRepository {
     }
 
     @Override
-    public Optional<Location> read(Long id) {
-        return springDataLocationRepository.findById(id);
+    public Location read(Long id) {
+        return springDataLocationRepository.findById(id).orElse(null);
     }
 
     @Override

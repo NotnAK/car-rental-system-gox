@@ -52,4 +52,9 @@ public class JpaBookingRepositoryAdapter implements BookingRepository {
                                                                                                     OffsetDateTime startMinusGap) {
         return jpaRepo.findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(carId, excludedStatus, endPlusGap, startMinusGap);
     }
+
+    @Override
+    public List<Booking> findByCarIdAndStatusIn(Long carId, List<BookingStatus> statuses) {
+        return jpaRepo.findByCarIdAndStatusIn(carId, statuses);
+    }
 }
