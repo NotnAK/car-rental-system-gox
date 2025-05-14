@@ -11,6 +11,10 @@ import com.gox.domain.exception.LocationNotFoundException;
 import com.gox.domain.repository.BookingRepository;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.LocationRepository;
+import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.booking.BookingValidationContext;
+import com.gox.domain.validation.api.ValidationRule;
+import com.gox.domain.validation.booking.rules.*;
 import com.gox.domain.vo.BookingEstimate;
 import com.gox.domain.vo.BookingInterval;
 
@@ -21,21 +25,31 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookingService implements BookingFacade {
-    private final BookingRepository repo;
+    private final BookingRepository bookingRepository;
     private final CarRepository carRepo;
     private final LocationRepository locRepo;
     private static final BigDecimal URGENT_TRANSFER_FEE = new BigDecimal("30");
-    public BookingService(BookingRepository repo,
+    private final List<ValidationRule<BookingValidationContext>> validationRules;
+    public BookingService(BookingRepository bookingRepository,
                           CarRepository carRepo,
                           LocationRepository locRepo) {
-        this.repo    = repo;
+        this.bookingRepository = bookingRepository;
         this.carRepo = carRepo;
         this.locRepo = locRepo;
+        this.validationRules = List.of(
+                new UserNotNullRule(),
+                new CarIdNotNullRule(),
+                new PickupLocationIdNotNullRule(),
+                new DropoffLocationIdNotNullRule(),
+                new DateOrderRule(),
+                new LeadTimeRule(),
+                new GapRule(bookingRepository)
+        );
     }
 
     @Override
     public Booking get(Long id) {
-        Booking b = repo.read(id);
+        Booking b = bookingRepository.read(id);
         if (b == null) {
             throw new BookingNotFoundException(id);
         }
@@ -44,14 +58,14 @@ public class BookingService implements BookingFacade {
 
     @Override
     public List<Booking> getAll() {
-        return repo.findAll();
+        return bookingRepository.findAll();
     }
 
     @Override
     public void changeStatus(Long id, BookingStatus newStatus) {
         Booking b = get(id);
         b.setStatus(newStatus);
-        repo.update(b);
+        bookingRepository.update(b);
     }
 
     @Override
@@ -61,58 +75,70 @@ public class BookingService implements BookingFacade {
                                     User user,
                                     OffsetDateTime start,
                                     OffsetDateTime end) {
-        // --- 1) Базовые проверки и загрузка ---
+        BookingValidationContext bookingValidationContext = new BookingValidationContext(
+                carId, pickupLocationId, dropoffLocationId, user, start, end
+        );
+        ValidationResult vr = new ValidationResult();
+        for (ValidationRule<BookingValidationContext> rule : validationRules) {
+            rule.validate(bookingValidationContext, vr);
+        }
+        if (vr.hasErrors()) {
+            throw new BookingValidationException(vr.getCombinedMessage());
+        }
         Car car = carRepo.read(carId);
         if (car == null) {
             throw new CarNotFoundException("Car not found with id: " + carId);
         }
         if (locRepo.read(pickupLocationId) == null) {
-            throw new LocationNotFoundException("Pickup location not found: " + pickupLocationId);
+            throw new LocationNotFoundException("Pickup location not found with id: " + pickupLocationId);
         }
-
         if (locRepo.read(dropoffLocationId) == null) {
-            throw new LocationNotFoundException("Dropoff location not found: " + dropoffLocationId);
+            throw new LocationNotFoundException("Dropoff location not found with id: " + dropoffLocationId);
         }
-
-        if (start.isAfter(end) || start.isEqual(end)) {
-            throw new BookingValidationException("Start must be strictly before end");
+        return calculateEstimate(car, user, start, end, pickupLocationId, dropoffLocationId);
+    }
+    @Override
+    public List<BookingInterval> getBusyIntervals(Long carId) {
+        // проверка, что машина существует
+        Car car = carRepo.read(carId);
+        if (car == null) {
+            throw new CarNotFoundException("Car not found with id: " + carId);
         }
+        // получаем все APPROVED-брони
+        List<Booking> bookings = bookingRepository.findByCarIdAndStatusIn(
+                carId,
+                List.of(BookingStatus.APPROVED)
+        );
 
+        // мапим в VO
+        return bookings.stream()
+                .map(b -> new BookingInterval(b.getStartDate(), b.getEndDate()))
+                .collect(Collectors.toList());
+    }
+
+    private BookingEstimate calculateEstimate(
+            Car car,
+            User user,
+            OffsetDateTime start,
+            OffsetDateTime end,
+            Long pickupLocationId,
+            Long dropoffLocationId
+    ) {
         OffsetDateTime now = OffsetDateTime.now();
 
-        // --- 2) Минимальный lead time: не раньше, чем через 4 часа от "сейчас" ---
-        OffsetDateTime earliest = now.plusHours(4);
-        if (start.isBefore(earliest)) {
-            throw new BookingValidationException(
-                    "You must book at least 4 hours in advance; earliest possible start is " + earliest);
-        }
-
-        // --- 3) Между бронями обязателен разрыв не менее 24 часов ---
-        // Берём все активные (не отменённые) брони на эту машину
-        boolean conflict = !repo
-                .findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                        carId,
-                        BookingStatus.CANCELLED,
-                        end.plusDays(1),
-                        start.minusDays(1)
-                ).isEmpty();
-        if (conflict) {
-            throw new BookingValidationException("You need a gap of 24 hours between bookings.");
-        }
-
-        // --- 4) Расчёт срочности и трансфера ---
+        // срочность
         long hoursUntilStart = Duration.between(now, start).toHours();
-        boolean urgent = hoursUntilStart < 10;  // срочно, если меньше 10 часов
+        boolean urgent = hoursUntilStart < 10;
         BigDecimal transferFee = pickupLocationId.equals(dropoffLocationId)
                 ? BigDecimal.ZERO
                 : (urgent ? URGENT_TRANSFER_FEE : BigDecimal.ZERO);
 
-        // --- 5) Оплата по суткам (округление вперёд) ---
+        // дни (ceil)
         long seconds = Duration.between(start, end).getSeconds();
-        long days = (seconds + 86_400 - 1) / 86_400; // ceil по суткам
+        long days    = (seconds + 86_400 - 1) / 86_400;
 
-        BigDecimal basePrice = car.getPricePerDay()
-                .multiply(BigDecimal.valueOf(days));
+        // базовая цена и скидка
+        BigDecimal basePrice = car.getPricePerDay().multiply(BigDecimal.valueOf(days));
         double loyaltyRate = switch (user.getLoyaltyLevel()) {
             case SILVER -> 0.05;
             case GOLD   -> 0.10;
@@ -120,6 +146,7 @@ public class BookingService implements BookingFacade {
         };
         BigDecimal loyaltyDiscount = basePrice.multiply(BigDecimal.valueOf(loyaltyRate));
         BigDecimal discountedPrice = basePrice.subtract(loyaltyDiscount);
+
         BigDecimal totalPrice = discountedPrice.add(transferFee);
 
         return new BookingEstimate(
@@ -132,25 +159,4 @@ public class BookingService implements BookingFacade {
                 totalPrice
         );
     }
-    @Override
-    public List<BookingInterval> getBusyIntervals(Long carId) {
-        // проверка, что машина существует
-        Car car = carRepo.read(carId);
-        if (car == null) {
-            throw new CarNotFoundException("Car not found with id: " + carId);
-        }
-
-        // получаем все APPROVED-брони
-        List<Booking> bookings = repo.findByCarIdAndStatusIn(
-                carId,
-                List.of(BookingStatus.APPROVED)
-        );
-
-        // мапим в VO
-        return bookings.stream()
-                .map(b -> new BookingInterval(b.getStartDate(), b.getEndDate()))
-                .collect(Collectors.toList());
-    }
-
-
 }

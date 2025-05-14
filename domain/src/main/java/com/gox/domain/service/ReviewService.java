@@ -4,14 +4,26 @@ import com.gox.domain.entity.review.Review;
 import com.gox.domain.exception.ReviewNotFoundException;
 import com.gox.domain.exception.ReviewValidationException;
 import com.gox.domain.repository.ReviewRepository;
+import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.api.ValidationRule;
+import com.gox.domain.validation.review.ReviewValidationContext;
+import com.gox.domain.validation.review.rules.*;
 
 import java.util.List;
 
 public class ReviewService implements ReviewFacade {
     private final ReviewRepository repository;
+    private final List<ValidationRule<ReviewValidationContext>> updateRules;
 
     public ReviewService(ReviewRepository repository) {
         this.repository = repository;
+        this.updateRules = List.of(
+                new ReviewIdNotNullRule(),
+                new ReviewCarIdNotNullRule(),
+                new ReviewUserNotNullRule(),
+                new ReviewRatingRangeRule(),
+                new ReviewCommentNotEmptyRule()
+        );
     }
 
 
@@ -81,22 +93,17 @@ public class ReviewService implements ReviewFacade {
 
     @Override
     public Review update(Review review) {
-        if (review == null) {
-            throw new ReviewValidationException("Review must not be null");
+        var ctx = new ReviewValidationContext(review.getCar().getId(), review.getId(), review.getUser(), review.getRating(), review.getComment());
+        var vr  = new ValidationResult();
+        for (var rule : updateRules) {
+            rule.validate(ctx, vr);
         }
-        if (review.getId() == null || review.getId() <= 0) {
-            throw new ReviewValidationException("Invalid review id for update: " + review.getId());
+        if (vr.hasErrors()) {
+            throw new ReviewValidationException(vr.getCombinedMessage());
         }
         Review existing = repository.read(review.getId());
         if (existing == null) {
             throw new ReviewNotFoundException("Review not found with id: " + review.getId());
-        }
-        // Проверяем новые данные
-        if (review.getRating() < 1 || review.getRating() > 5) {
-            throw new ReviewValidationException("Rating must be between 1 and 5");
-        }
-        if (review.getComment() == null || review.getComment().isBlank()) {
-            throw new ReviewValidationException("Review comment must not be blank");
         }
         // Обновляем только изменяемые поля (rating и comment)
         existing.setRating(review.getRating());

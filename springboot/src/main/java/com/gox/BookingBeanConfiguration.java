@@ -18,7 +18,8 @@ public class BookingBeanConfiguration {
     @Bean
     public BookingFactory bookingFactory(CarRepository carRepo,
                                          LocationRepository locRepo,
-                                         BookingRepository bookingRepo) {
-        return new BookingFactory(carRepo, locRepo, bookingRepo);
+                                         BookingRepository bookingRepo,
+                                         BookingFacade bookingFacade) {
+        return new BookingFactory(bookingFacade, carRepo, locRepo, bookingRepo);
     }
 }

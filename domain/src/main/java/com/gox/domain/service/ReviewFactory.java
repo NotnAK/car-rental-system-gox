@@ -7,46 +7,52 @@ import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.ReviewValidationException;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.ReviewRepository;
+import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.api.ValidationRule;
+import com.gox.domain.validation.review.ReviewValidationContext;
+import com.gox.domain.validation.review.rules.ReviewCarIdNotNullRule;
+import com.gox.domain.validation.review.rules.ReviewCommentNotEmptyRule;
+import com.gox.domain.validation.review.rules.ReviewRatingRangeRule;
+import com.gox.domain.validation.review.rules.ReviewUserNotNullRule;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ReviewFactory {
     private final CarRepository carRepository;
     private final ReviewRepository reviewRepository;
+    private final List<ValidationRule<ReviewValidationContext>> createRules;
 
     public ReviewFactory(CarRepository carRepository, ReviewRepository reviewRepository) {
         this.carRepository = carRepository;
         this.reviewRepository = reviewRepository;
+        this.createRules = List.of(
+                new ReviewCarIdNotNullRule(),
+                new ReviewUserNotNullRule(),
+                new ReviewRatingRangeRule(),
+                new ReviewCommentNotEmptyRule()
+        );
     }
 
-    public Review createReview(Long carId, User user, int rating, String comment) throws ReviewValidationException {
-        // Проверка и загрузка автомобиля
+    public Review createReview(Long carId, User user, Integer rating, String comment) throws ReviewValidationException {
+        var ctx = new ReviewValidationContext(carId, null, user, rating, comment);
+        var vr  = new ValidationResult();
+        for (var rule : createRules) {
+            rule.validate(ctx, vr);
+        }
+        if (vr.hasErrors()) {
+            throw new ReviewValidationException(vr.getCombinedMessage());
+        }
         Car car = carRepository.read(carId);
         if (car == null) {
             throw new CarNotFoundException("Car not found with id: " + carId);
         }
-        // Проверка пользователя
-        if (user == null) {
-            throw new ReviewValidationException("User must not be null");
-        }
-        // Валидация рейтинга
-        if (rating < 1 || rating > 5) {
-            throw new ReviewValidationException("Rating must be between 1 and 5");
-        }
-        // Проверка комментария
-        if (comment == null || comment.trim().isEmpty()) {
-            throw new ReviewValidationException("Review comment must not be blank");
-        }
-        // Создаем новый Review и устанавливаем поля
         Review review = new Review();
         review.setCar(car);
         review.setUser(user);
         review.setRating(rating);
         review.setComment(comment);
         review.setCreatedAt(LocalDateTime.now());
-        // При необходимости можно вызвать repository.create(review) для сохранения
-        // Например:
-        // return reviewRepository.create(review);
         return reviewRepository.create(review);
     }
 }

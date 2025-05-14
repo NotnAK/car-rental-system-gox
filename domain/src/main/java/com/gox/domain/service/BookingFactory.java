@@ -11,6 +11,7 @@ import com.gox.domain.exception.LocationNotFoundException;
 import com.gox.domain.repository.BookingRepository;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.LocationRepository;
+import com.gox.domain.vo.BookingEstimate;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -21,11 +22,14 @@ public class BookingFactory {
 
     private final CarRepository carRepository;
     private final LocationRepository locationRepository;
+    private final BookingFacade bookingFacade;
     private final BookingRepository bookingRepository;
 
-    public BookingFactory(CarRepository carRepository,
+    public BookingFactory(BookingFacade bookingFacade,
+                          CarRepository carRepository,
                           LocationRepository locationRepository,
                           BookingRepository bookingRepository) {
+        this.bookingFacade      = bookingFacade;
         this.carRepository = carRepository;
         this.locationRepository = locationRepository;
         this.bookingRepository = bookingRepository;
@@ -41,57 +45,34 @@ public class BookingFactory {
                                  Long pickupLocationId,
                                  Long dropoffLocationId,
                                  User user,
-                                 OffsetDateTime startDate,
-                                 OffsetDateTime endDate) {
+                                 OffsetDateTime start,
+                                 OffsetDateTime end) {
 
-        // --- Проверки входных данных ---
-        if (user == null) {
-            throw new BookingValidationException("User must not be null");
-        }
-        if (carId == null) {
-            throw new BookingValidationException("Car ID is required");
-        }
-        if (startDate == null || endDate == null) {
-            throw new BookingValidationException("Start and end dates are required");
-        }
-        if (!startDate.isBefore(endDate)) {
-            throw new BookingValidationException("Start date must be before end date");
-        }
-
-        // --- Загрузка связанных сущностей ---
+        BookingEstimate est = bookingFacade.estimate(
+                carId,
+                pickupLocationId,
+                dropoffLocationId,
+                user,
+                start,
+                end
+        );
         Car car = carRepository.read(carId);
-        if (car == null) {
-            throw new CarNotFoundException("Car not found with id: " + carId);
-        }
         Location pickup = locationRepository.read(pickupLocationId);
-        if (pickup == null) {
-            throw new LocationNotFoundException("Pickup location not found: " + pickupLocationId);
-        }
-
         Location dropoff = locationRepository.read(dropoffLocationId);
-        if (dropoff == null) {
-            throw new LocationNotFoundException("Dropoff location not found: " + dropoffLocationId);
-        }
-
         // --- Собираем бронирование ---
         Booking b = new Booking();
         b.setUser(user);
         b.setCar(car);
         b.setPickupLocation(pickup);
         b.setDropoffLocation(dropoff);
-        b.setStartDate(startDate);
-        b.setEndDate(endDate);
+        b.setStartDate(start);
+        b.setEndDate(end);
         b.setStatus(BookingStatus.PENDING);
 
-        // --- Базовые вычисления (пока простые) ---
-        // Расчёт срочности: меньше 10 ч до старта?
-        long hoursUntilStart = Duration.between(LocalDateTime.now(), startDate).toHours();
-        b.setUrgent(hoursUntilStart < 10);
-
-        // Пока оставляем в 0 – в сервисе пойдут более сложные расчёты
-        b.setTransferFee(BigDecimal.ZERO);
-        b.setTotalPrice(BigDecimal.ZERO);
-        b.setPenalty(BigDecimal.ZERO);
+        b.setUrgent(est.isUrgent());
+        b.setTransferFee(est.getTransferFee());
+        b.setTotalPrice(est.getTotalPrice());
+        b.setPenalty(BigDecimal.ZERO); // штраф в расчёте не нужен на момент создания
 
         // --- Сохраняем ---
         return bookingRepository.create(b);
