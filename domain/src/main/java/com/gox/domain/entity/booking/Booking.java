@@ -12,6 +12,7 @@ public class Booking {
     private Long id;
     private OffsetDateTime startDate;
     private OffsetDateTime endDate;
+    private OffsetDateTime actualReturnDate;
     private BigDecimal totalPrice;
     private BigDecimal transferFee;
     private boolean urgent;
@@ -21,6 +22,8 @@ public class Booking {
     private Car car;
     private Location pickupLocation;
     private Location dropoffLocation;
+
+
 
     public Booking() {
     }
@@ -120,7 +123,13 @@ public class Booking {
     public void setDropoffLocation(Location dropoffLocation) {
         this.dropoffLocation = dropoffLocation;
     }
+    public OffsetDateTime getActualReturnDate() {
+        return actualReturnDate;
+    }
 
+    public void setActualReturnDate(OffsetDateTime actualReturnDate) {
+        this.actualReturnDate = actualReturnDate;
+    }
 
     /** Удобный признак для фронта: нужна ли доставка */
     public boolean isTransferNeeded() {

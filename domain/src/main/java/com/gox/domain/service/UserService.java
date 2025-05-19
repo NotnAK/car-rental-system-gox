@@ -42,7 +42,9 @@
 
         @Override
         public User create(User user) {
-            var ctx = new UserValidationContext(user);
+            var ctx = UserValidationContext.builder()
+                    .user(user)
+                    .build();
             var vr  = new ValidationResult();
             for (var r : rules) {
                 r.validate(ctx, vr);

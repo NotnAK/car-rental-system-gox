@@ -93,7 +93,13 @@ public class ReviewService implements ReviewFacade {
 
     @Override
     public Review update(Review review) {
-        var ctx = new ReviewValidationContext(review.getCar().getId(), review.getId(), review.getUser(), review.getRating(), review.getComment());
+        var ctx = ReviewValidationContext.builder()
+                .carId(review.getCar().getId())
+                .reviewId(review.getId())
+                .user(review.getUser())
+                .rating(review.getRating())
+                .comment(review.getComment())
+                .build();
         var vr  = new ValidationResult();
         for (var rule : updateRules) {
             rule.validate(ctx, vr);

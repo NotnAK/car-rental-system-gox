@@ -30,6 +30,7 @@ public class BookingService implements BookingFacade {
     private final LocationRepository locRepo;
     private static final BigDecimal URGENT_TRANSFER_FEE = new BigDecimal("30");
     private final List<ValidationRule<BookingValidationContext>> validationRules;
+    private final List<ValidationRule<BookingValidationContext>> completionValidationRules;
     public BookingService(BookingRepository bookingRepository,
                           CarRepository carRepo,
                           LocationRepository locRepo) {
@@ -42,8 +43,13 @@ public class BookingService implements BookingFacade {
                 new PickupLocationIdNotNullRule(),
                 new DropoffLocationIdNotNullRule(),
                 new DateOrderRule(),
+                new MaxDurationRule(),
                 new LeadTimeRule(),
                 new GapRule(bookingRepository)
+        );
+        this.completionValidationRules = List.of(
+                new MustBeApprovedRule(),
+                new ActualReturnAfterStartRule()
         );
     }
 
@@ -64,6 +70,11 @@ public class BookingService implements BookingFacade {
     @Override
     public void changeStatus(Long id, BookingStatus newStatus) {
         Booking b = get(id);
+        // 1) если уже COMPLETED или CANCELLED — дальше менять статус нельзя
+        if (b.getStatus() == BookingStatus.COMPLETED || b.getStatus() == BookingStatus.CANCELLED) {
+            throw new BookingValidationException(
+                    "Cannot change status of a " + b.getStatus() + " booking");
+        }
         b.setStatus(newStatus);
         bookingRepository.update(b);
     }
@@ -75,9 +86,15 @@ public class BookingService implements BookingFacade {
                                     User user,
                                     OffsetDateTime start,
                                     OffsetDateTime end) {
-        BookingValidationContext bookingValidationContext = new BookingValidationContext(
-                carId, pickupLocationId, dropoffLocationId, user, start, end
-        );
+        BookingValidationContext bookingValidationContext = BookingValidationContext.builder()
+                .carId(carId)
+                .pickupLocationId(pickupLocationId)
+                .dropoffLocationId(dropoffLocationId)
+                .user(user)
+                .start(start)
+                .end(end)
+                .build();
+
         ValidationResult vr = new ValidationResult();
         for (ValidationRule<BookingValidationContext> rule : validationRules) {
             rule.validate(bookingValidationContext, vr);
@@ -99,20 +116,42 @@ public class BookingService implements BookingFacade {
     }
     @Override
     public List<BookingInterval> getBusyIntervals(Long carId) {
-        // проверка, что машина существует
+        // 1) Проверка, что машина существует
         Car car = carRepo.read(carId);
         if (car == null) {
             throw new CarNotFoundException("Car not found with id: " + carId);
         }
-        // получаем все APPROVED-брони
-        List<Booking> bookings = bookingRepository.findByCarIdAndStatusIn(
-                carId,
-                List.of(BookingStatus.APPROVED)
-        );
 
-        // мапим в VO
+        // 2) Граница «месяц назад»
+        OffsetDateTime oneMonthAgo = OffsetDateTime.now().minusMonths(2);
+
+        // 3) Делаем запрос: только APPROVED и COMPLETED, запланированное endDate ≥ месяц назад
+        List<Booking> bookings = bookingRepository
+                .findByCarIdAndStatusInAndEndDateAfter(
+                        carId,
+                        List.of(BookingStatus.APPROVED, BookingStatus.COMPLETED),
+                        oneMonthAgo
+                );
+
+        // 4) Мапим в VO, для COMPLETED используем actualReturnDate, если он раньше
         return bookings.stream()
-                .map(b -> new BookingInterval(b.getStartDate(), b.getEndDate()))
+                .map(b -> {
+                    OffsetDateTime effectiveEnd;
+                    if (b.getStatus() == BookingStatus.COMPLETED
+                            && b.getActualReturnDate() != null
+                            && b.getActualReturnDate().isBefore(b.getEndDate())) {
+                        // вернули раньше — берём фактическую
+                        effectiveEnd = b.getActualReturnDate();
+                    } else {
+                        // иначе — запланированную
+                        effectiveEnd = b.getEndDate();
+                    }
+                    // добавляем сутки на техобслуживание
+                    return new BookingInterval(
+                            b.getStartDate(),
+                            effectiveEnd
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -129,9 +168,11 @@ public class BookingService implements BookingFacade {
         // срочность
         long hoursUntilStart = Duration.between(now, start).toHours();
         boolean urgent = hoursUntilStart < 10;
-        BigDecimal transferFee = pickupLocationId.equals(dropoffLocationId)
-                ? BigDecimal.ZERO
-                : (urgent ? URGENT_TRANSFER_FEE : BigDecimal.ZERO);
+        BigDecimal transferFee = BigDecimal.ZERO;
+
+        if (!pickupLocationId.equals(dropoffLocationId) && urgent) {
+            transferFee = URGENT_TRANSFER_FEE;
+        }
 
         // дни (ceil)
         long seconds = Duration.between(start, end).getSeconds();
@@ -158,5 +199,40 @@ public class BookingService implements BookingFacade {
                 transferFee,
                 totalPrice
         );
+    }
+
+    @Override
+    public Booking completeBooking(Long bookingId, OffsetDateTime actualReturnDate) {
+        Booking b = get(bookingId);
+        BookingValidationContext ctx = BookingValidationContext.builder()
+                .status(b.getStatus())
+                .actualReturnDate(actualReturnDate)
+                .start(b.getStartDate())
+                .build();
+
+        ValidationResult vr = new ValidationResult();
+        for (ValidationRule<BookingValidationContext> rule : completionValidationRules) {
+            rule.validate(ctx, vr);
+        }
+        if (vr.hasErrors()) {
+            throw new BookingValidationException(vr.getCombinedMessage());
+        }
+        b.setActualReturnDate(actualReturnDate);
+
+        // расчёт штрафа: опоздание > 30 мин
+        Duration late = Duration.between(b.getEndDate(), actualReturnDate);
+        if (late.toMinutes() > 30) {
+            long hoursLate = (late.toMinutes() + 59) / 60; // округляем в большую сторону
+            BigDecimal daily = b.getCar().getPricePerDay();
+            BigDecimal penalty = daily
+                    .multiply(BigDecimal.valueOf(0.4))     // 40%
+                    .multiply(BigDecimal.valueOf(hoursLate));
+            b.setPenalty(penalty);
+        } else {
+            b.setPenalty(BigDecimal.ZERO);
+        }
+
+        b.setStatus(BookingStatus.COMPLETED);
+        return bookingRepository.update(b);
     }
 }

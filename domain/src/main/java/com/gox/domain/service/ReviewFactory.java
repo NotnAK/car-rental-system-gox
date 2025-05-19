@@ -35,7 +35,12 @@ public class ReviewFactory {
     }
 
     public Review createReview(Long carId, User user, Integer rating, String comment) throws ReviewValidationException {
-        var ctx = new ReviewValidationContext(carId, null, user, rating, comment);
+        var ctx = ReviewValidationContext.builder()
+                .carId(carId)
+                .user(user)
+                .rating(rating)
+                .comment(comment)
+                .build();
         var vr  = new ValidationResult();
         for (var rule : createRules) {
             rule.validate(ctx, vr);

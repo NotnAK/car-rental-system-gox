@@ -443,24 +443,68 @@ paths:
                 $ref: '#/components/schemas/Booking'
         '404':
           description: Booking not found
+  /bookings/{bookingId}/approve:
+    post:
+      summary: Admin confirms reservation
+      operationId: approveBooking
+      tags: [ Booking ]
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Booking status changed to APPROVED.
 
-    patch:
-      summary: Partially update a booking (e.g. status) (CUSTOMER/ADMIN)
-      operationId: patchBooking
+  /bookings/{bookingId}/cancel:
+    post:
+      summary: Admin/client cancels the reservation
+      operationId: cancelBooking
+      tags: [ Booking ]
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Booking status changed to CANCELLED
+
+  /bookings/{bookingId}/complete:
+    post:
+      summary: Complete a booking (ADMIN), set actual return date, calculate penalty
+      operationId: completeBooking
       tags:
         - Booking
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - actualReturnDate
               properties:
-                status:
-                  $ref: '#/components/schemas/BookingStatus'
+                actualReturnDate:
+                  type: string
+                  format: date-time
       responses:
         '200':
-          description: Booking updated
+          description: Booking completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
   /bookings/estimate:
     post:
       summary: Estimate cost of a booking without creating (CUSTOMER)
@@ -691,6 +735,9 @@ components:
           type: string
           format: date-time
         endDate:
+          type: string
+          format: date-time
+        actualReturnDate:
           type: string
           format: date-time
         totalPrice:

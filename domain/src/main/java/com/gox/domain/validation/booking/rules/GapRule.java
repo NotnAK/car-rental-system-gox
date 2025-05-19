@@ -8,10 +8,10 @@ import com.gox.domain.validation.api.ValidationRule;
 import java.time.OffsetDateTime;
 
 public class GapRule implements ValidationRule<BookingValidationContext> {
-    private final BookingRepository repo;
+    private final BookingRepository bookingRepository;
 
-    public GapRule(BookingRepository repo) {
-        this.repo = repo;
+    public GapRule(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
@@ -19,12 +19,12 @@ public class GapRule implements ValidationRule<BookingValidationContext> {
         if (ctx.getStart() != null && ctx.getEnd() != null) {
             OffsetDateTime endPlus   = ctx.getEnd().plusDays(1);
             OffsetDateTime startMinus = ctx.getStart().minusDays(1);
-            boolean conflict = !repo.findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            boolean conflict = bookingRepository.existsConflict(
                     ctx.getCarId(),
                     BookingStatus.CANCELLED,
                     endPlus,
                     startMinus
-            ).isEmpty();
+            );
             if (conflict) {
                 result.addError("You need a gap of 24 hours between bookings.");
             }

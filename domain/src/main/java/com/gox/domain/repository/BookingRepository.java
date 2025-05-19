@@ -12,13 +12,18 @@ public interface BookingRepository {
     List<Booking> findAll();
     Booking update(Booking booking);
     //findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual
-/*    boolean existsConflict(Long carId,
+    boolean existsConflict(Long carId,
                            BookingStatus excludedStatus,
                            OffsetDateTime endPlusGap,
-                           OffsetDateTime startMinusGap);*/
-    List<Booking> findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long carId,
+                           OffsetDateTime startMinusGap);
+   /* List<Booking> findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long carId,
                                                                                              BookingStatus excludedStatus,
                                                                                              OffsetDateTime endPlusGap,
-                                                                                             OffsetDateTime startMinusGap);
-    List<Booking> findByCarIdAndStatusIn(Long carId, List<BookingStatus> statuses);
+                                                                                             OffsetDateTime startMinusGap);*/
+//    List<Booking> findByCarIdAndStatusIn(Long carId, List<BookingStatus> statuses);
+   List<Booking> findByCarIdAndStatusInAndEndDateAfter(
+           Long carId,
+           List<BookingStatus> statuses,
+           OffsetDateTime endDateAfter
+   );
 }

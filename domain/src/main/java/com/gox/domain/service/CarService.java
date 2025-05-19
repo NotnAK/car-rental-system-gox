@@ -12,7 +12,6 @@ import com.gox.domain.validation.car.rules.CarModelNotEmptyRule;
 import com.gox.domain.validation.car.rules.CarNotNullRule;
 import com.gox.domain.validation.car.rules.CarPricePositiveRule;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public class CarService implements CarFacade {
@@ -49,7 +48,7 @@ public class CarService implements CarFacade {
     @Override
     public Car create(Car car) {
         // 1) контекст + 2) прогоняем правила
-        var ctx = new CarValidationContext(car);
+        var ctx = CarValidationContext.builder().car(car).build();
         var vr  = new ValidationResult();
         for (var r : rules) {
             r.validate(ctx, vr);

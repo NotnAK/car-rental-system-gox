@@ -10,7 +10,7 @@ import com.gox.rest.api.BookingsApi;
 import com.gox.rest.dto.BookingCreateRequestDto;
 import com.gox.rest.dto.BookingDto;
 import com.gox.rest.dto.BookingEstimateDto;
-import com.gox.rest.dto.PatchBookingRequestDto;
+import com.gox.rest.dto.CompleteBookingRequestDto;
 import com.gox.security.CurrentUserDetailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,11 +64,6 @@ public class BookingRestController implements BookingsApi {
         return ResponseEntity.ok(mapper.toDto(b));
     }
 
-    @Override
-    public ResponseEntity<Void> patchBooking(Long bookingId, PatchBookingRequestDto dto) {
-        bookingFacade.changeStatus(bookingId, BookingStatus.valueOf(dto.getStatus().name()));
-        return ResponseEntity.ok().build();
-    }
 
     @Override
     public ResponseEntity<BookingEstimateDto> estimateBooking(
@@ -88,5 +83,36 @@ public class BookingRestController implements BookingsApi {
         BookingEstimateDto estimateDto = estimateMapper.toDto(vo);
 
         return ResponseEntity.ok(estimateDto);
+    }
+    @Override
+    public ResponseEntity<Void> approveBooking(Integer bookingId) {
+        // Преобразуем в Long, устанавливаем статус APPROVED
+        bookingFacade.changeStatus(
+                bookingId.longValue(),
+                BookingStatus.APPROVED
+        );
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> cancelBooking(Integer bookingId) {
+        // То же для статуса CANCELLED
+        bookingFacade.changeStatus(
+                bookingId.longValue(),
+                BookingStatus.CANCELLED
+        );
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<BookingDto> completeBooking(
+            Long bookingId,
+            CompleteBookingRequestDto dto) {
+
+        Booking b = bookingFacade.completeBooking(
+                bookingId,
+                dto.getActualReturnDate()
+        );
+        return ResponseEntity.ok(mapper.toDto(b));
     }
 }
