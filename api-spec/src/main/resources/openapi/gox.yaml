@@ -32,7 +32,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Car'
+              $ref: '#/components/schemas/CarCreateRequest'
       responses:
         '201':
           description: Car successfully created
@@ -548,12 +548,18 @@ components:
         seats:
           type: integer
           description: Number of seats in the car.
-        state:
-          $ref: '#/components/schemas/CarState'
         pricePerDay:
           type: number
           format: double
           description: Rental price per day.
+        state:
+          $ref: '#/components/schemas/CarState'
+        category:
+          $ref: '#/components/schemas/CarCategory'
+        transmission:
+          $ref: '#/components/schemas/TransmissionType'
+        fuelType:
+          $ref: '#/components/schemas/FuelType'
         description:
           type: string
           description: Optional description of the car.
@@ -574,6 +580,32 @@ components:
         - RENTED
         - UNAVAILABLE
         - IN_TRANSIT
+    CarCategory:
+      type: string
+      enum:
+        - SEDAN
+        - SUV
+        - HATCHBACK
+        - COUPE
+        - WAGON
+        - CROSSOVER
+        - SPORT
+        - CABRIOLET
+        - MUV
+
+    TransmissionType:
+      type: string
+      enum:
+        - MANUAL
+        - AUTOMATIC
+
+    FuelType:
+      type: string
+      enum:
+        - PETROL
+        - DIESEL
+        - ELECTRIC
+        - HYBRID
     User:
       type: object
       properties:
@@ -832,3 +864,29 @@ components:
           type: string
           format: date-time
           description: Interval end (exclusive)
+
+    CarCreateRequest:
+      type: object
+      required:
+        - brand
+        - model
+        - year
+        - seats
+        - pricePerDay
+        - state
+        - category
+        - transmission
+        - fuelType
+        - locationId
+      properties:
+        brand: { type: string }
+        model: { type: string }
+        year: { type: integer, format: int32 }
+        seats: { type: integer, format: int32 }
+        pricePerDay: { type: number, format: double }
+        state: { $ref: '#/components/schemas/CarState' }
+        category: { $ref: '#/components/schemas/CarCategory' }
+        transmission: { $ref: '#/components/schemas/TransmissionType' }
+        fuelType: { $ref: '#/components/schemas/FuelType' }
+        description: { type: string }
+        locationId: { type: integer, format: int64 }

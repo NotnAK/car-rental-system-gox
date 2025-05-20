@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RestController
 public class CarRestController implements CarsApi {
+    private final CarFactory   carFactory;
     private final CarFacade carFacade;
     private final CarMapper carMapper;
     private final ReviewFacade reviewFacade;
@@ -34,7 +35,8 @@ public class CarRestController implements CarsApi {
     private final ReviewFactory reviewFactory;
     private final BookingFacade bookingFacade;
     private final BookingIntervalMapper intervalMapper;
-    public CarRestController(CarFacade carFacade,
+    public CarRestController(CarFactory carFactory,
+                             CarFacade carFacade,
                              CarMapper carMapper,
                              BookingFacade bookingFacade,
                              BookingIntervalMapper intervalMapper,
@@ -44,6 +46,7 @@ public class CarRestController implements CarsApi {
                              PhotoMapper photoMapper,
                              CurrentUserDetailService currentUserDetailService,
                              ReviewFactory reviewFactory) {
+        this.carFactory = carFactory;
         this.carFacade = carFacade;
         this.carMapper = carMapper;
         this.reviewFacade = reviewFacade;
@@ -74,12 +77,11 @@ public class CarRestController implements CarsApi {
     }
 
     @Override
-    public ResponseEntity<CarDto> createCar(CarDto carDto) {
-        Car car = carMapper.toEntity(carDto);
-        Car created = carFacade.create(car);
-        return ResponseEntity.status(201).body(carMapper.toDto(created));
+    public ResponseEntity<CarDto> createCar(CarCreateRequestDto dto) {
+        Car carEntity = carMapper.toEntity(dto);
+        Car saved = carFactory.createCar(carEntity, dto.getLocationId());
+        return ResponseEntity.status(201).body(carMapper.toDto(saved));
     }
-
     // POST /customer/reviews
     @Override
     public ResponseEntity<String> createReview(Integer carId,

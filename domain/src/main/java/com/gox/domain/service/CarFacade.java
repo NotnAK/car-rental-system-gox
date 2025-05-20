@@ -7,6 +7,5 @@ import java.util.List;
 public interface CarFacade {
     Car get(Long id);
     List<Car> getAllCars();
-    Car create(Car car);
     void delete(Long id);
 }

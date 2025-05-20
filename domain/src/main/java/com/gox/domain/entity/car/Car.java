@@ -14,6 +14,11 @@ public class Car {
     private int seats;
     private BigDecimal pricePerDay;
     private CarState state;
+
+    private CarCategory category;
+    private TransmissionType transmission;
+    private FuelType fuelType;
+
     private String description;
     private Location location;
     public Car() {
@@ -89,5 +94,29 @@ public class Car {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public CarCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(CarCategory category) {
+        this.category = category;
+    }
+
+    public TransmissionType getTransmission() {
+        return transmission;
+    }
+
+    public void setTransmission(TransmissionType transmission) {
+        this.transmission = transmission;
+    }
+
+    public FuelType getFuelType() {
+        return fuelType;
+    }
+
+    public void setFuelType(FuelType fuelType) {
+        this.fuelType = fuelType;
     }
 }

@@ -17,15 +17,8 @@ import java.util.List;
 public class CarService implements CarFacade {
 
     private final CarRepository carRepository;
-    private final List<ValidationRule<CarValidationContext>> rules;
     public CarService(CarRepository carRepository) {
         this.carRepository = carRepository;
-        this.rules = List.of(
-                new CarNotNullRule(),
-                new CarBrandNotEmptyRule(),
-                new CarModelNotEmptyRule(),
-                new CarPricePositiveRule()
-        );
     }
 
     @Override
@@ -45,7 +38,7 @@ public class CarService implements CarFacade {
         return carRepository.findAll();
     }
 
-    @Override
+/*    @Override
     public Car create(Car car) {
         // 1) контекст + 2) прогоняем правила
         var ctx = CarValidationContext.builder().car(car).build();
@@ -58,7 +51,7 @@ public class CarService implements CarFacade {
         }
         // 3) если всё ок — сохраняем
         return carRepository.create(car);
-    }
+    }*/
 
     @Override
     public void delete(Long id) {

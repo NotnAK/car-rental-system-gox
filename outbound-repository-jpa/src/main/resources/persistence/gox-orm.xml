@@ -31,13 +31,25 @@
                 <column name="state"/>
                 <convert converter="com.gox.jpa.converter.CarStateConverter"/>
             </basic>
+            <basic name="category">
+                <column name="category" nullable="false"/>
+                <convert converter="com.gox.jpa.converter.CarCategoryConverter"/>
+            </basic>
+            <basic name="transmission">
+                <column name="transmission" nullable="false"/>
+                <convert converter="com.gox.jpa.converter.TransmissionTypeConverter"/>
+            </basic>
+            <basic name="fuelType">
+                <column name="fuel_type" nullable="false"/>
+                <convert converter="com.gox.jpa.converter.FuelTypeConverter"/>
+            </basic>
             <!-- 1:1 на preview-изображение -->
             <basic name="description">
                 <column name="description" nullable="true"/>
             </basic>
             <!-- связь ManyToOne на Location -->
             <many-to-one name="location" fetch="LAZY">
-                <join-column name="location_id" referenced-column-name="id" nullable="true"/>
+                <join-column name="location_id" referenced-column-name="id" nullable="false"/>
             </many-to-one>
         </attributes>
     </entity>
