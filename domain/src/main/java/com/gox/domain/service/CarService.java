@@ -4,13 +4,7 @@ import com.gox.domain.entity.car.Car;
 import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.CarValidationException;
 import com.gox.domain.repository.CarRepository;
-import com.gox.domain.validation.api.ValidationResult;
-import com.gox.domain.validation.api.ValidationRule;
-import com.gox.domain.validation.car.CarValidationContext;
-import com.gox.domain.validation.car.rules.CarBrandNotEmptyRule;
-import com.gox.domain.validation.car.rules.CarModelNotEmptyRule;
-import com.gox.domain.validation.car.rules.CarNotNullRule;
-import com.gox.domain.validation.car.rules.CarPricePositiveRule;
+import com.gox.domain.vo.CarFilter;
 
 import java.util.List;
 
@@ -64,7 +58,12 @@ public class CarService implements CarFacade {
         }
         carRepository.delete(id);
     }
-/*    private void validateCar(Car car) {
+
+    @Override
+    public List<Car> searchCars(CarFilter filter) {
+        return carRepository.findByFilter(filter);
+    }
+    /*    private void validateCar(Car car) {
         if (car == null) {
             throw new CarValidationException("Car must not be null");
         }

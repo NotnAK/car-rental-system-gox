@@ -9,10 +9,17 @@ servers:
 paths:
   /cars:
     get:
-      summary: Retrieve a list of cars (ALL)
+      summary: Retrieve a list of cars (ALL), with optional filtering
       operationId: getCars
       tags:
         - Car
+      parameters:
+        - in: query
+          name: filter
+          style: deepObject
+          explode: true
+          schema:
+            $ref: '#/components/schemas/CarFilterRequest'
       responses:
         '200':
           description: A list of cars
@@ -592,7 +599,29 @@ components:
         - SPORT
         - CABRIOLET
         - MUV
-
+    CarFilterRequest:
+      type: object
+      properties:
+        brand:
+          type: string
+        year:
+          type: integer
+          format: int32
+        priceMin:
+          type: number
+          format: double
+        priceMax:
+          type: number
+          format: double
+        category:
+          $ref: '#/components/schemas/CarCategory'
+        seats:
+          type: integer
+          format: int32
+        transmission:
+          $ref: '#/components/schemas/TransmissionType'
+        fuelType:
+          $ref: '#/components/schemas/FuelType'
     TransmissionType:
       type: string
       enum:

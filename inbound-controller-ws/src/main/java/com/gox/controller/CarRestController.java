@@ -1,14 +1,15 @@
 package com.gox.controller;
 
 import com.gox.domain.entity.car.Car;
+import com.gox.domain.entity.car.CarCategory;
+import com.gox.domain.entity.car.FuelType;
+import com.gox.domain.entity.car.TransmissionType;
 import com.gox.domain.entity.photo.Photo;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.exception.CarValidationException;
 import com.gox.domain.service.*;
-import com.gox.mapper.BookingIntervalMapper;
-import com.gox.mapper.CarMapper;
-import com.gox.mapper.PhotoMapper;
-import com.gox.mapper.ReviewMapper;
+import com.gox.domain.vo.CarFilter;
+import com.gox.mapper.*;
 import com.gox.rest.api.CarsApi;
 import com.gox.rest.dto.*;
 import com.gox.security.CurrentUserDetailService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +37,7 @@ public class CarRestController implements CarsApi {
     private final ReviewFactory reviewFactory;
     private final BookingFacade bookingFacade;
     private final BookingIntervalMapper intervalMapper;
+    private final CarFilterMapper filterMapper;
     public CarRestController(CarFactory carFactory,
                              CarFacade carFacade,
                              CarMapper carMapper,
@@ -45,7 +48,8 @@ public class CarRestController implements CarsApi {
                              PhotoFacade photoFacade,
                              PhotoMapper photoMapper,
                              CurrentUserDetailService currentUserDetailService,
-                             ReviewFactory reviewFactory) {
+                             ReviewFactory reviewFactory,
+                             CarFilterMapper filterMapper) {
         this.carFactory = carFactory;
         this.carFacade = carFacade;
         this.carMapper = carMapper;
@@ -57,24 +61,21 @@ public class CarRestController implements CarsApi {
         this.reviewFactory = reviewFactory;
         this.bookingFacade    = bookingFacade;
         this.intervalMapper   = intervalMapper;
+        this.filterMapper = filterMapper;
     }
 
     @Override
-    public ResponseEntity<List<CarDto>> getCars() {
-        List<CarDto> dtos = carFacade.getAllCars().stream()
-                .map(car -> {
-                    CarDto dto = carMapper.toDto(car);
-                    // Получаем entity
-                    Photo previewEntity = photoFacade.getPreviewForCar(car.getId());
-                    // Конвертируем в DTO
-                    PhotoDto previewDto = photoMapper.toDto(previewEntity);
-                    dto.setPreview(previewDto);
-                    return dto;
-                })
+    public ResponseEntity<List<CarDto>> getCars(
+            CarFilterRequestDto filterDto
+    ) {
+        CarFilter filter = filterMapper.toVo(filterDto);
+        List<Car> cars = carFacade.searchCars(filter);
+        List<CarDto> dtos = cars.stream()
+                .map(carMapper::toDto)
                 .collect(Collectors.toList());
-
         return ResponseEntity.ok(dtos);
     }
+
 
     @Override
     public ResponseEntity<CarDto> createCar(CarCreateRequestDto dto) {
