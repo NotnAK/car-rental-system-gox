@@ -63,4 +63,9 @@ public class JpaBookingRepositoryAdapter implements BookingRepository {
     public List<Booking> findByCarIdAndStatusIn(Long carId, List<BookingStatus> statuses) {
         return bookingSpringDataRepository.findByCarIdAndStatusIn(carId, statuses);
     }*/
+
+    @Override
+    public List<Booking> findByUserIdAndStatus(Long userId, BookingStatus status) {
+        return bookingSpringDataRepository.findByUserIdAndStatus(userId, status);
+    }
 }

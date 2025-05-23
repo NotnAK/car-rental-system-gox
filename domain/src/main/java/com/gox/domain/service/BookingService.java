@@ -3,6 +3,7 @@ package com.gox.domain.service;
 import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.booking.BookingStatus;
 import com.gox.domain.entity.car.Car;
+import com.gox.domain.entity.user.LoyaltyLevel;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.exception.BookingNotFoundException;
 import com.gox.domain.exception.BookingValidationException;
@@ -11,6 +12,7 @@ import com.gox.domain.exception.LocationNotFoundException;
 import com.gox.domain.repository.BookingRepository;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.LocationRepository;
+import com.gox.domain.repository.UserRepository;
 import com.gox.domain.validation.api.ValidationResult;
 import com.gox.domain.validation.booking.BookingValidationContext;
 import com.gox.domain.validation.api.ValidationRule;
@@ -28,15 +30,18 @@ public class BookingService implements BookingFacade {
     private final BookingRepository bookingRepository;
     private final CarRepository carRepo;
     private final LocationRepository locRepo;
+    private final UserRepository userRepository;
     private static final BigDecimal URGENT_TRANSFER_FEE = new BigDecimal("30");
     private final List<ValidationRule<BookingValidationContext>> validationRules;
     private final List<ValidationRule<BookingValidationContext>> completionValidationRules;
     public BookingService(BookingRepository bookingRepository,
                           CarRepository carRepo,
-                          LocationRepository locRepo) {
+                          LocationRepository locRepo,
+                          UserRepository    userRepository) {
         this.bookingRepository = bookingRepository;
         this.carRepo = carRepo;
         this.locRepo = locRepo;
+        this.userRepository = userRepository;
         this.validationRules = List.of(
                 new UserNotNullRule(),
                 new CarIdNotNullRule(),
@@ -203,11 +208,11 @@ public class BookingService implements BookingFacade {
 
     @Override
     public Booking completeBooking(Long bookingId, OffsetDateTime actualReturnDate) {
-        Booking b = get(bookingId);
+        Booking booking = get(bookingId);
         BookingValidationContext ctx = BookingValidationContext.builder()
-                .status(b.getStatus())
+                .status(booking.getStatus())
                 .actualReturnDate(actualReturnDate)
-                .start(b.getStartDate())
+                .start(booking.getStartDate())
                 .build();
 
         ValidationResult vr = new ValidationResult();
@@ -217,22 +222,41 @@ public class BookingService implements BookingFacade {
         if (vr.hasErrors()) {
             throw new BookingValidationException(vr.getCombinedMessage());
         }
-        b.setActualReturnDate(actualReturnDate);
+        booking.setActualReturnDate(actualReturnDate);
 
         // расчёт штрафа: опоздание > 30 мин
-        Duration late = Duration.between(b.getEndDate(), actualReturnDate);
+        Duration late = Duration.between(booking.getEndDate(), actualReturnDate);
         if (late.toMinutes() > 30) {
             long hoursLate = (late.toMinutes() + 59) / 60; // округляем в большую сторону
-            BigDecimal daily = b.getCar().getPricePerDay();
+            BigDecimal daily = booking.getCar().getPricePerDay();
             BigDecimal penalty = daily
                     .multiply(BigDecimal.valueOf(0.4))     // 40%
                     .multiply(BigDecimal.valueOf(hoursLate));
-            b.setPenalty(penalty);
+            booking.setPenalty(penalty);
+            booking.setTotalPrice(booking.getTotalPrice().add(penalty));
         } else {
-            b.setPenalty(BigDecimal.ZERO);
+            booking.setPenalty(BigDecimal.ZERO);
         }
 
-        b.setStatus(BookingStatus.COMPLETED);
-        return bookingRepository.update(b);
+        booking.setStatus(BookingStatus.COMPLETED);
+        Booking updated = bookingRepository.update(booking);
+        // --- Вот новый блок: повышение лояльности ---
+        User user = updated.getUser();
+        List<Booking> allCompleted = bookingRepository
+                .findByUserIdAndStatus(user.getId(), BookingStatus.COMPLETED);
+
+        if (allCompleted.size() >= 5
+                && user.getLoyaltyLevel() == LoyaltyLevel.STANDARD) {
+            user.setLoyaltyLevel(LoyaltyLevel.SILVER);
+            userRepository.update(user);
+        }
+        if (allCompleted.size() >= 10
+                && user.getLoyaltyLevel() == LoyaltyLevel.SILVER) {
+            user.setLoyaltyLevel(LoyaltyLevel.GOLD);
+            userRepository.update(user);
+        }
+        // ------------------------------------------------
+
+        return updated;
     }
 }

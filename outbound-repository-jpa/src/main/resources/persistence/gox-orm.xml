@@ -196,6 +196,15 @@
             <basic name="actualReturnDate">
                 <column name="actual_return_date" nullable="true"/>
             </basic>
+            <basic name="basePrice">
+                <column name="base_price" nullable="false"/>
+            </basic>
+            <basic name="loyaltyDiscount">
+                <column name="loyalty_discount" nullable="false"/>
+            </basic>
+            <basic name="discountedPrice">
+                <column name="discounted_price" nullable="false"/>
+            </basic>
             <basic name="totalPrice">
                 <column name="total_price" nullable="false"/>
             </basic>

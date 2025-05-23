@@ -21,6 +21,9 @@ public interface BookingMapper {
     @Mapping(target = "penalty", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "actualReturnDate", ignore = true) // при создании new Booking оно ещё пустое
+    @Mapping(target = "basePrice",         ignore = true)
+    @Mapping(target = "loyaltyDiscount",   ignore = true)
+    @Mapping(target = "discountedPrice",   ignore = true)
     Booking toEntity(BookingCreateRequestDto dto);
 
     @Mapping(source = "user.id",            target = "userId")
@@ -29,6 +32,10 @@ public interface BookingMapper {
     @Mapping(source = "dropoffLocation.id", target = "dropoffLocationId")
     @Mapping(source = "actualReturnDate",   target = "actualReturnDate")
     @Mapping(source = "penalty",           target = "penalty")
+
+    @Mapping(source = "basePrice",          target = "basePrice")
+    @Mapping(source = "loyaltyDiscount",    target = "loyaltyDiscount")
+    @Mapping(source = "discountedPrice",    target = "discountedPrice")
     BookingDto toDto(Booking booking);
 
 }

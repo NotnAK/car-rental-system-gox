@@ -3,6 +3,7 @@ package com.gox.domain.service;
 import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.booking.BookingStatus;
 import com.gox.domain.entity.car.Car;
+import com.gox.domain.entity.car.CarState;
 import com.gox.domain.entity.location.Location;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.exception.BookingValidationException;
@@ -57,6 +58,11 @@ public class BookingFactory {
                 end
         );
         Car car = carRepository.read(carId);
+        if (car.getState() == CarState.UNAVAILABLE) {
+            throw new BookingValidationException(
+                    "Car with id " + carId + " is not available for booking"
+            );
+        }
         Location pickup = locationRepository.read(pickupLocationId);
         Location dropoff = locationRepository.read(dropoffLocationId);
         // --- Собираем бронирование ---
@@ -68,7 +74,9 @@ public class BookingFactory {
         b.setStartDate(start);
         b.setEndDate(end);
         b.setStatus(BookingStatus.PENDING);
-
+        b.setBasePrice(est.getBasePrice());
+        b.setLoyaltyDiscount(est.getLoyaltyDiscount());
+        b.setDiscountedPrice(est.getDiscountedPrice());
         b.setUrgent(est.isUrgent());
         b.setTransferFee(est.getTransferFee());
         b.setTotalPrice(est.getTotalPrice());

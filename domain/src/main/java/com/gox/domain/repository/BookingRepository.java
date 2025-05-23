@@ -26,4 +26,6 @@ public interface BookingRepository {
            List<BookingStatus> statuses,
            OffsetDateTime endDateAfter
    );
+
+    List<Booking> findByUserIdAndStatus(Long userId, BookingStatus status);
 }

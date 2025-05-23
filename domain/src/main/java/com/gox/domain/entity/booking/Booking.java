@@ -13,6 +13,9 @@ public class Booking {
     private OffsetDateTime startDate;
     private OffsetDateTime endDate;
     private OffsetDateTime actualReturnDate;
+    private BigDecimal basePrice;
+    private BigDecimal loyaltyDiscount;
+    private BigDecimal discountedPrice;
     private BigDecimal totalPrice;
     private BigDecimal transferFee;
     private boolean urgent;
@@ -129,6 +132,30 @@ public class Booking {
 
     public void setActualReturnDate(OffsetDateTime actualReturnDate) {
         this.actualReturnDate = actualReturnDate;
+    }
+
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
+    }
+
+    public BigDecimal getLoyaltyDiscount() {
+        return loyaltyDiscount;
+    }
+
+    public void setLoyaltyDiscount(BigDecimal loyaltyDiscount) {
+        this.loyaltyDiscount = loyaltyDiscount;
+    }
+
+    public BigDecimal getDiscountedPrice() {
+        return discountedPrice;
+    }
+
+    public void setDiscountedPrice(BigDecimal discountedPrice) {
+        this.discountedPrice = discountedPrice;
     }
 
     /** Удобный признак для фронта: нужна ли доставка */

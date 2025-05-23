@@ -814,6 +814,15 @@ components:
         actualReturnDate:
           type: string
           format: date-time
+        basePrice:
+          type: number
+          format: double
+        loyaltyDiscount:
+          type: number
+          format: double
+        discountedPrice:
+          type: number
+          format: double
         totalPrice:
           type: number
           format: double

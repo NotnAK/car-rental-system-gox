@@ -16,7 +16,7 @@ public interface BookingSpringDataRepository extends JpaRepository<Booking, Long
      * (используется для availability-эндпоинта)
      */
     List<Booking> findByCarIdAndStatusInAndEndDateAfter(Long carId, List<BookingStatus> statuses, OffsetDateTime endDateAfter);
-
+    List<Booking> findByUserIdAndStatus(Long userId, BookingStatus status);
     /**
      * Проверяет, пересекается ли любая бронь (status != excludedStatus)
      * с интервалом [startMinusGap … endPlusGap].
@@ -41,7 +41,14 @@ public interface BookingSpringDataRepository extends JpaRepository<Booking, Long
   WHERE b.car.id = :carId
     AND b.status <> :excludedStatus
     AND b.startDate <= :endPlusGap
-    AND COALESCE(b.actualReturnDate, b.endDate) >= :startMinusGap
+    AND (
+      CASE
+        WHEN b.actualReturnDate IS NOT NULL
+             AND b.actualReturnDate < b.endDate
+        THEN b.actualReturnDate
+        ELSE b.endDate
+      END
+    ) >= :startMinusGap
   """)
     boolean existsConflict(
             @Param("carId") Long carId,
