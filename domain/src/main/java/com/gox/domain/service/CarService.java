@@ -1,18 +1,26 @@
 package com.gox.domain.service;
 
 import com.gox.domain.entity.car.Car;
+import com.gox.domain.entity.car.CarCategory;
+import com.gox.domain.entity.car.FuelType;
+import com.gox.domain.entity.car.TransmissionType;
 import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.CarValidationException;
+import com.gox.domain.repository.CarFilterOptionsRepository;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.vo.CarFilter;
+import com.gox.domain.vo.CarFilterOptions;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class CarService implements CarFacade {
 
     private final CarRepository carRepository;
-    public CarService(CarRepository carRepository) {
+    private final CarFilterOptionsRepository filterOptionsRepository;
+    public CarService(CarRepository carRepository, CarFilterOptionsRepository filterOptionsRepository) {
         this.carRepository = carRepository;
+        this.filterOptionsRepository = filterOptionsRepository;
     }
 
     @Override
@@ -32,20 +40,6 @@ public class CarService implements CarFacade {
         return carRepository.findAll();
     }
 
-/*    @Override
-    public Car create(Car car) {
-        // 1) контекст + 2) прогоняем правила
-        var ctx = CarValidationContext.builder().car(car).build();
-        var vr  = new ValidationResult();
-        for (var r : rules) {
-            r.validate(ctx, vr);
-        }
-        if (vr.hasErrors()) {
-            throw new CarValidationException(vr.getCombinedMessage());
-        }
-        // 3) если всё ок — сохраняем
-        return carRepository.create(car);
-    }*/
 
     @Override
     public void delete(Long id) {
@@ -63,18 +57,11 @@ public class CarService implements CarFacade {
     public List<Car> searchCars(CarFilter filter) {
         return carRepository.findByFilter(filter);
     }
-    /*    private void validateCar(Car car) {
-        if (car == null) {
-            throw new CarValidationException("Car must not be null");
-        }
-        if (car.getBrand() == null || car.getBrand().isBlank()) {
-            throw new CarValidationException("Car brand is required");
-        }
-        if (car.getModel() == null || car.getModel().isBlank()) {
-            throw new CarValidationException("Car model is required");
-        }
-        if (car.getPricePerDay() == null || car.getPricePerDay().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new CarValidationException("Price per day must be positive");
-        }
-    }*/
+
+
+    @Override
+    public CarFilterOptions getFilterOptions() {
+        return filterOptionsRepository.getFilterOptions();
+    }
+
 }

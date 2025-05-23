@@ -47,6 +47,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Car'
+  /cars/filters:
+    get:
+      summary: Get available filter options for cars
+      operationId: getCarFilterOptions
+      tags:
+        - Car
+      responses:
+        '200':
+          description: All possible filter values
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarFilterOptions'
   /cars/{carId}:
     get:
       summary: Get a specific car by ID (ALL)
@@ -919,3 +932,37 @@ components:
         fuelType: { $ref: '#/components/schemas/FuelType' }
         description: { type: string }
         locationId: { type: integer, format: int64 }
+
+    CarFilterOptions:
+      type: object
+      properties:
+        brands:
+          type: array
+          items:
+            type: string
+        years:
+          type: array
+          items:
+            type: integer
+        priceMin:
+          type: number
+          format: double
+        priceMax:
+          type: number
+          format: double
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarCategory'
+        seats:
+          type: array
+          items:
+            type: integer
+        transmissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransmissionType'
+        fuelTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FuelType'

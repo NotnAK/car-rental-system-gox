@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class LocationRepositoryAdapter implements LocationRepository {
+public class JpaLocationRepositoryAdapter implements LocationRepository {
     private final LocationSpringDataRepository springDataLocationRepository;
 
-    public LocationRepositoryAdapter(LocationSpringDataRepository springDataLocationRepository) {
+    public JpaLocationRepositoryAdapter(LocationSpringDataRepository springDataLocationRepository) {
         this.springDataLocationRepository = springDataLocationRepository;
     }
 

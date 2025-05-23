@@ -9,13 +9,13 @@ import com.gox.domain.entity.user.User;
 import com.gox.domain.exception.CarValidationException;
 import com.gox.domain.service.*;
 import com.gox.domain.vo.CarFilter;
+import com.gox.domain.vo.CarFilterOptions;
 import com.gox.mapper.*;
 import com.gox.rest.api.CarsApi;
 import com.gox.rest.dto.*;
 import com.gox.security.CurrentUserDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +38,7 @@ public class CarRestController implements CarsApi {
     private final BookingFacade bookingFacade;
     private final BookingIntervalMapper intervalMapper;
     private final CarFilterMapper filterMapper;
+    private final CarFilterOptionsMapper carFilterOptionsMapper;
     public CarRestController(CarFactory carFactory,
                              CarFacade carFacade,
                              CarMapper carMapper,
@@ -49,7 +50,8 @@ public class CarRestController implements CarsApi {
                              PhotoMapper photoMapper,
                              CurrentUserDetailService currentUserDetailService,
                              ReviewFactory reviewFactory,
-                             CarFilterMapper filterMapper) {
+                             CarFilterMapper filterMapper,
+                             CarFilterOptionsMapper carFilterOptionsMapper) {
         this.carFactory = carFactory;
         this.carFacade = carFacade;
         this.carMapper = carMapper;
@@ -62,6 +64,7 @@ public class CarRestController implements CarsApi {
         this.bookingFacade    = bookingFacade;
         this.intervalMapper   = intervalMapper;
         this.filterMapper = filterMapper;
+        this.carFilterOptionsMapper = carFilterOptionsMapper;
     }
 
     @Override
@@ -147,11 +150,16 @@ public class CarRestController implements CarsApi {
                     .build();
         }
     }
-    public ResponseEntity<List<BookingIntervalDto>> getBusyIntervals(
-            @PathVariable Long carId) {
+    public ResponseEntity<List<BookingIntervalDto>> getBusyIntervals(Long carId) {
         List<BookingIntervalDto> dto = bookingFacade.getBusyIntervals(carId).stream()
                 .map(intervalMapper::toDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dto);
+    }
+
+    @Override
+    public ResponseEntity<CarFilterOptionsDto> getCarFilterOptions() {
+        CarFilterOptions vo = carFacade.getFilterOptions();
+        return ResponseEntity.ok(carFilterOptionsMapper.toDto(vo));
     }
 }
