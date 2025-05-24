@@ -7,20 +7,45 @@
     import com.gox.domain.service.BookingFacade;
     import com.gox.domain.service.BookingFactory;
     import com.gox.domain.service.BookingService;
+    import com.gox.domain.service.booking.BookingBusyIntervalProvider;
+    import com.gox.domain.service.booking.BookingCompletionHandler;
+    import com.gox.domain.service.booking.BookingLoyaltyUpdater;
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
 
     @Configuration
     public class BookingBeanConfiguration {
         @Bean
-        public BookingFacade bookingFacade(BookingRepository repo, CarRepository carRepo, LocationRepository locRepo, UserRepository userRepository) {
-            return new BookingService(repo, carRepo, locRepo, userRepository);
+        public BookingFacade bookingFacade(BookingRepository bookingRepository,
+                                           CarRepository carRepository,
+                                           LocationRepository locationRepository,
+                                           BookingBusyIntervalProvider bookingBusyIntervalProvider,
+                                           BookingCompletionHandler bookingCompletionHandler,
+                                           BookingLoyaltyUpdater bookingLoyaltyUpdater) {
+            return new BookingService(bookingRepository,
+                    carRepository,
+                    locationRepository,
+                    bookingBusyIntervalProvider,
+                    bookingCompletionHandler,
+                    bookingLoyaltyUpdater);
         }
         @Bean
-        public BookingFactory bookingFactory(CarRepository carRepo,
-                                             LocationRepository locRepo,
-                                             BookingRepository bookingRepo,
+        public BookingFactory bookingFactory(CarRepository carRepository,
+                                             LocationRepository locationRepository,
+                                             BookingRepository bookingRepository,
                                              BookingFacade bookingFacade) {
-            return new BookingFactory(bookingFacade, carRepo, locRepo, bookingRepo);
+            return new BookingFactory(bookingFacade, carRepository, locationRepository, bookingRepository);
+        }
+        @Bean
+        public BookingBusyIntervalProvider bookingBusyIntervalProvider(BookingRepository bookingRepository){
+            return new BookingBusyIntervalProvider(bookingRepository);
+        }
+        @Bean
+        public BookingCompletionHandler bookingCompletionHandler(BookingRepository bookingRepository){
+            return new BookingCompletionHandler(bookingRepository);
+        }
+        @Bean
+        public BookingLoyaltyUpdater bookingLoyaltyUpdater(BookingRepository bookingRepository, UserRepository userRepository){
+            return new BookingLoyaltyUpdater(bookingRepository, userRepository);
         }
     }
