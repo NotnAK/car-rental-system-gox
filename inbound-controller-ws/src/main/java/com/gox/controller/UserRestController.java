@@ -104,10 +104,10 @@ public class UserRestController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<List<UserDto>> getUsers() {
+    public ResponseEntity<List<UserSummaryDto>> getUsers() {
         List<User> users = userFacade.getAllUsers();
-        List<UserDto> userDtos = users.stream()
-                .map(userMapper::toDto)
+        List<UserSummaryDto> userDtos = users.stream()
+                .map(userMapper::toSummaryDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(userDtos);
     }
@@ -129,11 +129,11 @@ public class UserRestController implements UsersApi {
         return ResponseEntity.ok(userMapper.toDto(updated));
     }
     @Override
-    public ResponseEntity<List<BookingDto>> getOwnBookings() {
+    public ResponseEntity<List<BookingSummaryDto>> getOwnBookings() {
         User currentUser = currentUserDetailService.getFullCurrentUser();
         List<Booking> bookings = bookingFacade.getByUserId(currentUser.getId());
-        List<BookingDto> dtos = bookings.stream()
-                .map(bookingMapper::toDto)
+        List<BookingSummaryDto> dtos = bookings.stream()
+                .map(bookingMapper::toSummaryDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }

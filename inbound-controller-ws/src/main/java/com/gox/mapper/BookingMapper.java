@@ -3,7 +3,8 @@ package com.gox.mapper;
 
 import com.gox.domain.entity.booking.Booking;
 import com.gox.rest.dto.BookingCreateRequestDto;
-import com.gox.rest.dto.BookingDto;
+import com.gox.rest.dto.BookingDetailDto;
+import com.gox.rest.dto.BookingSummaryDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -26,16 +27,17 @@ public interface BookingMapper {
     @Mapping(target = "discountedPrice",   ignore = true)
     Booking toEntity(BookingCreateRequestDto dto);
 
-    @Mapping(source = "user.id",            target = "userId")
-    @Mapping(source = "car.id",             target = "carId")
-    @Mapping(source = "pickupLocation.id",  target = "pickupLocationId")
-    @Mapping(source = "dropoffLocation.id", target = "dropoffLocationId")
-    @Mapping(source = "actualReturnDate",   target = "actualReturnDate")
-    @Mapping(source = "penalty",           target = "penalty")
 
-    @Mapping(source = "basePrice",          target = "basePrice")
-    @Mapping(source = "loyaltyDiscount",    target = "loyaltyDiscount")
-    @Mapping(source = "discountedPrice",    target = "discountedPrice")
-    BookingDto toDto(Booking booking);
+    @Mapping(source = "car.brand",  target = "carBrand")
+    @Mapping(source = "car.model",  target = "carModel")
+    @Mapping(source = "user.name", target = "userName")
+    @Mapping(source = "car.id", target = "carId")
+    @Mapping(source = "user.id", target = "userId")
+    BookingSummaryDto toSummaryDto(Booking booking);
 
+    @Mapping(source = "user",           target = "user")
+    @Mapping(source = "car",            target = "car")
+    @Mapping(source = "pickupLocation", target = "pickupLocation")
+    @Mapping(source = "dropoffLocation",target = "dropoffLocation")
+    BookingDetailDto toDetailDto(Booking booking);
 }

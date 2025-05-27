@@ -1,18 +1,20 @@
 package com.gox.controller;
 import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.booking.BookingStatus;
+import com.gox.domain.entity.photo.Photo;
 import com.gox.domain.entity.user.User;
+import com.gox.domain.entity.user.UserRole;
 import com.gox.domain.service.BookingFacade;
 import com.gox.domain.service.BookingFactory;
+import com.gox.domain.service.PhotoFacade;
 import com.gox.domain.vo.BookingEstimate;
 import com.gox.mapper.BookingEstimateMapper;
 import com.gox.mapper.BookingMapper;
+import com.gox.mapper.PhotoMapper;
 import com.gox.rest.api.BookingsApi;
-import com.gox.rest.dto.BookingCreateRequestDto;
-import com.gox.rest.dto.BookingDto;
-import com.gox.rest.dto.BookingEstimateDto;
-import com.gox.rest.dto.CompleteBookingRequestDto;
+import com.gox.rest.dto.*;
 import com.gox.security.CurrentUserDetailService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,20 +28,26 @@ public class BookingRestController implements BookingsApi {
     private final BookingMapper bookingMapper;
     private final CurrentUserDetailService currentUserService;
     private final BookingEstimateMapper estimateMapper;
+    private final PhotoFacade photoFacade;
+    private final PhotoMapper photoMapper;
     public BookingRestController(BookingFacade bookingFacade,
                                  BookingFactory bookingFactory,
                                  BookingMapper bookingMapper,
                                  BookingEstimateMapper estimateMapper,
-                                 CurrentUserDetailService currentUserService) {
+                                 CurrentUserDetailService currentUserService,
+                                 PhotoFacade photoFacade,
+                                 PhotoMapper photoMapper  ) {
         this.bookingFacade      = bookingFacade;
         this.bookingFactory     = bookingFactory;
         this.bookingMapper             = bookingMapper;
         this.estimateMapper     = estimateMapper;
         this.currentUserService = currentUserService;
+        this.photoFacade        = photoFacade;
+        this.photoMapper        = photoMapper;
     }
 
     @Override
-    public ResponseEntity<BookingDto> createBooking(BookingCreateRequestDto dto) {
+    public ResponseEntity<BookingSummaryDto> createBooking(BookingCreateRequestDto dto) {
         Booking b = bookingFactory.createBooking(
                 dto.getCarId(),
                 dto.getPickupLocationId(),
@@ -48,21 +56,30 @@ public class BookingRestController implements BookingsApi {
                 dto.getStartDate(),
                 dto.getEndDate()
         );
-        return ResponseEntity.status(201).body(bookingMapper.toDto(b));
+        return ResponseEntity.status(201).body(bookingMapper.toSummaryDto(b));
     }
 
     @Override
-    public ResponseEntity<List<BookingDto>> getAllBookings() {
-        List<BookingDto> list = bookingFacade.getAll().stream()
-                .map(bookingMapper::toDto)
+    public ResponseEntity<List<BookingSummaryDto>> getAllBookings() {
+        List<BookingSummaryDto> list = bookingFacade.getAll().stream()
+                .map(bookingMapper::toSummaryDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
 
     @Override
-    public ResponseEntity<BookingDto> getBookingById(Long bookingId) {
-        Booking b = bookingFacade.get(bookingId);  // BookingNotFoundException → 404
-        return ResponseEntity.ok(bookingMapper.toDto(b));
+    public ResponseEntity<BookingDetailDto> getBookingById(Long bookingId) {
+        Booking b = bookingFacade.get(bookingId);
+        User current = currentUserService.getFullCurrentUser();
+        if (!current.getRole().equals(UserRole.ADMIN)
+                && !b.getUser().getId().equals(current.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        BookingDetailDto detail = bookingMapper.toDetailDto(b);
+        var prev = photoFacade.getPreviewForCar(b.getCar().getId());
+        detail.getCar().setPreview(photoMapper.toDto(prev));
+
+        return ResponseEntity.ok(detail);
     }
 
 
@@ -97,16 +114,19 @@ public class BookingRestController implements BookingsApi {
 
     @Override
     public ResponseEntity<Void> cancelBooking(Integer bookingId) {
-        // То же для статуса CANCELLED
-        bookingFacade.changeStatus(
-                bookingId.longValue(),
-                BookingStatus.CANCELLED
-        );
+        Long id = bookingId.longValue();
+        Booking b = bookingFacade.get(id);
+        User current = currentUserService.getFullCurrentUser();
+        if (!current.getRole().equals(UserRole.ADMIN)
+                && !b.getUser().getId().equals(current.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        bookingFacade.changeStatus(id, BookingStatus.CANCELLED);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<BookingDto> completeBooking(
+    public ResponseEntity<BookingSummaryDto> completeBooking(
             Long bookingId,
             CompleteBookingRequestDto dto) {
 
@@ -114,6 +134,6 @@ public class BookingRestController implements BookingsApi {
                 bookingId,
                 dto.getActualReturnDate()
         );
-        return ResponseEntity.ok(bookingMapper.toDto(b));
+        return ResponseEntity.ok(bookingMapper.toSummaryDto(b));
     }
 }

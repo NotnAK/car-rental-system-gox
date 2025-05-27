@@ -22,7 +22,8 @@ public class ReviewService implements ReviewFacade {
                 new ReviewCarIdNotNullRule(),
                 new ReviewUserNotNullRule(),
                 new ReviewRatingRangeRule(),
-                new ReviewCommentNotEmptyRule()
+                new ReviewCommentNotEmptyRule(),
+                new ReviewCommentMaxLengthRule()
         );
     }
 

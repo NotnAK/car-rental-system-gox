@@ -10,10 +10,7 @@ import com.gox.domain.repository.ReviewRepository;
 import com.gox.domain.validation.api.ValidationResult;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.review.ReviewValidationContext;
-import com.gox.domain.validation.review.rules.ReviewCarIdNotNullRule;
-import com.gox.domain.validation.review.rules.ReviewCommentNotEmptyRule;
-import com.gox.domain.validation.review.rules.ReviewRatingRangeRule;
-import com.gox.domain.validation.review.rules.ReviewUserNotNullRule;
+import com.gox.domain.validation.review.rules.*;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -31,7 +28,8 @@ public class ReviewFactory {
                 new ReviewCarIdNotNullRule(),
                 new ReviewUserNotNullRule(),
                 new ReviewRatingRangeRule(),
-                new ReviewCommentNotEmptyRule()
+                new ReviewCommentNotEmptyRule(),
+                new ReviewCommentMaxLengthRule()
         );
     }
 

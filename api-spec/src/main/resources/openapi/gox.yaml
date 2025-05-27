@@ -208,7 +208,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/UserSummary'
 
 
   /users/me:
@@ -327,7 +327,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Booking'
+                  $ref: '#/components/schemas/BookingSummary'
 
   /reviews/{reviewId}:
     put:
@@ -475,7 +475,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Booking'
+                $ref: '#/components/schemas/BookingSummary'
     get:
       summary: Get all bookings (ADMIN)
       operationId: getAllBookings
@@ -489,7 +489,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Booking'
+                  $ref: '#/components/schemas/BookingSummary'
 
   /bookings/{bookingId}:
     parameters:
@@ -511,7 +511,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Booking'
+                $ref: '#/components/schemas/BookingDetail'
         '404':
           description: Booking not found
   /bookings/{bookingId}/approve:
@@ -575,7 +575,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Booking'
+                $ref: '#/components/schemas/BookingSummary'
   /bookings/estimate:
     post:
       summary: Estimate cost of a booking without creating (CUSTOMER)
@@ -736,6 +736,27 @@ components:
           description: Phone number of the user.
         wishlist:
           $ref: '#/components/schemas/Wishlist'
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+        loyaltyLevel:
+          $ref: '#/components/schemas/LoyaltyLevel'
+        address:
+          type: string
+        phone:
+          type: string
     UserShort:
       type: object
       description: A lightweight user model for authentication and security contexts.
@@ -814,6 +835,10 @@ components:
           description: Name of the user who wrote the review.
         carId:
           type: integer
+        carBrand:
+          type: string
+        carModel:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -878,7 +903,7 @@ components:
         longitude:
           type: number
           format: double
-    Booking:
+    BookingSummary:
       type: object
       properties:
         id:
@@ -893,6 +918,37 @@ components:
         actualReturnDate:
           type: string
           format: date-time
+          nullable: true
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        carId:
+          type: integer
+          format: int64
+        carBrand:
+          type: string
+        carModel:
+          type: string
+        userId:
+          type: integer
+          format: int64
+        userName:
+          type: string
+    BookingDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        actualReturnDate:
+          type: string
+          format: date-time
+          nullable: true
         basePrice:
           type: number
           format: double
@@ -915,19 +971,14 @@ components:
           format: double
         status:
           $ref: '#/components/schemas/BookingStatus'
-        userId:
-          type: integer
-          format: int64
-        carId:
-          type: integer
-          format: int64
-        pickupLocationId:
-          type: integer
-          format: int64
-        dropoffLocationId:
-          type: integer
-          format: int64
-
+        user:
+          $ref: '#/components/schemas/UserSummary'
+        car:
+          $ref: '#/components/schemas/Car'
+        pickupLocation:
+          $ref: '#/components/schemas/Location'
+        dropoffLocation:
+          $ref: '#/components/schemas/Location'
     BookingCreateRequest:
       type: object
       required:
