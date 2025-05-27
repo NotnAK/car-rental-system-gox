@@ -25,7 +25,8 @@ public class SecurityConfiguration {
     private void configureAuthorizationRules(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
         // ============ PUBLIC (ALL) ============
         auth
-                .requestMatchers(HttpMethod.GET, "/cars", "/cars/*", "/cars/*/reviews", "/photos/*").permitAll();
+                .requestMatchers(HttpMethod.GET, "/cars", "/cars/*", "/cars/*/reviews", "/photos/*",
+                        "/cars/*/busy-intervals", "/locations").permitAll();
 
         // ============ ADMIN only ============
         auth
@@ -36,8 +37,9 @@ public class SecurityConfiguration {
         // ============ CUSTOMER only ============
         auth
                 // оставить возможность админу тоже, если нужно: .hasAnyRole("CUSTOMER","ADMIN")
-                .requestMatchers(HttpMethod.POST, "/cars/*/reviews").hasRole("CUSTOMER")
-                .requestMatchers(HttpMethod.PUT, "/reviews/*").hasRole("CUSTOMER")
+                .requestMatchers(HttpMethod.POST, "/cars/*/reviews").hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/bookings/estimate").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/reviews/*").hasAnyRole("CUSTOMER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/users/me").hasAnyRole("CUSTOMER", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/users/me/wishlist/*").hasRole("CUSTOMER")
                 .requestMatchers(HttpMethod.DELETE, "/users/me/wishlist/*").hasRole("CUSTOMER")

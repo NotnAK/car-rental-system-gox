@@ -1,3 +1,4 @@
+/*
 package com.gox.domain.validation.booking.rules;
 
 import com.gox.domain.validation.api.ValidationResult;
@@ -11,4 +12,4 @@ public class UserNotNullRule implements ValidationRule<BookingValidationContext>
             result.addError("User must not be null");
         }
     }
-}
+}*/

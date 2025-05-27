@@ -224,6 +224,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+    put:
+      summary: Update own profile (CUSTOMER)
+      operationId: updateProfile
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Updated user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/me/wishlist:
+    get:
+      summary: Get all car-IDs in the current user's Wishlist (CUSTOMER)
+      operationId: getWishlistCarIds
+      tags:
+        - User
+      responses:
+        '200':
+          description: List of car IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int64
   /users/me/wishlist/{carId}:
     post:
       summary: Add a car to the current user's Wishlist (CUSTOMER)
@@ -278,6 +312,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
+  /users/me/bookings:
+    get:
+      summary: Get all bookings for current user (CUSTOMER)
+      operationId: getOwnBookings
+      tags:
+        - User
+        - Booking
+      responses:
+        '200':
+          description: A list of bookings for the current user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+
   /reviews/{reviewId}:
     put:
       summary: Update a review by the current user (CUSTOMER)
@@ -635,6 +686,14 @@ components:
           $ref: '#/components/schemas/TransmissionType'
         fuelType:
           $ref: '#/components/schemas/FuelType'
+        sortBy:
+         type: string
+         description: one of brand, model, year, pricePerDay
+         default: brand
+        sortDir:
+         type: string
+         description: asc or desc
+         default: asc
     TransmissionType:
       type: string
       enum:
@@ -655,6 +714,9 @@ components:
           type: integer
           format: int64
           description: Unique identifier of the user.
+        username:
+          type: string
+          description: Login user name
         name:
           type: string
           description: Full name of the user.
@@ -678,6 +740,9 @@ components:
       type: object
       description: A lightweight user model for authentication and security contexts.
       properties:
+        username:
+          type: string
+          description: Login user name
         email:
           type: string
           format: email
@@ -699,6 +764,20 @@ components:
         - ADMIN
         - CUSTOMER
       description: Role of the user within the system.
+    UserUpdateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Full name of the user.
+        phone:
+          type: string
+          description: Phone number of the user.
+        address:
+          type: string
+          description: Postal address of the user.
 
     LoyaltyLevel:
       type: string

@@ -74,8 +74,15 @@ public class CarRestController implements CarsApi {
         CarFilter filter = filterMapper.toVo(filterDto);
         List<Car> cars = carFacade.searchCars(filter);
         List<CarDto> dtos = cars.stream()
-                .map(carMapper::toDto)
+                .map(car -> {
+                    CarDto dto = carMapper.toDto(car);
+                    Photo previewEntity = photoFacade.getPreviewForCar(car.getId());
+                    PhotoDto previewDto = photoMapper.toDto(previewEntity);
+                    dto.setPreview(previewDto);
+                    return dto;
+                })
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(dtos);
     }
 

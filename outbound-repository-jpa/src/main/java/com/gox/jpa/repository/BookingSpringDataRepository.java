@@ -40,7 +40,7 @@ public interface BookingSpringDataRepository extends JpaRepository<Booking, Long
   FROM Booking b
   WHERE b.car.id = :carId
     AND b.status <> :excludedStatus
-    AND b.startDate <= :endPlusGap
+    AND b.startDate < :endPlusGap
     AND (
       CASE
         WHEN b.actualReturnDate IS NOT NULL
@@ -48,7 +48,7 @@ public interface BookingSpringDataRepository extends JpaRepository<Booking, Long
         THEN b.actualReturnDate
         ELSE b.endDate
       END
-    ) >= :startMinusGap
+    ) > :startMinusGap
   """)
     boolean existsConflict(
             @Param("carId") Long carId,
@@ -56,6 +56,7 @@ public interface BookingSpringDataRepository extends JpaRepository<Booking, Long
             @Param("endPlusGap") OffsetDateTime endPlusGap,
             @Param("startMinusGap") OffsetDateTime startMinusGap
     );
+    List<Booking> findByUserId(Long userId);
 /*    List<Booking> findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
             Long carId,
             BookingStatus excludedStatus,

@@ -24,7 +24,7 @@ public class BookingBusyIntervalProvider {
         List<Booking> bookings = bookingRepository
                 .findByCarIdAndStatusInAndEndDateAfter(
                         carId,
-                        List.of(BookingStatus.APPROVED, BookingStatus.COMPLETED),
+                        List.of(BookingStatus.APPROVED, BookingStatus.COMPLETED, BookingStatus.PENDING),
                         oneMonthAgo
                 );
 

@@ -19,6 +19,7 @@ public interface BookingFacade {
                              User user,
                              OffsetDateTime start,
                              OffsetDateTime end);
+    List<Booking> getByUserId(Long userId);
     List<BookingInterval> getBusyIntervals(Long carId);
     Booking completeBooking(Long bookingId, OffsetDateTime actualReturnDate);
 }

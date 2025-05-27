@@ -16,6 +16,7 @@ import com.gox.domain.validation.review.rules.ReviewRatingRangeRule;
 import com.gox.domain.validation.review.rules.ReviewUserNotNullRule;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class ReviewFactory {
@@ -57,7 +58,7 @@ public class ReviewFactory {
         review.setUser(user);
         review.setRating(rating);
         review.setComment(comment);
-        review.setCreatedAt(LocalDateTime.now());
+        review.setCreatedAt(OffsetDateTime.now());
         return reviewRepository.create(review);
     }
 }

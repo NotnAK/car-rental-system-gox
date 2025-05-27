@@ -48,7 +48,6 @@ public class BookingService implements BookingFacade {
         this.bookingCompletionHandler = bookingCompletionHandler;
         this.bookingLoyaltyUpdater = bookingLoyaltyUpdater;
         this.validationRules = List.of(
-                new UserNotNullRule(),
                 new CarIdNotNullRule(),
                 new PickupLocationIdNotNullRule(),
                 new DropoffLocationIdNotNullRule(),
@@ -150,5 +149,9 @@ public class BookingService implements BookingFacade {
         Booking updated = bookingCompletionHandler.complete(booking, actualReturnDate);
         bookingLoyaltyUpdater.updateLoyalty(updated.getUser());
         return updated;
+    }
+    @Override
+    public List<Booking> getByUserId(Long userId) {
+        return bookingRepository.findByUserId(userId);
     }
 }

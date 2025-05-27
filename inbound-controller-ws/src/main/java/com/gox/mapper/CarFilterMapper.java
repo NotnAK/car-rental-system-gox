@@ -16,5 +16,7 @@ public interface CarFilterMapper {
     @Mapping(target = "seats",        source = "seats")
     @Mapping(target = "transmission", source = "transmission")
     @Mapping(target = "fuelType",     source = "fuelType")
+    @Mapping(target = "sortBy", source = "sortBy")
+    @Mapping(target = "sortDir",     source = "sortDir")
     CarFilter toVo(CarFilterRequestDto dto);
 }

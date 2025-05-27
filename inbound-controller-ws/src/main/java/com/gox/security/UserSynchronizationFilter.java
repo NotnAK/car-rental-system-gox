@@ -37,6 +37,7 @@ public class UserSynchronizationFilter extends OncePerRequestFilter {
             if (user == null) {
                 // If the user is not found - create a new one
                 User newUser = new User();
+                newUser.setUsername(principal.getUsername());
                 newUser.setEmail(principal.getEmail());
                 newUser.setName(principal.getName());
                 // Default to CUSTOMER if role is null

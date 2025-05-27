@@ -27,12 +27,8 @@ public interface ReviewMapper {
     @Mapping(source = "car.id", target = "carId")
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "user.name", target = "userName")
-    @Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "mapDate")
+    @Mapping(source = "createdAt", target = "createdAt")
     ReviewDto toDto(Review review);
 
-    @Named("mapDate")
-    default OffsetDateTime mapDate(LocalDateTime localDateTime) {
-        return localDateTime != null ? localDateTime.atOffset(ZoneOffset.UTC) : null;
-    }
 
 }

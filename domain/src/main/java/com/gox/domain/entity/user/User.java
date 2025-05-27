@@ -4,6 +4,7 @@ import com.gox.domain.entity.wishlist.Wishlist;
 
 public class User {
     private Long id;            // PK in our database
+    private String username;   // ← новое поле
     private String name;
     private String email;       // Unique email (key)
     private UserRole role;      // ADMIN, CUSTOMER, ...
@@ -75,5 +76,11 @@ public class User {
 
     public void setWishlist(Wishlist wishlist) {
         this.wishlist = wishlist;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

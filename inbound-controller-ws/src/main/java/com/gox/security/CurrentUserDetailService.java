@@ -6,6 +6,8 @@ import com.gox.rest.dto.UserShortDto;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class CurrentUserDetailService {
 
@@ -30,4 +32,18 @@ public class CurrentUserDetailService {
     public User getFullCurrentUser() {
         return userFacade.getByEmail(getUserEmail());
     }
+    public Optional<UserShortDto> getOptionalUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserShortDto userShort) {
+            return Optional.of(userShort);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<User> getOptionalFullUser() {
+        return getOptionalUser()
+                .map(UserShortDto::getEmail)
+                .map(userFacade::getByEmail);
+    }
+
 }

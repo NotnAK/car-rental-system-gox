@@ -4,6 +4,7 @@ import com.gox.domain.entity.car.Car;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.vo.CarFilter;
 import com.gox.jpa.repository.CarSpringDataRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
@@ -48,7 +49,16 @@ public class JpaCarRepositoryAdapter implements CarRepository {
         if (f.getFuelType()     != null) spec = spec.and((r, q, cb) ->
                 cb.equal(r.get("fuelType"), f.getFuelType()));
 
-        return carSpringDataRepository.findAll(spec);
+        Sort sort;
+        if (f.getSortBy() != null && !f.getSortBy().isBlank()) {
+            Sort.Direction dir = "desc".equalsIgnoreCase(f.getSortDir())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(dir, f.getSortBy());
+        } else {
+            sort = Sort.by("pricePerDay").ascending();
+        }
+        return carSpringDataRepository.findAll(spec, sort);
     }
 
     @Override

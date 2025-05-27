@@ -4,6 +4,7 @@ import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.user.User;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class Review {
     private Long id;
@@ -11,7 +12,7 @@ public class Review {
     private String comment;
     private User user;
     private Car car;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     public Long getId() {
         return id;
@@ -53,11 +54,11 @@ public class Review {
         this.car = car;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
     }
 }

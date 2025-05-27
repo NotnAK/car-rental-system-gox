@@ -29,8 +29,9 @@ public class JwtConverter extends AbstractAuthenticationToken {
     @Override
     public Object getPrincipal() {
         UserShortDto user = new UserShortDto();
+        user.setUsername(source.getClaimAsString("preferred_username"));
         user.setEmail(source.getClaimAsString("email"));
-        user.setName(source.getClaimAsString("given_name")); // или "name", если не используешь given_name
+        user.setName(source.getClaimAsString("name"));
         user.setRole(extractRole(source));
         user.setAddress(source.getClaimAsString("address"));
         user.setPhone(source.getClaimAsString("phone"));

@@ -1,6 +1,7 @@
 package com.gox.controller;
 import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.booking.BookingStatus;
+import com.gox.domain.entity.user.User;
 import com.gox.domain.service.BookingFacade;
 import com.gox.domain.service.BookingFactory;
 import com.gox.domain.vo.BookingEstimate;
@@ -22,17 +23,17 @@ public class BookingRestController implements BookingsApi {
 
     private final BookingFacade bookingFacade;
     private final BookingFactory bookingFactory;
-    private final BookingMapper mapper;
+    private final BookingMapper bookingMapper;
     private final CurrentUserDetailService currentUserService;
     private final BookingEstimateMapper estimateMapper;
     public BookingRestController(BookingFacade bookingFacade,
                                  BookingFactory bookingFactory,
-                                 BookingMapper mapper,
+                                 BookingMapper bookingMapper,
                                  BookingEstimateMapper estimateMapper,
                                  CurrentUserDetailService currentUserService) {
         this.bookingFacade      = bookingFacade;
         this.bookingFactory     = bookingFactory;
-        this.mapper             = mapper;
+        this.bookingMapper             = bookingMapper;
         this.estimateMapper     = estimateMapper;
         this.currentUserService = currentUserService;
     }
@@ -47,13 +48,13 @@ public class BookingRestController implements BookingsApi {
                 dto.getStartDate(),
                 dto.getEndDate()
         );
-        return ResponseEntity.status(201).body(mapper.toDto(b));
+        return ResponseEntity.status(201).body(bookingMapper.toDto(b));
     }
 
     @Override
     public ResponseEntity<List<BookingDto>> getAllBookings() {
         List<BookingDto> list = bookingFacade.getAll().stream()
-                .map(mapper::toDto)
+                .map(bookingMapper::toDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
@@ -61,20 +62,20 @@ public class BookingRestController implements BookingsApi {
     @Override
     public ResponseEntity<BookingDto> getBookingById(Long bookingId) {
         Booking b = bookingFacade.get(bookingId);  // BookingNotFoundException → 404
-        return ResponseEntity.ok(mapper.toDto(b));
+        return ResponseEntity.ok(bookingMapper.toDto(b));
     }
 
 
     @Override
     public ResponseEntity<BookingEstimateDto> estimateBooking(
             BookingCreateRequestDto dto) {
-
+        User user = currentUserService.getOptionalFullUser().orElse(null);
         // 1) вызываем фасад, он возвращает VO
         BookingEstimate vo = bookingFacade.estimate(
                 dto.getCarId(),
                 dto.getPickupLocationId(),
                 dto.getDropoffLocationId(),
-                currentUserService.getFullCurrentUser(),
+                user,
                 dto.getStartDate(),
                 dto.getEndDate()
         );
@@ -113,6 +114,6 @@ public class BookingRestController implements BookingsApi {
                 bookingId,
                 dto.getActualReturnDate()
         );
-        return ResponseEntity.ok(mapper.toDto(b));
+        return ResponseEntity.ok(bookingMapper.toDto(b));
     }
 }

@@ -1,6 +1,7 @@
 package com.gox.domain.service.booking;
 
 import com.gox.domain.entity.car.Car;
+import com.gox.domain.entity.user.LoyaltyLevel;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.vo.BookingEstimate;
 
@@ -31,7 +32,8 @@ public class BookingEstimateCalculator {
         long days = (seconds + 86_400 - 1) / 86_400;
 
         BigDecimal basePrice = car.getPricePerDay().multiply(BigDecimal.valueOf(days));
-        double loyaltyRate = switch (user.getLoyaltyLevel()) {
+        LoyaltyLevel loyaltyLevel = (user == null)?LoyaltyLevel.STANDARD:user.getLoyaltyLevel();
+        double loyaltyRate = switch (loyaltyLevel) {
             case SILVER -> 0.05;
             case GOLD   -> 0.10;
             default     -> 0.0;
