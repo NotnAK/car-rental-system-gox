@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 public class CarBeanConfiguration {
 
     @Bean
-    public CarFacade carFacade(CarRepository carRepository, CarFilterOptionsRepository carFilterOptionsRepository) {
-        return new CarService(carRepository, carFilterOptionsRepository);
+    public CarFacade carFacade(CarRepository carRepository, CarFilterOptionsRepository carFilterOptionsRepository, LocationRepository locationRepository) {
+        return new CarService(carRepository, carFilterOptionsRepository, locationRepository);
     }
     @Bean
     public CarFactory carFactory(CarRepository carRepository, LocationRepository locationRepository){

@@ -27,6 +27,7 @@ public class CarRestController implements CarsApi {
     private final ReviewFacade reviewFacade;
     private final ReviewMapper reviewMapper;
     private final PhotoFacade photoFacade;
+    private final PhotoFactory photoFactory;
     private final PhotoMapper photoMapper;
     private final CurrentUserDetailService currentUserDetailService;
     private final ReviewFactory reviewFactory;
@@ -42,6 +43,7 @@ public class CarRestController implements CarsApi {
                              ReviewFacade reviewFacade,
                              ReviewMapper reviewMapper,
                              PhotoFacade photoFacade,
+                             PhotoFactory photoFactory,
                              PhotoMapper photoMapper,
                              CurrentUserDetailService currentUserDetailService,
                              ReviewFactory reviewFactory,
@@ -53,6 +55,7 @@ public class CarRestController implements CarsApi {
         this.reviewFacade = reviewFacade;
         this.reviewMapper = reviewMapper;
         this.photoFacade = photoFacade;
+        this.photoFactory = photoFactory;
         this.photoMapper = photoMapper;
         this.currentUserDetailService = currentUserDetailService;
         this.reviewFactory = reviewFactory;
@@ -88,7 +91,6 @@ public class CarRestController implements CarsApi {
         Car saved = carFactory.createCar(carEntity, dto.getLocationId());
         return ResponseEntity.status(201).body(carMapper.toDto(saved));
     }
-    // POST /customer/reviews
     @Override
     public ResponseEntity<String> createReview(Integer carId,
                                                ReviewCreateRequestDto dto) {
@@ -138,13 +140,7 @@ public class CarRestController implements CarsApi {
                                                 Boolean isPreview,
                                                 MultipartFile file) {
         try {
-            // 1) Собираем entity
-            Photo p = photoMapper.toEntity(name, isPreview);
-            // 2) Наполняем контент и привязываем к carId в service
-            p.setContent(file.getBytes());
-            // 3) Сохраняем
-            Photo saved = photoFacade.create(carId, p);
-            // 4) Возвращаем DTO
+            Photo saved = photoFactory.create(carId, name, isPreview,(file != null)?file.getBytes():null);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(photoMapper.toDto(saved));
         } catch (IOException e) {
@@ -163,5 +159,18 @@ public class CarRestController implements CarsApi {
     public ResponseEntity<CarFilterOptionsDto> getCarFilterOptions() {
         CarFilterOptions vo = carFacade.getFilterOptions();
         return ResponseEntity.ok(carFilterOptionsMapper.toDto(vo));
+    }
+
+    @Override
+    public ResponseEntity<CarDto> updateCar(Long carId, CarUpdateRequestDto carUpdateRequestDto) {
+        Car carEntity = carMapper.toEntity(carUpdateRequestDto);
+        carEntity.setId(carId);
+        Car saved = carFacade.update(carEntity, carUpdateRequestDto.getLocationId());
+        return ResponseEntity.ok(carMapper.toDto(saved));
+    }
+    @Override
+    public ResponseEntity<Void> deleteCar(Long carId) {
+        carFacade.delete(carId);
+        return ResponseEntity.noContent().build();
     }
 }

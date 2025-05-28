@@ -8,45 +8,21 @@ import com.gox.domain.repository.PhotoRepository;
 import com.gox.domain.validation.api.ValidationResult;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.photo.PhotoValidationContext;
-import com.gox.domain.validation.photo.rules.PhotoContentNotEmptyRule;
-import com.gox.domain.validation.photo.rules.PhotoNameNotEmptyRule;
-import com.gox.domain.validation.photo.rules.PhotoNotNullRule;
-import com.gox.domain.validation.photo.rules.PhotoPreviewUniqueRule;
+import com.gox.domain.validation.photo.rules.*;
 
 import java.util.List;
 
 public class PhotoService implements PhotoFacade {
     private final PhotoRepository photoRepo;
-    private final CarRepository carRepo;
-    private final List<ValidationRule<PhotoValidationContext>> rules;
-    public PhotoService(PhotoRepository photoRepo, CarRepository carRepo) {
+    private final List<ValidationRule<PhotoValidationContext>> updateRules;
+    public PhotoService(PhotoRepository photoRepo) {
         this.photoRepo = photoRepo;
-        this.carRepo = carRepo;
-        this.rules     = List.of(
-                new PhotoNotNullRule(),
+        this.updateRules     = List.of(
+                new PhotoNameNotNullRule(),
                 new PhotoNameNotEmptyRule(),
-                new PhotoContentNotEmptyRule(),
+                new PhotoPreviewNotNullRule(),
                 new PhotoPreviewUniqueRule(photoRepo)
         );
-    }
-
-    @Override
-    public Photo create(Long carId, Photo photo) {
-        Car car = carRepo.read(carId);
-        if (car == null) throw new CarNotFoundException("Car not found: " + carId);
-        var ctx = PhotoValidationContext.builder()
-                .carId(carId)
-                .photo(photo)
-                .build();
-        var vr = new ValidationResult();
-        rules.forEach(r -> r.validate(ctx, vr));
-        if (vr.hasErrors()) {
-            throw new PhotoValidationException(vr.getCombinedMessage());
-        }
-
-        // 3) Сохраняем
-        photo.setCar(car);
-        return photoRepo.create(photo);
     }
 
     @Override
@@ -72,5 +48,27 @@ public class PhotoService implements PhotoFacade {
         Photo p = photoRepo.read(id);
         if (p == null) throw new PhotoNotFoundException("Photo not found: " + id);
         photoRepo.delete(id);
+    }
+    @Override
+    public Photo update(Long id, String name, Boolean isPreview) {
+        Photo photo = photoRepo.read(id);
+        if(photo == null){
+            throw new PhotoNotFoundException("Photo not found: " + id);
+        }
+        photo.setPreview(isPreview);
+        photo.setName(name);
+        var ctx = PhotoValidationContext.builder()
+                .carId(photo.getCar().getId())
+                .name(name)
+                .isPreview(isPreview)
+                .build();
+        var vr  = new ValidationResult();
+        for (var rule : updateRules) {
+            rule.validate(ctx, vr);
+        }
+        if (vr.hasErrors()) {
+            throw new ReviewValidationException(vr.getCombinedMessage());
+        }
+        return photoRepo.update(photo);
     }
 }

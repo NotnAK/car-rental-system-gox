@@ -1,16 +1,15 @@
-// PhotoContentNotEmptyRule.java
+// PhotoNameNotNullRule.java
 package com.gox.domain.validation.photo.rules;
 
 import com.gox.domain.validation.api.ValidationResult;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.photo.PhotoValidationContext;
 
-public class PhotoContentNotEmptyRule implements ValidationRule<PhotoValidationContext> {
+public class PhotoNameNotNullRule implements ValidationRule<PhotoValidationContext> {
     @Override
     public void validate(PhotoValidationContext ctx, ValidationResult result) {
-        byte[] content = ctx.getContent();
-        if (content != null && content.length == 0) {
-            result.addError("Photo content must not be empty");
+        if (ctx.getName() == null) {
+            result.addError("Photo name must not be null");
         }
     }
 }

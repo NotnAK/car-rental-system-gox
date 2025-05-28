@@ -82,6 +82,56 @@ paths:
                 $ref: '#/components/schemas/Car'
         '404':
           description: Car not found
+    put:
+      summary: Update a car (ADMIN)
+      operationId: updateCar
+      tags:
+        - Car
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarUpdateRequest'
+      responses:
+        '200':
+          description: Car successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '400':
+          description: Validation error
+        '404':
+          description: Car not found
+        '403':
+          description: Forbidden — only ADMIN can call this
+    delete:
+      summary: Delete a car (ADMIN)
+      operationId: deleteCar
+      tags:
+        - Car
+      parameters:
+        - name: carId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Car successfully deleted
+        '404':
+          description: Car not found
+        '403':
+          description: Forbidden — only ADMIN can call this
   /cars/{carId}/reviews:
     get:
       summary: Get all reviews for a car (ALL)
@@ -194,6 +244,58 @@ paths:
               schema:
                 type: string
                 format: binary
+
+    delete:
+      summary: Delete a photo (ADMIN)
+      operationId: deletePhoto
+      tags:
+        - Photo
+      parameters:
+        - name: photoId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Photo deleted
+        '404':
+          description: Photo not found
+        '403':
+          description: Forbidden — only ADMIN can call this
+
+    patch:
+      summary: Update photo metadata (name or isPreview) (ADMIN)
+      operationId: updatePhoto
+      tags:
+        - Photo
+      parameters:
+        - name: photoId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhotoUpdateRequest'
+      responses:
+        '200':
+          description: Photo metadata updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        '404':
+          description: Photo not found
+        '400':
+          description: Validation error
+        '403':
+          description: Forbidden — only ADMIN can call this
   /users:
     get:
       summary: Retrieve all users (ADMIN)
@@ -1036,13 +1138,15 @@ components:
           description: URL to download raw content of this photo
     PhotoCreateRequest:
       type: object
-      required: [ name, isPreview, file ]
       properties:
-        name: { type: string }
-        isPreview: { type: boolean }
+        name:
+          type: string
+        isPreview:
+          type: boolean
         file:
           type: string
           format: binary
+
     Location:
       type: object
       properties:
@@ -1216,17 +1320,70 @@ components:
         - fuelType
         - locationId
       properties:
-        brand: { type: string }
-        model: { type: string }
-        year: { type: integer, format: int32 }
-        seats: { type: integer, format: int32 }
-        pricePerDay: { type: number, format: double }
-        state: { $ref: '#/components/schemas/CarState' }
-        category: { $ref: '#/components/schemas/CarCategory' }
-        transmission: { $ref: '#/components/schemas/TransmissionType' }
-        fuelType: { $ref: '#/components/schemas/FuelType' }
-        description: { type: string }
-        locationId: { type: integer, format: int64 }
+        brand:
+          type: string
+          description: Brand of the car.
+        model:
+          type: string
+          description: Model of the car.
+        year:
+          type: integer
+          format: int32
+          description: Year of manufacture.
+        seats:
+          type: integer
+          format: int32
+          description: Number of seats in the car.
+        pricePerDay:
+          type: number
+          format: double
+          description: Daily rental price.
+        state:
+          $ref: '#/components/schemas/CarState'
+        category:
+          $ref: '#/components/schemas/CarCategory'
+        transmission:
+          $ref: '#/components/schemas/TransmissionType'
+        fuelType:
+          $ref: '#/components/schemas/FuelType'
+        description:
+          type: string
+          description: Optional description of the car.
+        locationId:
+          type: integer
+          format: int64
+          description: ID of the car's current location.
+
+    CarUpdateRequest:
+      type: object
+      properties:
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+          format: int32
+        seats:
+          type: integer
+          format: int32
+        pricePerDay:
+          type: number
+          format: double
+        state:
+          $ref: '#/components/schemas/CarState'
+        category:
+          $ref: '#/components/schemas/CarCategory'
+        transmission:
+          $ref: '#/components/schemas/TransmissionType'
+        fuelType:
+          $ref: '#/components/schemas/FuelType'
+        description:
+          type: string
+        locationId:
+          type: integer
+          format: int64
+
 
     CarFilterOptions:
       type: object
@@ -1261,3 +1418,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FuelType'
+    PhotoUpdateRequest:
+      type: object
+      description: Only name and/or isPreview may be updated.
+      properties:
+        name:
+          type: string
+        isPreview:
+          type: boolean

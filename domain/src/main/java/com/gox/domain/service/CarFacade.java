@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface CarFacade {
     Car get(Long id);
+    Car update(Car car, Long locationId);
     List<Car> getAllCars();
     void delete(Long id);
     List<Car> searchCars(CarFilter filter);

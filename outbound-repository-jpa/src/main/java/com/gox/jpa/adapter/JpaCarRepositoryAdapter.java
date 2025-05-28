@@ -70,4 +70,9 @@ public class JpaCarRepositoryAdapter implements CarRepository {
     public void delete(Long id) {
         carSpringDataRepository.deleteById(id);
     }
+
+    @Override
+    public Car update(Car car) {
+        return carSpringDataRepository.save(car);
+    }
 }

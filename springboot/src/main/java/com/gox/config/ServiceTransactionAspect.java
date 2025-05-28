@@ -23,9 +23,9 @@ public class ServiceTransactionAspect {
      * Оборачиваем все методы PhotoService в транзакцию.
      * Можно расширить pointcut под другие сервисы по аналогии.
      */
-    @Around("execution(* com.gox.domain.service.PhotoService.*(..))")
-    public Object aroundPhotoService(ProceedingJoinPoint pjp) throws Throwable {
-        // Определяем поведение транзакции (readOnly=false, изолированность по умолчанию)
+    @Around("execution(* com.gox.domain.service.PhotoService.*(..)) || " +
+            "execution(* com.gox.domain.service.PhotoFactory.*(..))")
+    public Object aroundTransactionalServices(ProceedingJoinPoint pjp) throws Throwable {
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
         def.setName(pjp.getSignature().toShortString());
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);

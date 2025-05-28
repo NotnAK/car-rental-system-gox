@@ -3,7 +3,7 @@ import com.gox.domain.entity.photo.Photo;
 import java.util.List;
 
 public interface PhotoFacade {
-    Photo create(Long carId, Photo photo);
+    Photo update(Long photoId, String name, Boolean isPreview);
     List<Photo> getAllForCar(Long carId);
     Photo getPreviewForCar(Long carId);
     Photo get(Long id);

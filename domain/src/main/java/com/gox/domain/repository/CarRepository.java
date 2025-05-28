@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface CarRepository {
     Car read(Long id);
+    Car update(Car car);
     List<Car> findAll();
     Car create(Car car);
     void delete(Long id);

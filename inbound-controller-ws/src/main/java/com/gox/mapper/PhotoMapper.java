@@ -14,18 +14,6 @@ import java.net.URISyntaxException;
 @Mapper(componentModel = "spring")
 public interface PhotoMapper {
 
-    /**
-     * Собирает entity из отдельных параметров uploadPhoto( name, isPreview ).
-     * Поле content и связь car заполняется вручную в контроллере.
-     */
-    @Named("fromParams")
-    default Photo toEntity(String name, Boolean isPreview) {
-        Photo p = new Photo();
-        p.setName(name);
-        p.setPreview(isPreview);
-        return p;
-    }
-
     /** Маппит entity → DTO (id, name, isPreview, url) */
     @Mapping(source="preview", target="isPreview")
     @Mapping(target="url", expression="java(makeUrl(photo))")

@@ -1,14 +1,15 @@
 package com.gox.domain.validation.photo;
 
-import com.gox.domain.entity.photo.Photo;
-
 public class PhotoValidationContext {
     private final Long carId;
-    private final Photo photo;
-
+    private final String name;
+    private final Boolean isPreview;
+    private final byte[] content;
     private PhotoValidationContext(Builder b) {
         this.carId = b.carId;
-        this.photo = b.photo;
+        this.name = b.name;
+        this.isPreview = b.isPreview;
+        this.content = b.content;
     }
 
     public static Builder builder() {
@@ -19,21 +20,39 @@ public class PhotoValidationContext {
         return carId;
     }
 
-    public Photo getPhoto() {
-        return photo;
+    public String getName() {
+        return name;
+    }
+
+    public Boolean getPreview() {
+        return isPreview;
+    }
+
+    public byte[] getContent() {
+        return content;
     }
 
     public static class Builder {
         private Long carId;
-        private Photo photo;
+        private String name;
+        private Boolean isPreview;
+        private byte[] content;
 
         public Builder carId(Long carId) {
             this.carId = carId;
             return this;
         }
 
-        public Builder photo(Photo p) {
-            this.photo = p;
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+        public Builder isPreview(Boolean isPreview) {
+            this.isPreview = isPreview;
+            return this;
+        }
+        public Builder content(byte[] content){
+            this.content = content;
             return this;
         }
 
