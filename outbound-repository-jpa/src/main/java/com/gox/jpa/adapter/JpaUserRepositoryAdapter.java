@@ -26,7 +26,7 @@ public class JpaUserRepositoryAdapter implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return userSpringDataRepository.findAll();
+        return userSpringDataRepository.findAllByOrderByIdDesc();
     }
     @Override
     public User update(User user) {
@@ -38,4 +38,8 @@ public class JpaUserRepositoryAdapter implements UserRepository {
         return userSpringDataRepository.save(user);
     }
 
+    @Override
+    public void delete(Long id) {
+        userSpringDataRepository.deleteById(id);
+    }
 }

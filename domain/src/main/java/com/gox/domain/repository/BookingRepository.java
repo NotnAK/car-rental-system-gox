@@ -11,6 +11,7 @@ public interface BookingRepository {
     Booking read(Long id);
     List<Booking> findAll();
     Booking update(Booking booking);
+    void deleteByUserId(Long userId);
     List<Booking> findByUserId(Long userId);
     //findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual
     boolean existsConflict(Long carId,

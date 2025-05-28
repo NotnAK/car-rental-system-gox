@@ -21,13 +21,15 @@
                                            LocationRepository locationRepository,
                                            BookingBusyIntervalProvider bookingBusyIntervalProvider,
                                            BookingCompletionHandler bookingCompletionHandler,
-                                           BookingLoyaltyUpdater bookingLoyaltyUpdater) {
+                                           BookingLoyaltyUpdater bookingLoyaltyUpdater,
+                                           UserRepository userRepository) {
             return new BookingService(bookingRepository,
                     carRepository,
                     locationRepository,
                     bookingBusyIntervalProvider,
                     bookingCompletionHandler,
-                    bookingLoyaltyUpdater);
+                    bookingLoyaltyUpdater,
+                    userRepository);
         }
         @Bean
         public BookingFactory bookingFactory(CarRepository carRepository,

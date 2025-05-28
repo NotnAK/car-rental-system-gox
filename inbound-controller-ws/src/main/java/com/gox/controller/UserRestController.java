@@ -3,6 +3,7 @@ package com.gox.controller;
 import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.photo.Photo;
 import com.gox.domain.entity.review.Review;
+import com.gox.domain.entity.user.LoyaltyLevel;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.service.*;
 import com.gox.mapper.BookingMapper;
@@ -51,6 +52,12 @@ public class UserRestController implements UsersApi {
         this.bookingMapper = bookingMapper;
         this.bookingFacade = bookingFacade;
 
+    }
+    @Override
+    public ResponseEntity<UserSummaryDto> getUserById(Long userId) {
+        User user = userFacade.get(userId);
+        UserSummaryDto dto = userMapper.toSummaryDto(user);
+        return ResponseEntity.ok(dto);
     }
     @Override
     public ResponseEntity<String> addCarToWishlist(Long carId) {
@@ -129,6 +136,19 @@ public class UserRestController implements UsersApi {
         return ResponseEntity.ok(userMapper.toDto(updated));
     }
     @Override
+    public ResponseEntity<UserSummaryDto> updateUserById(Long userId,
+                                                         UserAdminUpdateRequestDto dto) {
+        User updated = userFacade.updateByAdmin(
+                userId,
+                dto.getName(),
+                dto.getPhone(),
+                dto.getAddress(),
+                dto.getLoyaltyLevel()
+        );
+        UserSummaryDto summary = userMapper.toSummaryDto(updated);
+        return ResponseEntity.ok(summary);
+    }
+    @Override
     public ResponseEntity<List<BookingSummaryDto>> getOwnBookings() {
         User currentUser = currentUserDetailService.getFullCurrentUser();
         List<Booking> bookings = bookingFacade.getByUserId(currentUser.getId());
@@ -136,5 +156,28 @@ public class UserRestController implements UsersApi {
                 .map(bookingMapper::toSummaryDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
+    }
+    @Override
+    public ResponseEntity<List<BookingSummaryDto>> getBookingsByUserId(Long userId) {
+        List<Booking> bookings = bookingFacade.getByUserId(userId);
+        List<BookingSummaryDto> dtos = bookings.stream()
+                .map(bookingMapper::toSummaryDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+    @Override
+    public ResponseEntity<List<ReviewDto>> getReviewsByUserId(Long userId) {
+        List<Review> reviews = reviewFacade.getByUserId(userId);
+        List<ReviewDto> dtos = reviews.stream()
+                .map(reviewMapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+    @Override
+    public ResponseEntity<Void> deleteUser(Long userId) {
+        reviewFacade.deleteByUserId(userId);
+        bookingFacade.deleteByUserId(userId);
+        userFacade.delete(userId);
+        return ResponseEntity.noContent().build();
     }
 }

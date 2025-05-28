@@ -1,10 +1,9 @@
     package com.gox.domain.service;
 
+    import com.gox.domain.entity.user.LoyaltyLevel;
     import com.gox.domain.entity.user.User;
     import com.gox.domain.entity.wishlist.Wishlist;
-    import com.gox.domain.exception.UserAlreadyExistsException;
-    import com.gox.domain.exception.UserNotFoundException;
-    import com.gox.domain.exception.UserValidationException;
+    import com.gox.domain.exception.*;
     import com.gox.domain.repository.UserRepository;
     import com.gox.domain.validation.api.ValidationResult;
     import com.gox.domain.validation.api.ValidationRule;
@@ -18,6 +17,7 @@
         private final UserRepository userRepository;
         private final List<ValidationRule<UserValidationContext>> createRules;
         private final List<ValidationRule<UserValidationContext>> updateRules;
+        private final List<ValidationRule<UserValidationContext>> adminUpdateRules;
 
 
         public UserService(UserRepository userRepository) {
@@ -36,6 +36,27 @@
                     new UserNameNotEmptyRule(),
                     new UserRoleNotNullRule()
             );
+            this.adminUpdateRules = List.of(
+                    new UserNotNullRule(),
+                    new UserNameNotEmptyRule(),
+                    new UserNameFormatRule(),
+                    new UserAddressNotEmptyRule(),
+                    new UserPhoneNotEmptyRule(),
+                    new UserPhonePatternRule(),
+                    new LoyaltyLevelFormatRule()
+            );
+        }
+
+        @Override
+        public User get(Long id) {
+            if (id == null || id <= 0) {
+                throw new CarValidationException("User ID must be positive");
+            }
+            User user = userRepository.read(id);
+            if (user == null) {
+                throw new CarNotFoundException("User with ID " + id + " not found");
+            }
+            return user;
         }
 
         @Override
@@ -96,7 +117,6 @@
             if (user == null) {
                 throw new UserNotFoundException("User not found: " + userId);
             }
-            // предположим, что user.getWishlist().getCars() загружено
             return user.getWishlist()
                     .getCars()
                     .stream()
@@ -118,5 +138,38 @@
                 throw new UserValidationException(vr.getCombinedMessage());
             }
             return userRepository.update(user);
+        }
+
+        @Override
+        public User updateByAdmin(Long userId,
+                                  String name,
+                                  String phone,
+                                  String address,
+                                  String loyaltyLevel) {
+            User user = userRepository.read(userId);
+            if (user == null) {
+                throw new UserNotFoundException("User not found: " + userId);
+            }
+            user.setName(name);
+            user.setPhone(phone);
+            user.setAddress(address);
+            UserValidationContext ctx = UserValidationContext.builder()
+                    .user(user)
+                    .loyaltyLevel(loyaltyLevel)
+                    .build();
+            ValidationResult vr = new ValidationResult();
+            for (var rule : adminUpdateRules) {
+                rule.validate(ctx, vr);
+            }
+            if (vr.hasErrors()) {
+                throw new UserValidationException(vr.getCombinedMessage());
+            }
+            user.setLoyaltyLevel(LoyaltyLevel.valueOf(loyaltyLevel));
+            return userRepository.update(user);
+        }
+
+        @Override
+        public void delete(Long id) {
+            userRepository.delete(id);
         }
     }

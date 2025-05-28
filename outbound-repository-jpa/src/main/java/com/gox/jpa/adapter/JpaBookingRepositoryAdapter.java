@@ -30,7 +30,7 @@ public class JpaBookingRepositoryAdapter implements BookingRepository {
 
     @Override
     public List<Booking> findAll() {
-        return bookingSpringDataRepository.findAll();
+        return bookingSpringDataRepository.findAllByOrderByIdDesc();
     }
 
     @Override
@@ -71,6 +71,11 @@ public class JpaBookingRepositoryAdapter implements BookingRepository {
 
     @Override
     public List<Booking> findByUserId(Long userId) {
-        return bookingSpringDataRepository.findByUserId(userId);
+        return bookingSpringDataRepository.findByUserIdOrderByIdDesc(userId);
+    }
+
+    @Override
+    public void deleteByUserId(Long userId) {
+        bookingSpringDataRepository.deleteByUserId(userId);
     }
 }

@@ -1,12 +1,8 @@
 package com.gox.controller;
 
 import com.gox.domain.entity.car.Car;
-import com.gox.domain.entity.car.CarCategory;
-import com.gox.domain.entity.car.FuelType;
-import com.gox.domain.entity.car.TransmissionType;
 import com.gox.domain.entity.photo.Photo;
 import com.gox.domain.entity.user.User;
-import com.gox.domain.exception.CarValidationException;
 import com.gox.domain.service.*;
 import com.gox.domain.vo.CarFilter;
 import com.gox.domain.vo.CarFilterOptions;
@@ -20,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -148,7 +143,7 @@ public class CarRestController implements CarsApi {
             // 2) Наполняем контент и привязываем к carId в service
             p.setContent(file.getBytes());
             // 3) Сохраняем
-            Photo saved = photoFacade.upload(carId, p);
+            Photo saved = photoFacade.create(carId, p);
             // 4) Возвращаем DTO
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(photoMapper.toDto(saved));

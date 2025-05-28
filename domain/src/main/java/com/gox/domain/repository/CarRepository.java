@@ -10,6 +10,5 @@ public interface CarRepository {
     List<Car> findAll();
     Car create(Car car);
     void delete(Long id);
-
     List<Car> findByFilter(CarFilter filter);
 }

@@ -9,4 +9,5 @@ public interface UserRepository {
     User create(User user);
     User update(User user);
     List<User> findAll();
+    void delete(Long id);
 }

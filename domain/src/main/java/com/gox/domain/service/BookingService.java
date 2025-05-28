@@ -4,13 +4,11 @@ import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.booking.BookingStatus;
 import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.user.User;
-import com.gox.domain.exception.BookingNotFoundException;
-import com.gox.domain.exception.BookingValidationException;
-import com.gox.domain.exception.CarNotFoundException;
-import com.gox.domain.exception.LocationNotFoundException;
+import com.gox.domain.exception.*;
 import com.gox.domain.repository.BookingRepository;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.LocationRepository;
+import com.gox.domain.repository.UserRepository;
 import com.gox.domain.service.booking.BookingBusyIntervalProvider;
 import com.gox.domain.service.booking.BookingCompletionHandler;
 import com.gox.domain.service.booking.BookingEstimateCalculator;
@@ -33,6 +31,7 @@ public class BookingService implements BookingFacade {
     private final BookingEstimateCalculator bookingEstimateCalculator = new BookingEstimateCalculator();
     private final BookingCompletionHandler bookingCompletionHandler;
     private final BookingLoyaltyUpdater bookingLoyaltyUpdater;
+    private final UserRepository userRepository;
     private final List<ValidationRule<BookingValidationContext>> validationRules;
     private final List<ValidationRule<BookingValidationContext>> completionValidationRules;
     public BookingService(BookingRepository bookingRepository,
@@ -40,24 +39,28 @@ public class BookingService implements BookingFacade {
                           LocationRepository locationRepository,
                           BookingBusyIntervalProvider bookingBusyIntervalProvider,
                           BookingCompletionHandler bookingCompletionHandler,
-                          BookingLoyaltyUpdater bookingLoyaltyUpdater) {
+                          BookingLoyaltyUpdater bookingLoyaltyUpdater,
+                          UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
         this.carRepository = carRepository;
         this.locationRepository = locationRepository;
         this.bookingBusyIntervalProvider = bookingBusyIntervalProvider;
         this.bookingCompletionHandler = bookingCompletionHandler;
         this.bookingLoyaltyUpdater = bookingLoyaltyUpdater;
+        this.userRepository = userRepository;
         this.validationRules = List.of(
                 new CarIdNotNullRule(),
                 new PickupLocationIdNotNullRule(),
                 new DropoffLocationIdNotNullRule(),
-                new DateOrderRule(),
+                new DatesNotNullRule(),
+                new StartBeforeEndRule(),
                 new MaxDurationRule(),
                 new LeadTimeRule(),
                 new GapRule(bookingRepository)
         );
         this.completionValidationRules = List.of(
                 new MustBeApprovedRule(),
+                new ActualReturnNotNullRule(),
                 new ActualReturnAfterStartRule()
         );
     }
@@ -150,8 +153,13 @@ public class BookingService implements BookingFacade {
         bookingLoyaltyUpdater.updateLoyalty(updated.getUser());
         return updated;
     }
-    @Override
     public List<Booking> getByUserId(Long userId) {
+        if (userRepository.read(userId) == null) {
+            throw new CarNotFoundException("User with ID " + userId + " not found");
+        }
         return bookingRepository.findByUserId(userId);
+    }
+    public void deleteByUserId(Long userId) {
+        bookingRepository.deleteByUserId(userId);
     }
 }

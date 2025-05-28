@@ -210,7 +210,126 @@ paths:
                 items:
                   $ref: '#/components/schemas/UserSummary'
 
-
+  /users/{userId}:
+    get:
+      summary: Get a user by ID (ADMIN)
+      operationId: getUserById
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: The requested user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummary'
+        '404':
+          description: User not found
+        '403':
+          description: Forbidden — only ADMIN can call this
+    put:
+      summary: Update a user by ID (ADMIN)
+      operationId: updateUserById
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAdminUpdateRequest'
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummary'
+        '403':
+          description: Forbidden — only ADMIN can call this
+    delete:
+      summary: Delete a user by ID (ADMIN)
+      operationId: deleteUser
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: User and all their bookings and reviews deleted
+        '403':
+          description: Forbidden — only ADMIN can call this
+        '404':
+          description: User not found
+  /users/{userId}/bookings:
+    get:
+      summary: Get all bookings for a given user (ADMIN)
+      operationId: getBookingsByUserId
+      tags:
+        - Booking
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user whose bookings to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: A list of bookings for the specified user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingSummary'
+        '403':
+          description: Forbidden — only ADMIN can call this
+  /users/{userId}/reviews:
+    get:
+      summary: Get all reviews by a given user (ADMIN)
+      operationId: getReviewsByUserId
+      tags:
+        - Review
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user whose reviews to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: A list of reviews by the specified user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        '403':
+          description: Forbidden — only ADMIN can call thiss
   /users/me:
     get:
       summary: Get own profile (CUSTOMER)
@@ -328,7 +447,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/BookingSummary'
-
+  /reviews:
+    get:
+      summary: Get all reviews (ADMIN)
+      operationId: getAllReviews
+      tags:
+        - Review
+      responses:
+        '200':
+          description: A list of all reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        '403':
+          description: Forbidden — only ADMIN can call this
   /reviews/{reviewId}:
     put:
       summary: Update a review by the current user (CUSTOMER)
@@ -799,6 +934,23 @@ components:
         address:
           type: string
           description: Postal address of the user.
+    UserAdminUpdateRequest:
+      type: object
+      required:
+        - name
+        - phone
+        - address
+        - loyaltyLevel
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        loyaltyLevel:
+          type: string
+          description: One of STANDARD, SILVER, GOLD
 
     LoyaltyLevel:
       type: string
@@ -843,6 +995,10 @@ components:
           type: string
           format: date-time
           description: Date and time when the review was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: Date and time when the review was updated.
 
     ReviewCreateRequest:
       type: object

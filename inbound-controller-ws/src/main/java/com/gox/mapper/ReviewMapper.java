@@ -22,6 +22,7 @@ public interface ReviewMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "car", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Review toEntity(ReviewCreateRequestDto reviewCreateRequestDto);
 
     @Mapping(source = "car.id", target = "carId")
@@ -30,6 +31,7 @@ public interface ReviewMapper {
     @Mapping(source = "car.brand", target = "carBrand")
     @Mapping(source = "car.model", target = "carModel")
     @Mapping(source = "createdAt", target = "createdAt")
+    @Mapping(source = "updatedAt", target = "updatedAt")
     ReviewDto toDto(Review review);
 
 

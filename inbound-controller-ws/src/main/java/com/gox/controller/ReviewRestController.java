@@ -6,23 +6,30 @@ import com.gox.domain.entity.user.UserRole;
 import com.gox.domain.service.CarFacade;
 import com.gox.domain.service.ReviewFacade;
 import com.gox.mapper.CarMapper;
+import com.gox.mapper.ReviewMapper;
 import com.gox.mapper.UserMapper;
 import com.gox.rest.api.ReviewsApi;
+import com.gox.rest.dto.ReviewDto;
 import com.gox.rest.dto.ReviewUpdateRequestDto;
 import com.gox.security.CurrentUserDetailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 public class ReviewRestController implements ReviewsApi {
     private final ReviewFacade reviewFacade;
     private final CurrentUserDetailService currentUserDetailService;
-
+    private final ReviewMapper reviewMapper;
     public ReviewRestController(CurrentUserDetailService currentUserDetailService,
-                                ReviewFacade reviewFacade) {
+                                ReviewFacade reviewFacade,
+                                ReviewMapper reviewMapper) {
         this.reviewFacade = reviewFacade;
         this.currentUserDetailService = currentUserDetailService;
+        this.reviewMapper = reviewMapper;
     }
 
 
@@ -45,7 +52,14 @@ public class ReviewRestController implements ReviewsApi {
         reviewFacade.deleteReview(reviewId.longValue());
         return ResponseEntity.ok().build();
     }
-
+    @Override
+    public ResponseEntity<List<ReviewDto>> getAllReviews() {
+        List<Review> all = reviewFacade.getAll();
+        List<ReviewDto> dtos = all.stream()
+                .map(reviewMapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
     @Override
     public ResponseEntity<String> updateReview(Integer reviewId, ReviewUpdateRequestDto dto) {
         Review existing = reviewFacade.get(reviewId.longValue());

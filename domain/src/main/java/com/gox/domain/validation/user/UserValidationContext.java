@@ -4,9 +4,10 @@ import com.gox.domain.entity.user.User;
 
 public class UserValidationContext {
     private final User user;
-
+    private final String loyaltyLevel;
     private UserValidationContext(Builder builder) {
         this.user = builder.user;
+        this.loyaltyLevel = builder.loyaltyLevel;
     }
 
     public static Builder builder() {
@@ -17,11 +18,20 @@ public class UserValidationContext {
         return user;
     }
 
+    public String getLoyaltyLevel() {
+        return loyaltyLevel;
+    }
+
     public static class Builder {
         private User user;
-
+        private String loyaltyLevel;
         public Builder user(User user) {
             this.user = user;
+            return this;
+        }
+
+        public Builder loyaltyLevel(String loyaltyLevel) {
+            this.loyaltyLevel = loyaltyLevel;
             return this;
         }
 

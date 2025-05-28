@@ -12,7 +12,6 @@ import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.review.ReviewValidationContext;
 import com.gox.domain.validation.review.rules.*;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class ReviewFactory {
                 new ReviewUserNotNullRule(),
                 new ReviewRatingRangeRule(),
                 new ReviewCommentNotEmptyRule(),
-                new ReviewCommentMaxLengthRule()
+                new ReviewCommentLengthRule()
         );
     }
 

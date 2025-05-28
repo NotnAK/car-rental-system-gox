@@ -1,29 +1,35 @@
 package com.gox.domain.service;
 
 import com.gox.domain.entity.review.Review;
+import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.ReviewNotFoundException;
 import com.gox.domain.exception.ReviewValidationException;
+import com.gox.domain.exception.UserNotFoundException;
 import com.gox.domain.repository.ReviewRepository;
+import com.gox.domain.repository.UserRepository;
 import com.gox.domain.validation.api.ValidationResult;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.review.ReviewValidationContext;
 import com.gox.domain.validation.review.rules.*;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class ReviewService implements ReviewFacade {
-    private final ReviewRepository repository;
+    private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
     private final List<ValidationRule<ReviewValidationContext>> updateRules;
 
-    public ReviewService(ReviewRepository repository) {
-        this.repository = repository;
+    public ReviewService(ReviewRepository reviewRepository, UserRepository userRepository) {
+        this.reviewRepository = reviewRepository;
+        this.userRepository   = userRepository;
         this.updateRules = List.of(
                 new ReviewIdNotNullRule(),
                 new ReviewCarIdNotNullRule(),
                 new ReviewUserNotNullRule(),
                 new ReviewRatingRangeRule(),
                 new ReviewCommentNotEmptyRule(),
-                new ReviewCommentMaxLengthRule()
+                new ReviewCommentLengthRule()
         );
     }
 
@@ -57,7 +63,7 @@ public class ReviewService implements ReviewFacade {
         if (id == null || id <= 0) {
             throw new ReviewValidationException("Invalid review id: " + id);
         }
-        Review review = repository.read(id);
+        Review review = reviewRepository.read(id);
         if (review == null) {
             throw new ReviewNotFoundException("Review not found with id: " + id);
         }
@@ -69,7 +75,10 @@ public class ReviewService implements ReviewFacade {
         if (userId == null || userId <= 0) {
             throw new ReviewValidationException("Invalid user id: " + userId);
         }
-        return repository.findByUserId(userId);
+        if (userRepository.read(userId) == null) {
+            throw new CarNotFoundException("User with ID " + userId + " not found");
+        }
+        return reviewRepository.findByUserId(userId);
     }
 
     @Override
@@ -77,7 +86,7 @@ public class ReviewService implements ReviewFacade {
         if (carId == null || carId <= 0) {
             throw new ReviewValidationException("Invalid car id: " + carId);
         }
-        return repository.findByCarId(carId);
+        return reviewRepository.findByCarId(carId);
 
     }
 
@@ -86,7 +95,7 @@ public class ReviewService implements ReviewFacade {
         if (rating == null || rating < 1 || rating > 5) {
             throw new ReviewValidationException("Invalid rating: " + rating);
         }
-        return repository.findByRating(rating);
+        return reviewRepository.findByRating(rating);
 /*        if (reviews == null || reviews.isEmpty()) {
             throw new ReviewNotFoundException("No reviews found with rating: " + rating);
         }*/
@@ -108,21 +117,21 @@ public class ReviewService implements ReviewFacade {
         if (vr.hasErrors()) {
             throw new ReviewValidationException(vr.getCombinedMessage());
         }
-        Review existing = repository.read(review.getId());
+        Review existing = reviewRepository.read(review.getId());
         if (existing == null) {
             throw new ReviewNotFoundException("Review not found with id: " + review.getId());
         }
         // Обновляем только изменяемые поля (rating и comment)
         existing.setRating(review.getRating());
         existing.setComment(review.getComment());
+        existing.setUpdatedAt(OffsetDateTime.now());
         // createdAt обычно не меняется
-        return repository.update(existing);
+        return reviewRepository.update(existing);
     }
 
     @Override
-    public List<Review> getAllReviews() {
-        List<Review> reviews = repository.findAll();
-        return reviews;
+    public List<Review> getAll() {
+        return reviewRepository.findAll();
     }
 
     @Override
@@ -130,10 +139,13 @@ public class ReviewService implements ReviewFacade {
         if (reviewId == null || reviewId <= 0) {
             throw new ReviewValidationException("Invalid review id: " + reviewId);
         }
-        Review existing = repository.read(reviewId);
+        Review existing = reviewRepository.read(reviewId);
         if (existing == null) {
             throw new ReviewNotFoundException("Review not found with id: " + reviewId);
         }
-        repository.delete(reviewId);
+        reviewRepository.delete(reviewId);
+    }
+    public void deleteByUserId(Long userId) {
+        reviewRepository.deleteByUserId(userId);
     }
 }

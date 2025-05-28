@@ -31,7 +31,7 @@ public class PhotoService implements PhotoFacade {
     }
 
     @Override
-    public Photo upload(Long carId, Photo photo) {
+    public Photo create(Long carId, Photo photo) {
         Car car = carRepo.read(carId);
         if (car == null) throw new CarNotFoundException("Car not found: " + carId);
         var ctx = PhotoValidationContext.builder()

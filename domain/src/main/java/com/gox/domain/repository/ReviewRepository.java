@@ -13,4 +13,5 @@ public interface ReviewRepository {
     Review update(Review user);
     List<Review> findAll();
     void delete(Long id);
+    void deleteByUserId(Long userId);
 }

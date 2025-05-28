@@ -11,6 +11,7 @@ public interface ReviewFacade {
     List<Review> getByCarId(Long carId);
     List<Review> getByRating(Integer rating);
     Review update(Review user);
-    List<Review> getAllReviews();
+    List<Review> getAll();
     void deleteReview(Long reviewId);
+    void deleteByUserId(Long userId);
 }
