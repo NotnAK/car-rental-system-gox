@@ -55,8 +55,7 @@ public class PhotoService implements PhotoFacade {
         if(photo == null){
             throw new PhotoNotFoundException("Photo not found: " + id);
         }
-        photo.setPreview(isPreview);
-        photo.setName(name);
+
         var ctx = PhotoValidationContext.builder()
                 .carId(photo.getCar().getId())
                 .name(name)
@@ -69,6 +68,8 @@ public class PhotoService implements PhotoFacade {
         if (vr.hasErrors()) {
             throw new ReviewValidationException(vr.getCombinedMessage());
         }
+        photo.setPreview(isPreview);
+        photo.setName(name);
         return photoRepo.update(photo);
     }
 }

@@ -751,6 +751,26 @@ paths:
                 $ref: '#/components/schemas/BookingDetail'
         '404':
           description: Booking not found
+    delete:
+      summary: Delete a booking (ADMIN)
+      operationId: deleteBooking
+      tags:
+        - Booking
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Booking successfully deleted
+        '404':
+          description: Booking not found
+        '403':
+          description: Forbidden — only ADMIN can call this
+
   /bookings/{bookingId}/approve:
     post:
       summary: Admin confirms reservation

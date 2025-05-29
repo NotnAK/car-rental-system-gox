@@ -7,4 +7,5 @@ public interface WishlistRepository {
     Wishlist create(Wishlist wishlist);
     Wishlist update(Wishlist wishlist);
     void delete(Long id);
+    void deleteCarFromAllWishlists(Long carId);
 }

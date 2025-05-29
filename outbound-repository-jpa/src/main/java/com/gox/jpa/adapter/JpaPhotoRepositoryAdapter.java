@@ -9,39 +9,43 @@ import java.util.List;
 
 @Repository
 public class JpaPhotoRepositoryAdapter implements PhotoRepository {
-    private final PhotoSpringDataRepository sd;
+    private final PhotoSpringDataRepository photoSpringDataRepository;
 
-    public JpaPhotoRepositoryAdapter(PhotoSpringDataRepository sd) {
-        this.sd = sd;
+    public JpaPhotoRepositoryAdapter(PhotoSpringDataRepository photoSpringDataRepository) {
+        this.photoSpringDataRepository = photoSpringDataRepository;
     }
 
     @Override
     public Photo create(Photo p) {
-        return sd.save(p);
+        return photoSpringDataRepository.save(p);
     }
 
     @Override
     public Photo read(Long id) {
-        return sd.findById(id).orElse(null);
+        return photoSpringDataRepository.findById(id).orElse(null);
     }
 
     @Override
     public Photo update(Photo p) {
-        return sd.save(p);
+        return photoSpringDataRepository.save(p);
     }
 
     @Override
     public void delete(Long id) {
-        sd.deleteById(id);
+        photoSpringDataRepository.deleteById(id);
     }
 
     @Override
     public List<Photo> findByCarId(Long carId) {
-        return sd.findByCarId(carId);
+        return photoSpringDataRepository.findByCarId(carId);
     }
 
     @Override
     public Photo findPreviewByCarId(Long carId) {
-        return sd.findFirstByCarIdAndIsPreviewTrue(carId);
+        return photoSpringDataRepository.findFirstByCarIdAndIsPreviewTrue(carId);
     }
+    public void deleteByCarId(Long carId){
+        photoSpringDataRepository.deleteById(carId);
+    }
+
 }

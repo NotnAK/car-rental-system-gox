@@ -4,6 +4,8 @@
     import com.gox.domain.entity.user.User;
     import com.gox.domain.entity.wishlist.Wishlist;
     import com.gox.domain.exception.*;
+    import com.gox.domain.repository.BookingRepository;
+    import com.gox.domain.repository.ReviewRepository;
     import com.gox.domain.repository.UserRepository;
     import com.gox.domain.validation.api.ValidationResult;
     import com.gox.domain.validation.api.ValidationRule;
@@ -15,13 +17,18 @@
 
     public class UserService implements UserFacade{
         private final UserRepository userRepository;
+        private final ReviewRepository reviewRepository;
+        private final BookingRepository bookingRepository;
         private final List<ValidationRule<UserValidationContext>> createRules;
         private final List<ValidationRule<UserValidationContext>> updateRules;
         private final List<ValidationRule<UserValidationContext>> adminUpdateRules;
 
 
-        public UserService(UserRepository userRepository) {
+        public UserService(UserRepository userRepository, ReviewRepository reviewRepository,
+                           BookingRepository bookingRepository) {
             this.userRepository = userRepository;
+            this.reviewRepository = reviewRepository;
+            this.bookingRepository = bookingRepository;
             this.updateRules = List.of(
                     new UserNotNullRule(),
                     new UserNameNotEmptyRule(),
@@ -170,6 +177,8 @@
 
         @Override
         public void delete(Long id) {
+            reviewRepository.deleteByUserId(id);
+            bookingRepository.deleteByUserId(id);
             userRepository.delete(id);
         }
     }

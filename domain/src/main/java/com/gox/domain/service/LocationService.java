@@ -3,28 +3,64 @@ package com.gox.domain.service;
 import com.gox.domain.entity.location.Location;
 import com.gox.domain.exception.LocationNotFoundException;
 import com.gox.domain.exception.LocationValidationException;
+import com.gox.domain.repository.BookingRepository;
+import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.LocationRepository;
+import com.gox.domain.repository.PhotoRepository;
+import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.api.ValidationRule;
+import com.gox.domain.validation.location.LocationValidationContext;
+import com.gox.domain.validation.location.rules.*;
 
 import java.util.List;
 public class LocationService implements LocationFacade {
-    private final LocationRepository repo;
+    private final LocationRepository locationRepository;
+    private final PhotoRepository photoRepository;
+    private final CarRepository carRepository;
+    private final BookingRepository bookingRepository;
+    private final List<ValidationRule<LocationValidationContext>> validationRules;
 
-    public LocationService(LocationRepository repo) {
-        this.repo = repo;
+    public LocationService(LocationRepository locationRepository,
+                           PhotoRepository photoRepository,
+                           CarRepository carRepository,
+                           BookingRepository bookingRepository) {
+        this.locationRepository = locationRepository;
+        this.photoRepository = photoRepository;
+        this.carRepository = carRepository;
+        this.bookingRepository = bookingRepository;
+        this.validationRules = List.of(
+                new LocationCityNotNullRule(),
+                new LocationCityNotBlankRule(),
+                new LocationStreetNotNullRule(),
+                new LocationStreetNotBlankRule(),
+                new LocationLatitudeNotNullRule(),
+                new LocationLatitudeValidRangeRule(),
+                new LocationLongitudeNotNullRule(),
+                new LocationLongitudeValidRangeRule()
+        );
     }
 
     @Override
     public Location create(Location location) {
-        if (location.getCity() == null || location.getCity().isBlank() ||
-                location.getStreet() == null || location.getStreet().isBlank()) {
-            throw new LocationValidationException("City and street must be provided");
+        LocationValidationContext ctx = LocationValidationContext.builder()
+                .location(location)
+                .build();
+        ValidationResult vr = new ValidationResult();
+
+        for (ValidationRule<LocationValidationContext> rule : validationRules) {
+            rule.validate(ctx, vr);
         }
-        return repo.create(location);
+
+        if (vr.hasErrors()) {
+            throw new LocationValidationException(vr.getCombinedMessage());
+        }
+
+        return locationRepository.create(location);
     }
 
     @Override
     public Location get(Long id) {
-        Location location = repo.read(id);
+        Location location = locationRepository.read(id);
         if (location == null) {
             throw new LocationNotFoundException("Location not found with id: " + id);
         }
@@ -33,26 +69,39 @@ public class LocationService implements LocationFacade {
 
     @Override
     public List<Location> getAll() {
-        return repo.findAll();
+        return locationRepository.findAll();
     }
 
     @Override
     public Location update(Location location) {
-        if (location.getId() == null || repo.read(location.getId()) == null) {
+        if (location.getId() == null || locationRepository.read(location.getId()) == null) {
             throw new LocationNotFoundException("Location not found with id: " + location.getId());
         }
-        if (location.getCity() == null || location.getCity().isBlank() ||
-                location.getStreet() == null || location.getStreet().isBlank()) {
-            throw new LocationValidationException("City and street must be provided");
+
+        LocationValidationContext ctx = LocationValidationContext.builder()
+                .location(location)
+                .build();
+        ValidationResult vr = new ValidationResult();
+
+        for (ValidationRule<LocationValidationContext> rule : validationRules) {
+            rule.validate(ctx, vr);
         }
-        return repo.update(location);
+
+        if (vr.hasErrors()) {
+            throw new LocationValidationException(vr.getCombinedMessage());
+        }
+        return locationRepository.update(location);
     }
 
     @Override
     public void delete(Long id) {
-        if (repo.read(id) == null) {
+        Location location = locationRepository.read(id);
+        if (location == null) {
             throw new LocationNotFoundException("Location not found with id: " + id);
         }
-        repo.delete(id);
+        bookingRepository.nullifyDropoffLocationInBookings(location.getId());
+        bookingRepository.nullifyPickupLocationInBookings(location.getId());
+        carRepository.nullifyLocationInCars(location.getId());
+        locationRepository.delete(id);
     }
 }

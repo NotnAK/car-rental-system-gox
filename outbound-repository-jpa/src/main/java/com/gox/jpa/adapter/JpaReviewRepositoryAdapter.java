@@ -58,4 +58,8 @@ public class JpaReviewRepositoryAdapter implements ReviewRepository {
     public void deleteByUserId(Long userId) {
         reviewSpringDataRepository.deleteByUserId(userId);
     }
+    @Override
+    public void deleteByCarId(Long carId) {
+        reviewSpringDataRepository.deleteByCarId(carId);
+    }
 }

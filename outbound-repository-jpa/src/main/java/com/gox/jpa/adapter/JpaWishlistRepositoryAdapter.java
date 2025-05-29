@@ -31,4 +31,9 @@ public class JpaWishlistRepositoryAdapter implements WishlistRepository {
     public void delete(Long id) {
         wishlistSpringDataRepository.deleteById(id);
     }
+
+    @Override
+    public void deleteCarFromAllWishlists(Long carId) {
+        wishlistSpringDataRepository.deleteCarFromAllWishlists(carId);
+    }
 }

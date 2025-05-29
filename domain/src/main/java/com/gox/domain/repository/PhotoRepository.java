@@ -10,4 +10,5 @@ public interface PhotoRepository {
     void delete(Long id);
     List<Photo> findByCarId(Long carId);
     Photo findPreviewByCarId(Long carId);
+    void deleteByCarId(Long carId);
 }

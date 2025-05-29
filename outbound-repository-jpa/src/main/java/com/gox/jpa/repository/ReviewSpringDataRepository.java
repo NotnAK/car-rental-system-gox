@@ -15,5 +15,8 @@ public interface ReviewSpringDataRepository extends JpaRepository<Review, Long> 
     @Modifying
     @Transactional
     void deleteByUserId(Long userId);
+    @Modifying
+    @Transactional
+    void deleteByCarId(Long userId);
 
 }

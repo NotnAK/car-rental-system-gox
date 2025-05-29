@@ -78,4 +78,23 @@ public class JpaBookingRepositoryAdapter implements BookingRepository {
     public void deleteByUserId(Long userId) {
         bookingSpringDataRepository.deleteByUserId(userId);
     }
+    @Override
+    public void nullifyPickupLocationInBookings(Long locationId) {
+        bookingSpringDataRepository.nullifyPickupLocation(locationId);
+    }
+
+    @Override
+    public void nullifyDropoffLocationInBookings(Long locationId) {
+        bookingSpringDataRepository.nullifyDropoffLocation(locationId);
+    }
+
+    @Override
+    public void nullifyCar(Long carId) {
+        bookingSpringDataRepository.nullifyCar(carId);
+    }
+
+    @Override
+    public void delete(Long id) {
+        bookingSpringDataRepository.deleteById(id);
+    }
 }

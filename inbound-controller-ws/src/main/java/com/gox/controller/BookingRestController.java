@@ -76,9 +76,10 @@ public class BookingRestController implements BookingsApi {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         BookingDetailDto detail = bookingMapper.toDetailDto(b);
-        var prev = photoFacade.getPreviewForCar(b.getCar().getId());
-        detail.getCar().setPreview(photoMapper.toDto(prev));
-
+        if(b.getCar()!=null) {
+            var prev = photoFacade.getPreviewForCar(b.getCar().getId());
+            detail.getCar().setPreview(photoMapper.toDto(prev));
+        }
         return ResponseEntity.ok(detail);
     }
 
@@ -135,5 +136,11 @@ public class BookingRestController implements BookingsApi {
                 dto.getActualReturnDate()
         );
         return ResponseEntity.ok(bookingMapper.toSummaryDto(b));
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteBooking(Long bookingId) {
+        bookingFacade.delete(bookingId);
+        return ResponseEntity.noContent().build();
     }
 }

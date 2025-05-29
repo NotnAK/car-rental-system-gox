@@ -11,6 +11,7 @@ public interface BookingRepository {
     Booking read(Long id);
     List<Booking> findAll();
     Booking update(Booking booking);
+    void delete(Long id);
     void deleteByUserId(Long userId);
     List<Booking> findByUserId(Long userId);
     //findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual
@@ -30,4 +31,7 @@ public interface BookingRepository {
    );
 
     List<Booking> findByUserIdAndStatus(Long userId, BookingStatus status);
+    void nullifyPickupLocationInBookings(Long locationId);
+    void nullifyDropoffLocationInBookings(Long locationId);
+    void nullifyCar(Long carId);
 }

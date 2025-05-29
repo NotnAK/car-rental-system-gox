@@ -175,8 +175,6 @@ public class UserRestController implements UsersApi {
     }
     @Override
     public ResponseEntity<Void> deleteUser(Long userId) {
-        reviewFacade.deleteByUserId(userId);
-        bookingFacade.deleteByUserId(userId);
         userFacade.delete(userId);
         return ResponseEntity.noContent().build();
     }

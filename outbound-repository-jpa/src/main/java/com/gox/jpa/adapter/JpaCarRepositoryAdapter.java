@@ -75,4 +75,8 @@ public class JpaCarRepositoryAdapter implements CarRepository {
     public Car update(Car car) {
         return carSpringDataRepository.save(car);
     }
+    @Override
+    public void nullifyLocationInCars(Long locationId) {
+        carSpringDataRepository.nullifyLocation(locationId);
+    }
 }

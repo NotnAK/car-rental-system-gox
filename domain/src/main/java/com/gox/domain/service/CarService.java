@@ -5,9 +5,7 @@ import com.gox.domain.entity.location.Location;
 import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.CarValidationException;
 import com.gox.domain.exception.LocationNotFoundException;
-import com.gox.domain.repository.CarFilterOptionsRepository;
-import com.gox.domain.repository.CarRepository;
-import com.gox.domain.repository.LocationRepository;
+import com.gox.domain.repository.*;
 import com.gox.domain.validation.api.ValidationResult;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.car.CarValidationContext;
@@ -22,11 +20,25 @@ public class CarService implements CarFacade {
     private final CarRepository carRepository;
     private final CarFilterOptionsRepository filterOptionsRepository;
     private final LocationRepository locationRepository;
+    private final WishlistRepository wishlistRepository;
+    private final PhotoRepository photoRepository;
+    private final BookingRepository    bookingRepository;
+    private final ReviewRepository     reviewRepository;
     private final List<ValidationRule<CarValidationContext>> rules;
-    public CarService(CarRepository carRepository, CarFilterOptionsRepository filterOptionsRepository, LocationRepository locationRepository) {
+    public CarService(CarRepository carRepository,
+                      CarFilterOptionsRepository filterOptionsRepository,
+                      LocationRepository locationRepository,
+                      WishlistRepository wishlistRepository,
+                      PhotoRepository photoRepository,
+                      BookingRepository bookingRepository,
+                      ReviewRepository reviewRepository) {
         this.carRepository = carRepository;
         this.filterOptionsRepository = filterOptionsRepository;
         this.locationRepository = locationRepository;
+        this.wishlistRepository = wishlistRepository;
+        this.photoRepository    = photoRepository;
+        this.bookingRepository  = bookingRepository;
+        this.reviewRepository = reviewRepository;
         this.rules = List.of(
                 new BrandNotNullRule(), new BrandNotBlankRule(), new DescriptionNotNullRule(),
                 new DescriptionNotBlankRule(), new LocationIdNotNullRule(), new ModelNotNullRule(),
@@ -60,8 +72,12 @@ public class CarService implements CarFacade {
         }
         Car existing = carRepository.read(id);
         if (existing == null) {
-            throw new CarNotFoundException("Cannot delete non-existing car with ID " + id);
+            throw new CarNotFoundException("Car with ID " + id + " not found");
         }
+        reviewRepository.deleteByCarId(id);
+        wishlistRepository.deleteCarFromAllWishlists(id);
+        photoRepository.deleteByCarId(id);
+        bookingRepository.nullifyCar(id);
         carRepository.delete(id);
     }
 

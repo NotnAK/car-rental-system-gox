@@ -12,7 +12,7 @@ public class YearRangeRule implements ValidationRule<CarValidationContext> {
         Integer y = ctx.getCar().getYear();
         int thisYear = Year.now().getValue();
         if (y < 2010 || y > thisYear) {
-            result.addError("year must be between 1886 and " + thisYear);
+            result.addError("year must be between 2010 and " + thisYear);
         }
     }
 }

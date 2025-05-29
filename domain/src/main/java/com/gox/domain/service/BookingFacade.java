@@ -14,6 +14,7 @@ public interface BookingFacade {
     List<Booking> getAll();
     void changeStatus(Long id, BookingStatus newStatus);
     void deleteByUserId(Long userId);
+    void delete(Long bookingId);
     BookingEstimate estimate(Long carId,
                              Long pickupLocationId,
                              Long dropoffLocationId,

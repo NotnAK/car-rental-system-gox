@@ -70,4 +70,16 @@ public interface BookingSpringDataRepository extends JpaRepository<Booking, Long
             OffsetDateTime endPlusGap,
             OffsetDateTime startMinusGap
     );*/
+    @Transactional
+    @Modifying
+    @Query("UPDATE Booking b SET b.pickupLocation = NULL WHERE b.pickupLocation.id = :locId")
+    void nullifyPickupLocation(@Param("locId") Long locId);
+    @Transactional
+    @Modifying
+    @Query("UPDATE Booking b SET b.dropoffLocation = NULL WHERE b.dropoffLocation.id = :locId")
+    void nullifyDropoffLocation(@Param("locId") Long locId);
+    @Transactional
+    @Modifying
+    @Query("UPDATE Booking b SET b.car = NULL WHERE b.car.id = :carId")
+    void nullifyCar(@Param("carId") Long carId);
 }

@@ -69,7 +69,7 @@ public class BookingService implements BookingFacade {
     public Booking get(Long id) {
         Booking b = bookingRepository.read(id);
         if (b == null) {
-            throw new BookingNotFoundException(id);
+            throw new BookingNotFoundException("Booking not found: " + id);
         }
         return b;
     }
@@ -161,5 +161,15 @@ public class BookingService implements BookingFacade {
     }
     public void deleteByUserId(Long userId) {
         bookingRepository.deleteByUserId(userId);
+    }
+    public void delete(Long bookingId) {
+        if (bookingId == null || bookingId <= 0) {
+            throw new BookingValidationException("Invalid booking ID");
+        }
+        Booking existing = bookingRepository.read(bookingId);
+        if (existing == null) {
+            throw new BookingNotFoundException("Booking not found: " + bookingId);
+        }
+        bookingRepository.delete(bookingId);
     }
 }
