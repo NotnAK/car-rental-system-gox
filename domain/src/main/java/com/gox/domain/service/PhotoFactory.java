@@ -6,6 +6,7 @@ import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.ReviewValidationException;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.PhotoRepository;
+import com.gox.domain.validation.ValidationExecutor;
 import com.gox.domain.validation.api.ValidationResult;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.photo.PhotoValidationContext;
@@ -34,20 +35,18 @@ public class PhotoFactory {
 
     public Photo create(Long carId,  String name, Boolean isPreview,  byte[] content) {
         Car car = carRepo.read(carId);
-        if (car == null) throw new CarNotFoundException("Car not found: " + carId);
+        if (car == null) throw new CarNotFoundException("Car not found with id: " + carId);
         var ctx = PhotoValidationContext.builder()
                 .carId(carId)
                 .name(name)
                 .isPreview(isPreview)
                 .content(content)
                 .build();
-        var vr  = new ValidationResult();
-        for (var rule : createRules) {
-            rule.validate(ctx, vr);
-        }
-        if (vr.hasErrors()) {
-            throw new ReviewValidationException(vr.getCombinedMessage());
-        }
+        ValidationExecutor.validateOrThrow(
+                ctx,
+                createRules,
+                ReviewValidationException::new
+        );
         Photo photo = new Photo();
         photo.setName(name);
         photo.setCar(car);

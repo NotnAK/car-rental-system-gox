@@ -1,4 +1,4 @@
-package com.gox.config;
+package com.gox.aspect;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -19,12 +19,8 @@ public class ServiceTransactionAspect {
         this.txManager = txManager;
     }
 
-    /**
-     * Оборачиваем все методы PhotoService в транзакцию.
-     * Можно расширить pointcut под другие сервисы по аналогии.
-     */
-    @Around("execution(* com.gox.domain.service.PhotoService.*(..)) || " +
-            "execution(* com.gox.domain.service.PhotoFactory.*(..))")
+    @Around("execution(* com.gox.domain.service.*.*(..)) || " +
+            "execution(* com.gox.domain.service.*Factory.*(..))")
     public Object aroundTransactionalServices(ProceedingJoinPoint pjp) throws Throwable {
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
         def.setName(pjp.getSignature().toShortString());

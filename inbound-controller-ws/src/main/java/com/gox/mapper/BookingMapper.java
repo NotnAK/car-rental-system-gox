@@ -21,7 +21,7 @@ public interface BookingMapper {
     @Mapping(target = "urgent", ignore = true)
     @Mapping(target = "penalty", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "actualReturnDate", ignore = true) // при создании new Booking оно ещё пустое
+    @Mapping(target = "actualReturnDate", ignore = true)
     @Mapping(target = "basePrice",         ignore = true)
     @Mapping(target = "loyaltyDiscount",   ignore = true)
     @Mapping(target = "discountedPrice",   ignore = true)

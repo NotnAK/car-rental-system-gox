@@ -1,13 +1,12 @@
 package com.gox.domain.service;
 
 import com.gox.domain.entity.review.Review;
-import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.ReviewNotFoundException;
 import com.gox.domain.exception.ReviewValidationException;
 import com.gox.domain.exception.UserNotFoundException;
 import com.gox.domain.repository.ReviewRepository;
 import com.gox.domain.repository.UserRepository;
-import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.ValidationExecutor;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.review.ReviewValidationContext;
 import com.gox.domain.validation.review.rules.*;
@@ -34,30 +33,6 @@ public class ReviewService implements ReviewFacade {
     }
 
 
-/*    @Override
-    public Review create(Review review) {
-        if (review == null) {
-            throw new ReviewException("Review must not be null");
-        }
-        if (review.getUser() == null) {
-            throw new ReviewException("Review must have an associated user");
-        }
-        if (review.getCar() == null) {
-            throw new ReviewException("Review must have an associated car");
-        }
-        if (review.getRating() < 1 || review.getRating() > 5) {
-            throw new ReviewException("Rating must be between 1 and 5");
-        }
-        if (review.getComment() == null || review.getComment().isBlank()) {
-            throw new ReviewException("Review comment must not be blank");
-        }
-        if (review.getCreatedAt() == null) {
-            review.setCreatedAt(LocalDateTime.now());
-        }
-        return repository.create(review);
-    }*/
-
-
     @Override
     public Review get(Long id) {
         if (id == null || id <= 0) {
@@ -76,7 +51,7 @@ public class ReviewService implements ReviewFacade {
             throw new ReviewValidationException("Invalid user id: " + userId);
         }
         if (userRepository.read(userId) == null) {
-            throw new CarNotFoundException("User with ID " + userId + " not found");
+            throw new UserNotFoundException("User not found with id: " + userId);
         }
         return reviewRepository.findByUserId(userId);
     }
@@ -96,9 +71,6 @@ public class ReviewService implements ReviewFacade {
             throw new ReviewValidationException("Invalid rating: " + rating);
         }
         return reviewRepository.findByRating(rating);
-/*        if (reviews == null || reviews.isEmpty()) {
-            throw new ReviewNotFoundException("No reviews found with rating: " + rating);
-        }*/
     }
 
     @Override
@@ -110,22 +82,18 @@ public class ReviewService implements ReviewFacade {
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .build();
-        var vr  = new ValidationResult();
-        for (var rule : updateRules) {
-            rule.validate(ctx, vr);
-        }
-        if (vr.hasErrors()) {
-            throw new ReviewValidationException(vr.getCombinedMessage());
-        }
+        ValidationExecutor.validateOrThrow(
+                ctx,
+                updateRules,
+                ReviewValidationException::new
+        );
         Review existing = reviewRepository.read(review.getId());
         if (existing == null) {
             throw new ReviewNotFoundException("Review not found with id: " + review.getId());
         }
-        // Обновляем только изменяемые поля (rating и comment)
         existing.setRating(review.getRating());
         existing.setComment(review.getComment());
         existing.setUpdatedAt(OffsetDateTime.now());
-        // createdAt обычно не меняется
         return reviewRepository.update(existing);
     }
 

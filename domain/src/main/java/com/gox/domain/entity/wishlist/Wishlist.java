@@ -1,15 +1,12 @@
 package com.gox.domain.entity.wishlist;
 
 import com.gox.domain.entity.car.Car;
-import com.gox.domain.entity.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Wishlist {
     private Long id;
-
-    // Связь M:N – в вишлисте может быть много автомобилей
     private List<Car> cars = new ArrayList<>();
 
     public Wishlist() {

@@ -45,13 +45,6 @@ public class JpaBookingRepositoryAdapter implements BookingRepository {
                                   OffsetDateTime startMinusGap) {
         return bookingSpringDataRepository.existsConflict(carId, excludedStatus, endPlusGap, startMinusGap);
     }
-/*    @Override
-    public List<Booking> findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long carId,
-                                                                                                    BookingStatus excludedStatus,
-                                                                                                    OffsetDateTime endPlusGap,
-                                                                                                    OffsetDateTime startMinusGap) {
-        return jpaRepo.findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(carId, excludedStatus, endPlusGap, startMinusGap);
-    }*/
     @Override
     public List<Booking> findByCarIdAndStatusInAndEndDateAfter(
             Long carId,
@@ -59,10 +52,6 @@ public class JpaBookingRepositoryAdapter implements BookingRepository {
             OffsetDateTime endDateAfter){
         return bookingSpringDataRepository.findByCarIdAndStatusInAndEndDateAfter(carId, statuses, endDateAfter);
     }
-/*    @Override
-    public List<Booking> findByCarIdAndStatusIn(Long carId, List<BookingStatus> statuses) {
-        return bookingSpringDataRepository.findByCarIdAndStatusIn(carId, statuses);
-    }*/
 
     @Override
     public List<Booking> findByUserIdAndStatus(Long userId, BookingStatus status) {

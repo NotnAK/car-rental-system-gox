@@ -14,7 +14,6 @@ public class JpaLocationRepositoryAdapter implements LocationRepository {
     public JpaLocationRepositoryAdapter(LocationSpringDataRepository springDataLocationRepository) {
         this.springDataLocationRepository = springDataLocationRepository;
     }
-
     @Override
     public Location create(Location location) {
         return springDataLocationRepository.save(location);
@@ -24,7 +23,6 @@ public class JpaLocationRepositoryAdapter implements LocationRepository {
     public Location read(Long id) {
         return springDataLocationRepository.findById(id).orElse(null);
     }
-
     @Override
     public List<Location> findAll() {
         return springDataLocationRepository.findAll();

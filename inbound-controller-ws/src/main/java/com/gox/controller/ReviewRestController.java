@@ -3,11 +3,8 @@ package com.gox.controller;
 import com.gox.domain.entity.review.Review;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.entity.user.UserRole;
-import com.gox.domain.service.CarFacade;
 import com.gox.domain.service.ReviewFacade;
-import com.gox.mapper.CarMapper;
 import com.gox.mapper.ReviewMapper;
-import com.gox.mapper.UserMapper;
 import com.gox.rest.api.ReviewsApi;
 import com.gox.rest.dto.ReviewDto;
 import com.gox.rest.dto.ReviewUpdateRequestDto;
@@ -36,19 +33,13 @@ public class ReviewRestController implements ReviewsApi {
 
     @Override
     public ResponseEntity<Void> deleteReview(Integer reviewId) {
-        // 1) Получаем существующий отзыв
         Review existing = reviewFacade.get(reviewId.longValue());
-        // 2) Берём текущего пользователя из контекста
         User currentUser = currentUserDetailService.getFullCurrentUser();
-
-        // 3) Если роль не ADMIN, проверяем, что отзыв принадлежит текущему пользователю
         if (!currentUser.getRole().equals(UserRole.ADMIN)) {
             if (!existing.getUser().getId().equals(currentUser.getId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
         }
-
-        // 4) Удаляем отзыв
         reviewFacade.deleteReview(reviewId.longValue());
         return ResponseEntity.ok().build();
     }

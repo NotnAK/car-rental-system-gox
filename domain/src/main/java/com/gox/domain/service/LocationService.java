@@ -6,8 +6,7 @@ import com.gox.domain.exception.LocationValidationException;
 import com.gox.domain.repository.BookingRepository;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.LocationRepository;
-import com.gox.domain.repository.PhotoRepository;
-import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.ValidationExecutor;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.location.LocationValidationContext;
 import com.gox.domain.validation.location.rules.*;
@@ -15,17 +14,14 @@ import com.gox.domain.validation.location.rules.*;
 import java.util.List;
 public class LocationService implements LocationFacade {
     private final LocationRepository locationRepository;
-    private final PhotoRepository photoRepository;
     private final CarRepository carRepository;
     private final BookingRepository bookingRepository;
     private final List<ValidationRule<LocationValidationContext>> validationRules;
 
     public LocationService(LocationRepository locationRepository,
-                           PhotoRepository photoRepository,
                            CarRepository carRepository,
                            BookingRepository bookingRepository) {
         this.locationRepository = locationRepository;
-        this.photoRepository = photoRepository;
         this.carRepository = carRepository;
         this.bookingRepository = bookingRepository;
         this.validationRules = List.of(
@@ -45,16 +41,11 @@ public class LocationService implements LocationFacade {
         LocationValidationContext ctx = LocationValidationContext.builder()
                 .location(location)
                 .build();
-        ValidationResult vr = new ValidationResult();
-
-        for (ValidationRule<LocationValidationContext> rule : validationRules) {
-            rule.validate(ctx, vr);
-        }
-
-        if (vr.hasErrors()) {
-            throw new LocationValidationException(vr.getCombinedMessage());
-        }
-
+        ValidationExecutor.validateOrThrow(
+                ctx,
+                validationRules,
+                LocationValidationException::new
+        );
         return locationRepository.create(location);
     }
 
@@ -81,15 +72,11 @@ public class LocationService implements LocationFacade {
         LocationValidationContext ctx = LocationValidationContext.builder()
                 .location(location)
                 .build();
-        ValidationResult vr = new ValidationResult();
-
-        for (ValidationRule<LocationValidationContext> rule : validationRules) {
-            rule.validate(ctx, vr);
-        }
-
-        if (vr.hasErrors()) {
-            throw new LocationValidationException(vr.getCombinedMessage());
-        }
+        ValidationExecutor.validateOrThrow(
+                ctx,
+                validationRules,
+                LocationValidationException::new
+        );
         return locationRepository.update(location);
     }
 

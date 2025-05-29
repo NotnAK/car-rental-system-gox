@@ -25,32 +25,104 @@ public class SecurityConfiguration {
     private void configureAuthorizationRules(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
         // ============ PUBLIC (ALL) ============
         auth
-                .requestMatchers(HttpMethod.GET, "/cars", "/cars/*", "/cars/*/reviews", "/photos/*",
-                        "/cars/*/busy-intervals", "/locations").permitAll();
+                // ============ PUBLIC ============
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/cars",
+                        "/cars/{id}",
+                        "/cars/filters",
+                        "/cars/{id}/reviews",
+                        "/cars/{id}/busy-intervals",
+                        "/photos/{id}",
+                        "/locations",
+                        "/locations/{id}"
+                ).permitAll()
 
-        // ============ ADMIN only ============
-        auth
-                .requestMatchers(HttpMethod.POST, "/cars").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/cars/*/photos").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN");
+                // ============ CUSTOMER ============
+                .requestMatchers(
+                        HttpMethod.POST,
+                        "/cars/{id}/reviews",
+                        "/bookings"
+                ).hasRole("CUSTOMER")
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/users/me/reviews",
+                        "/users/me/bookings",
+                        "/users/me/wishlist"
+                ).hasRole("CUSTOMER")
+                .requestMatchers(
+                        HttpMethod.POST,
+                        "/users/me/wishlist/{carId}"
+                ).hasRole("CUSTOMER")
+                .requestMatchers(
+                        HttpMethod.DELETE,
+                        "/users/me/wishlist/{carId}"
+                ).hasRole("CUSTOMER")
+                .requestMatchers(
+                        HttpMethod.PUT,
+                        "/users/me",
+                        "/reviews/{reviewId}"
+                ).hasRole("CUSTOMER")
 
-        // ============ CUSTOMER only ============
-        auth
-                // оставить возможность админу тоже, если нужно: .hasAnyRole("CUSTOMER","ADMIN")
-                .requestMatchers(HttpMethod.POST, "/cars/*/reviews").hasAnyRole("CUSTOMER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/bookings/estimate").permitAll()
-                .requestMatchers(HttpMethod.PUT, "/reviews/*").hasAnyRole("CUSTOMER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/users/me").hasAnyRole("CUSTOMER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/users/me/wishlist/*").hasRole("CUSTOMER")
-                .requestMatchers(HttpMethod.DELETE, "/users/me/wishlist/*").hasRole("CUSTOMER")
-                .requestMatchers(HttpMethod.GET, "/users/me/reviews").hasRole("CUSTOMER");
+                // ============ CUSTOMER & ADMIN ============
+                .requestMatchers(
+                        HttpMethod.DELETE,
+                        "/reviews/{reviewId}"
+                ).hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/users/me",
+                        "/bookings/{bookingId}"
+                ).hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers(
+                        HttpMethod.POST,
+                        "/bookings/{bookingId}/cancel",
+                        "/bookings/estimate"
+                ).hasAnyRole("CUSTOMER", "ADMIN")
 
-        // ============ CUSTOMER or ADMIN ============
-        auth
-                .requestMatchers(HttpMethod.DELETE, "/reviews/*").hasAnyRole("CUSTOMER","ADMIN");
-
-        // всё остальное — запретить или разрешить анонимно по вкусу:
-        auth.anyRequest().authenticated();
+                // ============ ADMIN ============
+                .requestMatchers(
+                        HttpMethod.POST,
+                        "/cars",
+                        "/cars/{id}/photos",
+                        "/locations",
+                        "/users",
+                        "/reviews"
+                ).hasRole("ADMIN")
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/users",
+                        "/users/{userId}",
+                        "/users/{userId}/bookings",
+                        "/users/{userId}/reviews",
+                        "/bookings",
+                        "/reviews"
+                ).hasRole("ADMIN")
+                .requestMatchers(
+                        HttpMethod.PUT,
+                        "/cars/{id}",
+                        "/locations/{locationId}",
+                        "/users/{userId}"
+                ).hasRole("ADMIN")
+                .requestMatchers(
+                        HttpMethod.DELETE,
+                        "/cars/{id}",
+                        "/photos/{photoId}",
+                        "/locations/{locationId}",
+                        "/users/{userId}",
+                        "/bookings/{bookingId}"
+                ).hasRole("ADMIN")
+                .requestMatchers(
+                        HttpMethod.POST,
+                        "/bookings/{bookingId}/approve",
+                        "/bookings/{bookingId}/complete"
+                ).hasRole("ADMIN")
+                .requestMatchers(
+                        HttpMethod.PATCH,
+                        "/photos/{photoId}"
+                ).hasRole("ADMIN")
+                // any other request must be authenticated
+                .anyRequest().authenticated();
     }
     private void configureOauth2ResourceServer(OAuth2ResourceServerConfigurer<HttpSecurity> oauth2, JwtDecoder jwtDecoder) {
         oauth2

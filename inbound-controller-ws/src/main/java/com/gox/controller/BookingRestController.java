@@ -1,7 +1,6 @@
 package com.gox.controller;
 import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.booking.BookingStatus;
-import com.gox.domain.entity.photo.Photo;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.entity.user.UserRole;
 import com.gox.domain.service.BookingFacade;
@@ -48,7 +47,7 @@ public class BookingRestController implements BookingsApi {
 
     @Override
     public ResponseEntity<BookingSummaryDto> createBooking(BookingCreateRequestDto dto) {
-        Booking b = bookingFactory.createBooking(
+        Booking b = bookingFactory.create(
                 dto.getCarId(),
                 dto.getPickupLocationId(),
                 dto.getDropoffLocationId(),
@@ -88,7 +87,6 @@ public class BookingRestController implements BookingsApi {
     public ResponseEntity<BookingEstimateDto> estimateBooking(
             BookingCreateRequestDto dto) {
         User user = currentUserService.getOptionalFullUser().orElse(null);
-        // 1) вызываем фасад, он возвращает VO
         BookingEstimate vo = bookingFacade.estimate(
                 dto.getCarId(),
                 dto.getPickupLocationId(),
@@ -97,15 +95,11 @@ public class BookingRestController implements BookingsApi {
                 dto.getStartDate(),
                 dto.getEndDate()
         );
-
-        // 2) мапим VO → REST-DTO
         BookingEstimateDto estimateDto = estimateMapper.toDto(vo);
-
         return ResponseEntity.ok(estimateDto);
     }
     @Override
     public ResponseEntity<Void> approveBooking(Integer bookingId) {
-        // Преобразуем в Long, устанавливаем статус APPROVED
         bookingFacade.changeStatus(
                 bookingId.longValue(),
                 BookingStatus.APPROVED
@@ -130,7 +124,6 @@ public class BookingRestController implements BookingsApi {
     public ResponseEntity<BookingSummaryDto> completeBooking(
             Long bookingId,
             CompleteBookingRequestDto dto) {
-
         Booking b = bookingFacade.completeBooking(
                 bookingId,
                 dto.getActualReturnDate()

@@ -9,7 +9,7 @@ servers:
 paths:
   /cars:
     get:
-      summary: Retrieve a list of cars (ALL), with optional filtering
+      summary: Retrieve a list of cars, with optional filtering
       operationId: getCars
       tags:
         - Car
@@ -22,15 +22,17 @@ paths:
             $ref: '#/components/schemas/CarFilterRequest'
       responses:
         '200':
-          description: A list of cars
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Car'
+        '500':
+          description: Internal Server Error
     post:
-      summary: Create a new car (ADMIN)
+      summary: Create a new car
       operationId: createCar
       tags:
         - Car
@@ -42,11 +44,19 @@ paths:
               $ref: '#/components/schemas/CarCreateRequest'
       responses:
         '201':
-          description: Car successfully created
+          description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Car'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
   /cars/filters:
     get:
       summary: Get available filter options for cars
@@ -55,14 +65,16 @@ paths:
         - Car
       responses:
         '200':
-          description: All possible filter values
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CarFilterOptions'
+        '500':
+          description: Internal Server Error
   /cars/{carId}:
     get:
-      summary: Get a specific car by ID (ALL)
+      summary: Get a specific car by ID
       operationId: getCarById
       tags:
         - Car
@@ -75,15 +87,19 @@ paths:
             format: int64
       responses:
         '200':
-          description: The requested car
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Car'
+        '400':
+          description: Bad Request
         '404':
-          description: Car not found
+          description: Not Found
+        '500':
+          description: Internal Server Error
     put:
-      summary: Update a car (ADMIN)
+      summary: Update a car
       operationId: updateCar
       tags:
         - Car
@@ -102,19 +118,19 @@ paths:
               $ref: '#/components/schemas/CarUpdateRequest'
       responses:
         '200':
-          description: Car successfully updated
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Car'
         '400':
-          description: Validation error
+          description: Bad Request
         '404':
-          description: Car not found
+          description: Not Found
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
     delete:
-      summary: Delete a car (ADMIN)
+      summary: Delete a car
       operationId: deleteCar
       tags:
         - Car
@@ -127,14 +143,18 @@ paths:
             format: int64
       responses:
         '204':
-          description: Car successfully deleted
-        '404':
-          description: Car not found
+          description: No Content
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /cars/{carId}/reviews:
     get:
-      summary: Get all reviews for a car (ALL)
+      summary: Get all reviews for a car
       operationId: getReviewsForCar
       tags:
         - Review
@@ -146,15 +166,19 @@ paths:
             type: integer
       responses:
         '200':
-          description: A list of reviews for the car
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
     post:
-      summary: Create a review by the current user (CUSTOMER)
+      summary: Create a review by the current user
       operationId: createReview
       tags:
         - Review
@@ -172,14 +196,24 @@ paths:
               $ref: '#/components/schemas/ReviewCreateRequest'
       responses:
         '201':
-          description: Review successfully created
+          description: Created
           content:
             text/plain:
               schema:
                 type: string
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /cars/{carId}/photos:
     post:
-      summary: Upload photo for a car (ADMIN)
+      summary: Upload photo for a car
       operationId: uploadPhoto        # теперь будет в CarsApi
       tags: [ Photo ]
       parameters:
@@ -196,14 +230,24 @@ paths:
               $ref: '#/components/schemas/PhotoCreateRequest'
       responses:
         '201':
-          description: Photo uploaded
+          description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Photo'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '415':
+          description: Unsupported Media Type
+        '500':
+          description: Internal Server Error
   /cars/{carId}/busy-intervals:
     get:
-      summary: Get occupied intervals for this car (ALL)
+      summary: Get occupied intervals for this car
       operationId: getBusyIntervals
       tags:
         - Car
@@ -216,16 +260,20 @@ paths:
             format: int64
       responses:
         '200':
-          description: List of occupied time intervals
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/BookingInterval'
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /photos/{photoId}:
     get:
-      summary: Get raw bytes of a photo (ALL)
+      summary: Get raw bytes of a photo
       operationId: getPhotoContent
       tags:
         - Photo
@@ -238,15 +286,19 @@ paths:
             format: int64
       responses:
         '200':
-          description: Binary image
+          description: OK
           content:
             application/octet-stream:
               schema:
                 type: string
                 format: binary
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
 
     delete:
-      summary: Delete a photo (ADMIN)
+      summary: Delete a photo
       operationId: deletePhoto
       tags:
         - Photo
@@ -259,14 +311,18 @@ paths:
             format: int64
       responses:
         '204':
-          description: Photo deleted
-        '404':
-          description: Photo not found
+          description: No Content
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
 
     patch:
-      summary: Update photo metadata (name or isPreview) (ADMIN)
+      summary: Update photo metadata
       operationId: updatePhoto
       tags:
         - Photo
@@ -285,36 +341,46 @@ paths:
               $ref: '#/components/schemas/PhotoUpdateRequest'
       responses:
         '200':
-          description: Photo metadata updated
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Photo'
-        '404':
-          description: Photo not found
         '400':
-          description: Validation error
+          description: Bad Request
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /users:
     get:
-      summary: Retrieve all users (ADMIN)
+      summary: Retrieve all users
       operationId: getUsers
       tags:
         - User
       responses:
         '200':
-          description: A list of users
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserSummary'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
 
   /users/{userId}:
     get:
-      summary: Get a user by ID (ADMIN)
+      summary: Get a user by ID
       operationId: getUserById
       tags:
         - User
@@ -327,17 +393,17 @@ paths:
             format: int64
       responses:
         '200':
-          description: The requested user
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserSummary'
         '404':
-          description: User not found
+          description: Not Found
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
     put:
-      summary: Update a user by ID (ADMIN)
+      summary: Update a user by ID
       operationId: updateUserById
       tags:
         - User
@@ -356,15 +422,23 @@ paths:
               $ref: '#/components/schemas/UserAdminUpdateRequest'
       responses:
         '200':
-          description: Updated user
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserSummary'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
     delete:
-      summary: Delete a user by ID (ADMIN)
+      summary: Delete a user by ID
       operationId: deleteUser
       tags:
         - User
@@ -377,14 +451,18 @@ paths:
             format: int64
       responses:
         '204':
-          description: User and all their bookings and reviews deleted
+          description: No Content
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
         '404':
-          description: User not found
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /users/{userId}/bookings:
     get:
-      summary: Get all bookings for a given user (ADMIN)
+      summary: Get all bookings for a given user
       operationId: getBookingsByUserId
       tags:
         - Booking
@@ -398,18 +476,24 @@ paths:
             format: int64
       responses:
         '200':
-          description: A list of bookings for the specified user
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/BookingSummary'
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /users/{userId}/reviews:
     get:
-      summary: Get all reviews by a given user (ADMIN)
+      summary: Get all reviews by a given user
       operationId: getReviewsByUserId
       tags:
         - Review
@@ -423,30 +507,42 @@ paths:
             format: int64
       responses:
         '200':
-          description: A list of reviews by the specified user
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call thiss
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /users/me:
     get:
-      summary: Get own profile (CUSTOMER)
+      summary: Get own profile
       operationId: getProfile
       tags:
         - User
       responses:
         '200':
-          description: Current user profile
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
     put:
-      summary: Update own profile (CUSTOMER)
+      summary: Update own profile
       operationId: updateProfile
       tags:
         - User
@@ -458,20 +554,28 @@ paths:
               $ref: '#/components/schemas/UserUpdateRequest'
       responses:
         '200':
-          description: Updated user profile
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
   /users/me/wishlist:
     get:
-      summary: Get all car-IDs in the current user's Wishlist (CUSTOMER)
+      summary: Get all car-IDs in the current user's Wishlist
       operationId: getWishlistCarIds
       tags:
         - User
       responses:
         '200':
-          description: List of car IDs
+          description: OK
           content:
             application/json:
               schema:
@@ -479,9 +583,15 @@ paths:
                 items:
                   type: integer
                   format: int64
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
   /users/me/wishlist/{carId}:
     post:
-      summary: Add a car to the current user's Wishlist (CUSTOMER)
+      summary: Add a car to the current user's Wishlist
       operationId: addCarToWishlist
       tags:
         - User
@@ -494,13 +604,23 @@ paths:
             format: int64
       responses:
         '200':
-          description: Car has been successfully added to the Wishlist.
+          description: OK
           content:
             text/plain:
               schema:
                 type: string
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
     delete:
-      summary: Remove a car from the current user's Wishlist (CUSTOMER)
+      summary: Remove a car from the current user's Wishlist
       operationId: removeCarFromWishlist
       tags:
         - User
@@ -513,62 +633,88 @@ paths:
             format: int64
       responses:
         '200':
-          description: Car has been successfully removed from your Wishlist.
+          description: OK
           content:
             text/plain:
               schema:
                 type: string
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /users/me/reviews:
     get:
-      summary: Get all reviews by the current user (CUSTOMER)
+      summary: Get all reviews by the current user
       operationId: getOwnReviews
       tags:
         - Review
       responses:
         '200':
-          description: A list of reviews
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
   /users/me/bookings:
     get:
-      summary: Get all bookings for current user (CUSTOMER)
+      summary: Get all bookings for current user
       operationId: getOwnBookings
       tags:
         - User
         - Booking
       responses:
         '200':
-          description: A list of bookings for the current user
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/BookingSummary'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
   /reviews:
     get:
-      summary: Get all reviews (ADMIN)
+      summary: Get all reviews
       operationId: getAllReviews
       tags:
         - Review
       responses:
         '200':
-          description: A list of all reviews
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Review'
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
+        '500':
+          description: Internal Server Error
   /reviews/{reviewId}:
     put:
-      summary: Update a review by the current user (CUSTOMER)
+      summary: Update a review by the current user
       operationId: updateReview
       tags:
         - Review
@@ -586,13 +732,23 @@ paths:
               $ref: '#/components/schemas/ReviewUpdateRequest'
       responses:
         '200':
-          description: Review successfully updated
+          description: OK
           content:
             text/plain:
               schema:
                 type: string
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
     delete:
-      summary: Delete a review by the current user or Admin (CUSTOMER, ADMIN)
+      summary: Delete a review by the current user or Admin
       operationId: deleteReview
       tags:
         - Review
@@ -604,24 +760,34 @@ paths:
             type: integer
       responses:
         '200':
-          description: Review successfully deleted
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /locations:
     get:
-      summary: Get all locations (ALL)
+      summary: Get all locations
       operationId: getLocations
       tags:
         - Location
       responses:
         '200':
-          description: A list of locations
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Location'
+        '500':
+          description: Internal Server Error
     post:
-      summary: Create a location (ADMIN)
+      summary: Create a location
       operationId: createLocation
       tags:
         - Location
@@ -633,15 +799,23 @@ paths:
               $ref: '#/components/schemas/Location'
       responses:
         '201':
-          description: Location created
+          description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Location'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
 
   /locations/{locationId}:
     get:
-      summary: Get a location by id (ALL)
+      summary: Get a location by id
       operationId: getLocationById
       tags:
         - Location
@@ -653,15 +827,17 @@ paths:
             type: integer
       responses:
         '200':
-          description: The requested location
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Location'
         '404':
-          description: Not found
+          description: Not Found
+        '500':
+          description: Internal Server Error
     put:
-      summary: Update a location (ADMIN)
+      summary: Update a location
       operationId: updateLocation
       tags:
         - Location
@@ -679,9 +855,19 @@ paths:
               $ref: '#/components/schemas/Location'
       responses:
         '200':
-          description: Updated
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
     delete:
-      summary: Delete a location (ADMIN)
+      summary: Delete a location
       operationId: deleteLocation
       tags:
         - Location
@@ -693,10 +879,18 @@ paths:
             type: integer
       responses:
         '204':
-          description: Deleted
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /bookings:
     post:
-      summary: Create a new booking (CUSTOMER)
+      summary: Create a new booking
       operationId: createBooking
       tags:
         - Booking
@@ -708,25 +902,39 @@ paths:
               $ref: '#/components/schemas/BookingCreateRequest'
       responses:
         '201':
-          description: Booking created
+          description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingSummary'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
     get:
-      summary: Get all bookings (ADMIN)
+      summary: Get all bookings
       operationId: getAllBookings
       tags:
         - Booking
       responses:
         '200':
-          description: A list of bookings
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/BookingSummary'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
 
   /bookings/{bookingId}:
     parameters:
@@ -738,21 +946,27 @@ paths:
           format: int64
 
     get:
-      summary: Get booking by ID (CUSTOMER, ADMIN)
+      summary: Get booking by ID
       operationId: getBookingById
       tags:
         - Booking
       responses:
         '200':
-          description: Requested booking
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingDetail'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: Booking not found
+          description: Not Found
+        '500':
+          description: Internal Server Error
     delete:
-      summary: Delete a booking (ADMIN)
+      summary: Delete a booking
       operationId: deleteBooking
       tags:
         - Booking
@@ -765,11 +979,15 @@ paths:
             format: int64
       responses:
         '204':
-          description: Booking successfully deleted
-        '404':
-          description: Booking not found
+          description: No Content
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden — only ADMIN can call this
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
 
   /bookings/{bookingId}/approve:
     post:
@@ -784,7 +1002,15 @@ paths:
             type: integer
       responses:
         '200':
-          description: Booking status changed to APPROVED.
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
 
   /bookings/{bookingId}/cancel:
     post:
@@ -799,11 +1025,19 @@ paths:
             type: integer
       responses:
         '200':
-          description: Booking status changed to CANCELLED
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
 
   /bookings/{bookingId}/complete:
     post:
-      summary: Complete a booking (ADMIN), set actual return date, calculate penalty
+      summary: Complete a booking, set actual return date, calculate penalty
       operationId: completeBooking
       tags:
         - Booking
@@ -828,14 +1062,24 @@ paths:
                   format: date-time
       responses:
         '200':
-          description: Booking completed
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingSummary'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /bookings/estimate:
     post:
-      summary: Estimate cost of a booking without creating (CUSTOMER)
+      summary: Estimate cost of a booking without creating
       operationId: estimateBooking
       tags:
         - Booking
@@ -847,11 +1091,19 @@ paths:
               $ref: '#/components/schemas/BookingCreateRequest'
       responses:
         '200':
-          description: Detailed estimate
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BookingEstimate'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
 
 
 
@@ -1320,11 +1572,11 @@ components:
         start:
           type: string
           format: date-time
-          description: Interval start (inclusive)
+          description: Interval start
         end:
           type: string
           format: date-time
-          description: Interval end (exclusive)
+          description: Interval end
 
     CarCreateRequest:
       type: object

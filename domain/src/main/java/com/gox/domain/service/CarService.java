@@ -6,7 +6,7 @@ import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.CarValidationException;
 import com.gox.domain.exception.LocationNotFoundException;
 import com.gox.domain.repository.*;
-import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.ValidationExecutor;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.car.CarValidationContext;
 import com.gox.domain.validation.car.rules.*;
@@ -54,7 +54,7 @@ public class CarService implements CarFacade {
         }
         Car car = carRepository.read(id);
         if (car == null) {
-            throw new CarNotFoundException("Car with ID " + id + " not found");
+            throw new CarNotFoundException("Car not found with id: " + id);
         }
         return car;
     }
@@ -72,7 +72,7 @@ public class CarService implements CarFacade {
         }
         Car existing = carRepository.read(id);
         if (existing == null) {
-            throw new CarNotFoundException("Car with ID " + id + " not found");
+            throw new CarNotFoundException("Car not found with id: " + id);
         }
         reviewRepository.deleteByCarId(id);
         wishlistRepository.deleteCarFromAllWishlists(id);
@@ -94,13 +94,11 @@ public class CarService implements CarFacade {
     @Override
     public Car update(Car car, Long locationId) {
         var ctx = CarValidationContext.builder().car(car).location(locationId).build();
-        var vr = new ValidationResult();
-        for (var rule : rules) {
-            rule.validate(ctx, vr);
-        }
-        if (vr.hasErrors()) {
-            throw new CarValidationException(vr.getCombinedMessage());
-        }
+        ValidationExecutor.validateOrThrow(
+                ctx,
+                rules,
+                CarValidationException::new
+        );
         Location loc = locationRepository.read(locationId);
         if (loc == null) {
             throw new LocationNotFoundException("Location not found with id: " + locationId);

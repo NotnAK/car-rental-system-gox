@@ -7,7 +7,7 @@ import com.gox.domain.exception.CarNotFoundException;
 import com.gox.domain.exception.ReviewValidationException;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.ReviewRepository;
-import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.ValidationExecutor;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.review.ReviewValidationContext;
 import com.gox.domain.validation.review.rules.*;
@@ -32,20 +32,18 @@ public class ReviewFactory {
         );
     }
 
-    public Review createReview(Long carId, User user, Integer rating, String comment) throws ReviewValidationException {
+    public Review create(Long carId, User user, Integer rating, String comment){
         var ctx = ReviewValidationContext.builder()
                 .carId(carId)
                 .user(user)
                 .rating(rating)
                 .comment(comment)
                 .build();
-        var vr  = new ValidationResult();
-        for (var rule : createRules) {
-            rule.validate(ctx, vr);
-        }
-        if (vr.hasErrors()) {
-            throw new ReviewValidationException(vr.getCombinedMessage());
-        }
+        ValidationExecutor.validateOrThrow(
+                ctx,
+                createRules,
+                ReviewValidationException::new
+        );
         Car car = carRepository.read(carId);
         if (car == null) {
             throw new CarNotFoundException("Car not found with id: " + carId);

@@ -88,22 +88,19 @@ public class CarRestController implements CarsApi {
     @Override
     public ResponseEntity<CarDto> createCar(CarCreateRequestDto dto) {
         Car carEntity = carMapper.toEntity(dto);
-        Car saved = carFactory.createCar(carEntity, dto.getLocationId());
+        Car saved = carFactory.create(carEntity, dto.getLocationId());
         return ResponseEntity.status(201).body(carMapper.toDto(saved));
     }
     @Override
     public ResponseEntity<String> createReview(Integer carId,
                                                ReviewCreateRequestDto dto) {
-        // Получаем залогиненного пользователя
         User currentUser = currentUserDetailService.getFullCurrentUser();
-        // Создаём отзыв в доменном слое, передаём carId из path-а
-        reviewFactory.createReview(
+        reviewFactory.create(
                 carId.longValue(),
                 currentUser,
                 dto.getRating(),
                 dto.getComment()
         );
-        // Возвращаем 201 Created без тела
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -111,18 +108,13 @@ public class CarRestController implements CarsApi {
     public ResponseEntity<CarDto> getCarById(Long carId) {
         Car car = carFacade.get(carId);
         CarDto dto = carMapper.toDto(car);
-
-        // Получаем и мапим превью
         Photo previewEntity = photoFacade.getPreviewForCar(carId);
         PhotoDto previewDto = photoMapper.toDto(previewEntity);
         dto.setPreview(previewDto);
-
-        // (опционально) все фото
         List<PhotoDto> photos = photoFacade.getAllForCar(carId).stream()
                 .map(photoMapper::toDto)
                 .collect(Collectors.toList());
         dto.setPhotos(photos);
-
         return ResponseEntity.ok(dto);
     }
 

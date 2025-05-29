@@ -3,14 +3,14 @@ package com.gox.domain.entity.user;
 import com.gox.domain.entity.wishlist.Wishlist;
 
 public class User {
-    private Long id;            // PK in our database
-    private String username;   // ← новое поле
+    private Long id;
+    private String username;
     private String name;
-    private String email;       // Unique email (key)
-    private UserRole role;      // ADMIN, CUSTOMER, ...
-    private LoyaltyLevel loyaltyLevel; // STANDARD, SILVER, GOLD
-    private String address;     // e.g. postal address
-    private String phone;       // phone number
+    private String email;
+    private UserRole role;
+    private LoyaltyLevel loyaltyLevel;
+    private String address;
+    private String phone;
     private Wishlist wishlist;
     public User() {}
 

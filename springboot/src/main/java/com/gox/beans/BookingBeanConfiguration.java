@@ -1,4 +1,4 @@
-    package com.gox;
+    package com.gox.beans;
 
     import com.gox.domain.repository.BookingRepository;
     import com.gox.domain.repository.CarRepository;

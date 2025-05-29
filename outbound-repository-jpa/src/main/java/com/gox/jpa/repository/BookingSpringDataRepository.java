@@ -13,32 +13,9 @@ import java.util.List;
 
 public interface BookingSpringDataRepository extends JpaRepository<Booking, Long> {
 
-    /**
-     * Находит все брони по машине и списку статусов.
-     * (используется для availability-эндпоинта)
-     */
     List<Booking> findByCarIdAndStatusInAndEndDateAfter(Long carId, List<BookingStatus> statuses, OffsetDateTime endDateAfter);
     List<Booking> findByUserIdAndStatus(Long userId, BookingStatus status);
     List<Booking> findAllByOrderByIdDesc();
-
-    /**
-     * Проверяет, пересекается ли любая бронь (status != excludedStatus)
-     * с интервалом [startMinusGap … endPlusGap].
-     */
-/*    @Query("""
-      SELECT CASE WHEN COUNT(b)>0 THEN true ELSE false END
-      FROM Booking b
-      WHERE b.car.id = :carId
-        AND b.status <> :excludedStatus
-        AND b.startDate <= :endPlusGap
-        AND b.endDate   >= :startMinusGap
-      """)
-    boolean existsConflict(
-            @Param("carId") Long carId,
-            @Param("excludedStatus") BookingStatus excludedStatus,
-            @Param("endPlusGap") OffsetDateTime endPlusGap,
-            @Param("startMinusGap") OffsetDateTime startMinusGap
-    );*/
     @Query("""
   SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END
   FROM Booking b
@@ -64,12 +41,6 @@ public interface BookingSpringDataRepository extends JpaRepository<Booking, Long
     @Modifying
     @Transactional
     void deleteByUserId(Long userId);
-/*    List<Booking> findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-            Long carId,
-            BookingStatus excludedStatus,
-            OffsetDateTime endPlusGap,
-            OffsetDateTime startMinusGap
-    );*/
     @Transactional
     @Modifying
     @Query("UPDATE Booking b SET b.pickupLocation = NULL WHERE b.pickupLocation.id = :locId")

@@ -4,7 +4,6 @@ import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.location.Location;
 import com.gox.domain.entity.user.User;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 public class Booking {
@@ -158,13 +157,4 @@ public class Booking {
         this.discountedPrice = discountedPrice;
     }
 
-    /** Удобный признак для фронта: нужна ли доставка */
-    public boolean isTransferNeeded() {
-        return transferFee != null && transferFee.compareTo(BigDecimal.ZERO) > 0;
-    }
-
-    /** Бронь блокирует календарь только если подтверждена */
-    public boolean isActiveForCalendar() {
-        return BookingStatus.APPROVED.equals(status);
-    }
 }

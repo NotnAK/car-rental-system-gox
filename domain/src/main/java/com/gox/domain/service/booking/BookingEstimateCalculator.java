@@ -27,10 +27,8 @@ public class BookingEstimateCalculator {
         if (!pickupLocationId.equals(dropoffLocationId) && urgent) {
             transferFee = URGENT_TRANSFER_FEE;
         }
-
         long seconds = Duration.between(start, end).getSeconds();
         long days = (seconds + 86_400 - 1) / 86_400;
-
         BigDecimal basePrice = car.getPricePerDay().multiply(BigDecimal.valueOf(days));
         LoyaltyLevel loyaltyLevel = (user == null)?LoyaltyLevel.STANDARD:user.getLoyaltyLevel();
         double loyaltyRate = switch (loyaltyLevel) {
@@ -41,7 +39,6 @@ public class BookingEstimateCalculator {
         BigDecimal loyaltyDiscount = basePrice.multiply(BigDecimal.valueOf(loyaltyRate));
         BigDecimal discountedPrice = basePrice.subtract(loyaltyDiscount);
         BigDecimal totalPrice = discountedPrice.add(transferFee);
-
         return new BookingEstimate(
                 (int) days,
                 basePrice,

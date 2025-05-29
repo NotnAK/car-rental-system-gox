@@ -32,15 +32,12 @@ public class UserSynchronizationFilter extends OncePerRequestFilter {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserShortDto) {
             UserShortDto principal = (UserShortDto) authentication.getPrincipal();
-            // Check if the user exists in the local database
             User user = userFacade.getByEmail(principal.getEmail());
             if (user == null) {
-                // If the user is not found - create a new one
                 User newUser = new User();
                 newUser.setUsername(principal.getUsername());
                 newUser.setEmail(principal.getEmail());
                 newUser.setName(principal.getName());
-                // Default to CUSTOMER if role is null
                 if (principal.getRole() != null) {
                     newUser.setRole(UserRole.valueOf(principal.getRole().name()));
                 } else {

@@ -3,7 +3,6 @@ package com.gox.controller;
 import com.gox.domain.entity.booking.Booking;
 import com.gox.domain.entity.photo.Photo;
 import com.gox.domain.entity.review.Review;
-import com.gox.domain.entity.user.LoyaltyLevel;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.service.*;
 import com.gox.mapper.BookingMapper;
@@ -13,7 +12,6 @@ import com.gox.mapper.UserMapper;
 import com.gox.rest.api.UsersApi;
 import com.gox.rest.dto.*;
 import com.gox.security.CurrentUserDetailService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,8 +45,8 @@ public class UserRestController implements UsersApi {
         this.currentUserDetailService = currentUserDetailService;
         this.userMapper = userMapper;
         this.userFacade = userFacade;
-        this.photoFacade = photoFacade;      // ← сохраняем
-        this.photoMapper = photoMapper;      // ← сохраняем
+        this.photoFacade = photoFacade;
+        this.photoMapper = photoMapper;
         this.bookingMapper = bookingMapper;
         this.bookingFacade = bookingFacade;
 
@@ -86,27 +84,19 @@ public class UserRestController implements UsersApi {
 
     @Override
     public ResponseEntity<UserDto> getProfile() {
-        // 1) Получаем сущность пользователя
         User currentUser = currentUserDetailService.getFullCurrentUser();
-        // 2) Мапим её в DTO (в том числе должен быть заполнен wishlist, если настроен WishlistMapper)
         UserDto dto = userMapper.toDto(currentUser);
-
-        // 3) Если у пользователя есть wishlist, заполняем превью для каждой машины
         if (dto.getWishlist() != null && dto.getWishlist().getCars() != null) {
             List<CarDto> carsWithPreview = dto.getWishlist().getCars().stream()
                     .map(carDto -> {
-                        // получаем entity-превью по carId
                         Photo previewEntity = photoFacade.getPreviewForCar(carDto.getId());
                         PhotoDto previewDto = photoMapper.toDto(previewEntity);
-                        // ставим в CarDto
                         carDto.setPreview(previewDto);
                         return carDto;
                     })
                     .collect(Collectors.toList());
             dto.getWishlist().setCars(carsWithPreview);
         }
-
-        // 4) Возвращаем результат
         return ResponseEntity.ok(dto);
     }
 

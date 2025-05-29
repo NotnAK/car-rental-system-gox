@@ -7,16 +7,12 @@ import com.gox.domain.entity.car.CarState;
 import com.gox.domain.entity.location.Location;
 import com.gox.domain.entity.user.User;
 import com.gox.domain.exception.BookingValidationException;
-import com.gox.domain.exception.CarNotFoundException;
-import com.gox.domain.exception.LocationNotFoundException;
 import com.gox.domain.repository.BookingRepository;
 import com.gox.domain.repository.CarRepository;
 import com.gox.domain.repository.LocationRepository;
 import com.gox.domain.vo.BookingEstimate;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 public class BookingFactory {
@@ -36,18 +32,12 @@ public class BookingFactory {
         this.bookingRepository = bookingRepository;
     }
 
-    /**
-     * Создаёт и сохраняет новое бронирование.
-     * @throws BookingValidationException если даты/данные некорректны
-     * @throws CarNotFoundException если carId не найден
-     * @throws LocationNotFoundException если любая локация не найдена
-     */
-    public Booking createBooking(Long carId,
-                                 Long pickupLocationId,
-                                 Long dropoffLocationId,
-                                 User user,
-                                 OffsetDateTime start,
-                                 OffsetDateTime end) {
+    public Booking create(Long carId,
+                          Long pickupLocationId,
+                          Long dropoffLocationId,
+                          User user,
+                          OffsetDateTime start,
+                          OffsetDateTime end) {
 
         BookingEstimate est = bookingFacade.estimate(
                 carId,
@@ -65,7 +55,6 @@ public class BookingFactory {
         }
         Location pickup = locationRepository.read(pickupLocationId);
         Location dropoff = locationRepository.read(dropoffLocationId);
-        // --- Собираем бронирование ---
         Booking b = new Booking();
         b.setUser(user);
         b.setCar(car);
@@ -80,9 +69,7 @@ public class BookingFactory {
         b.setUrgent(est.isUrgent());
         b.setTransferFee(est.getTransferFee());
         b.setTotalPrice(est.getTotalPrice());
-        b.setPenalty(BigDecimal.ZERO); // штраф в расчёте не нужен на момент создания
-
-        // --- Сохраняем ---
+        b.setPenalty(BigDecimal.ZERO);
         return bookingRepository.create(b);
     }
 }

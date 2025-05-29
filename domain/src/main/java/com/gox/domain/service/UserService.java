@@ -7,7 +7,7 @@
     import com.gox.domain.repository.BookingRepository;
     import com.gox.domain.repository.ReviewRepository;
     import com.gox.domain.repository.UserRepository;
-    import com.gox.domain.validation.api.ValidationResult;
+    import com.gox.domain.validation.ValidationExecutor;
     import com.gox.domain.validation.api.ValidationRule;
     import com.gox.domain.validation.user.UserValidationContext;
     import com.gox.domain.validation.user.rules.*;
@@ -57,11 +57,11 @@
         @Override
         public User get(Long id) {
             if (id == null || id <= 0) {
-                throw new CarValidationException("User ID must be positive");
+                throw new UserValidationException("User ID must be positive");
             }
             User user = userRepository.read(id);
             if (user == null) {
-                throw new CarNotFoundException("User with ID " + id + " not found");
+                throw new UserNotFoundException("User not found with id: " + id);
             }
             return user;
         }
@@ -81,18 +81,11 @@
             var ctx = UserValidationContext.builder()
                     .user(user)
                     .build();
-            var vr  = new ValidationResult();
-            for (var r : createRules) {
-                r.validate(ctx, vr);
-            }
-            if (vr.hasErrors()) {
-                // если email уже занят, наш UserEmailUniqueRule бросит
-                throw new UserValidationException(vr.getCombinedMessage());
-            }
-    /*        if(user.getRole() != UserRole.ADMIN){
-                Wishlist wishlist = new Wishlist();
-                user.setWishlist(wishlist);
-            }*/
+            ValidationExecutor.validateOrThrow(
+                    ctx,
+                    createRules,
+                    UserValidationException::new
+            );
             if (userRepository.findByEmail(user.getEmail()) != null) {
                 throw new UserAlreadyExistsException(user.getEmail());
             }
@@ -101,28 +94,12 @@
             User createdUser = userRepository.create(user);
             return createdUser;
         }
-/*        private void validateUser(User user) {
-            if (user == null) {
-                throw new UserValidationException("User object must not be null.");
-            }
-            if (user.getEmail() == null || user.getEmail().isBlank()) {
-                throw new UserValidationException("User email must not be empty.");
-            }
-
-            if (user.getName() == null || user.getName().isBlank()) {
-                throw new UserValidationException("User name must not be empty.");
-            }
-            if (user.getRole() == null) {
-                throw new UserValidationException("User role must be specified.");
-            }
-
-        }*/
 
         @Override
         public List<Long> getWishlistCarIds(Long userId) {
             User user = userRepository.read(userId);
             if (user == null) {
-                throw new UserNotFoundException("User not found: " + userId);
+                throw new UserNotFoundException("User not found with id: " + userId);
             }
             return user.getWishlist()
                     .getCars()
@@ -137,13 +114,11 @@
             user.setPhone(phone);
             user.setAddress(address);
             var ctx = UserValidationContext.builder().user(user).build();
-            var vr  = new ValidationResult();
-            for (var rule : updateRules) {
-                rule.validate(ctx, vr);
-            }
-            if (vr.hasErrors()) {
-                throw new UserValidationException(vr.getCombinedMessage());
-            }
+            ValidationExecutor.validateOrThrow(
+                    ctx,
+                    updateRules,
+                    UserValidationException::new
+            );
             return userRepository.update(user);
         }
 
@@ -155,7 +130,7 @@
                                   String loyaltyLevel) {
             User user = userRepository.read(userId);
             if (user == null) {
-                throw new UserNotFoundException("User not found: " + userId);
+                throw new UserNotFoundException("User not found with id: " + userId);
             }
             user.setName(name);
             user.setPhone(phone);
@@ -164,13 +139,11 @@
                     .user(user)
                     .loyaltyLevel(loyaltyLevel)
                     .build();
-            ValidationResult vr = new ValidationResult();
-            for (var rule : adminUpdateRules) {
-                rule.validate(ctx, vr);
-            }
-            if (vr.hasErrors()) {
-                throw new UserValidationException(vr.getCombinedMessage());
-            }
+            ValidationExecutor.validateOrThrow(
+                    ctx,
+                    adminUpdateRules,
+                    UserValidationException::new
+            );
             user.setLoyaltyLevel(LoyaltyLevel.valueOf(loyaltyLevel));
             return userRepository.update(user);
         }

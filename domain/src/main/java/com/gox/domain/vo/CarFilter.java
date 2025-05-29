@@ -38,8 +38,6 @@ public class CarFilter {
         this.sortBy       = sortBy;
         this.sortDir      = sortDir;
     }
-
-    // геттеры
     public String getBrand()               { return brand; }
     public Integer getYear()               { return year; }
     public BigDecimal getPriceMin()        { return priceMin; }

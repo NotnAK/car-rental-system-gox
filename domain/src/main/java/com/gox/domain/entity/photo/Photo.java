@@ -7,7 +7,7 @@ public class Photo {
     private String name;
     private byte[] content;
     private boolean isPreview;
-    private Car car;       // связь «много к одному»
+    private Car car;
     public Long getId() {
         return id;
     }

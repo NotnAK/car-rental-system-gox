@@ -30,7 +30,6 @@ public class PhotoRestController implements PhotosApi {
         Photo p = photoFacade.get(photoId);
         ByteArrayResource resource = new ByteArrayResource(p.getContent());
         return ResponseEntity.ok()
-                // inline – чтобы браузер сразу отобразил картинку
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + p.getName() + "\"")
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(resource);

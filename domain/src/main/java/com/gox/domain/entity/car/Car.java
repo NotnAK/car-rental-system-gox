@@ -1,10 +1,7 @@
 package com.gox.domain.entity.car;
 
 import com.gox.domain.entity.location.Location;
-import com.gox.domain.entity.photo.Photo;
-
 import java.math.BigDecimal;
-import java.util.List;
 
 public class Car {
     private Long id;

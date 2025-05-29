@@ -5,7 +5,6 @@ import com.gox.domain.entity.review.Review;
 import java.util.List;
 
 public interface ReviewFacade {
-/*    Review create(Review review);*/
     Review get(Long id);
     List<Review> getByUserId(Long userId);
     List<Review> getByCarId(Long carId);

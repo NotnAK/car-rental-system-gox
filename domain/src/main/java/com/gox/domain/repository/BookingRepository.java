@@ -9,27 +9,20 @@ import java.util.List;
 public interface BookingRepository {
     Booking create(Booking booking);
     Booking read(Long id);
-    List<Booking> findAll();
     Booking update(Booking booking);
     void delete(Long id);
     void deleteByUserId(Long userId);
+    List<Booking> findAll();
     List<Booking> findByUserId(Long userId);
-    //findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual
     boolean existsConflict(Long carId,
                            BookingStatus excludedStatus,
                            OffsetDateTime endPlusGap,
                            OffsetDateTime startMinusGap);
-   /* List<Booking> findByCarIdAndStatusNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long carId,
-                                                                                             BookingStatus excludedStatus,
-                                                                                             OffsetDateTime endPlusGap,
-                                                                                             OffsetDateTime startMinusGap);*/
-//    List<Booking> findByCarIdAndStatusIn(Long carId, List<BookingStatus> statuses);
    List<Booking> findByCarIdAndStatusInAndEndDateAfter(
            Long carId,
            List<BookingStatus> statuses,
            OffsetDateTime endDateAfter
    );
-
     List<Booking> findByUserIdAndStatus(Long userId, BookingStatus status);
     void nullifyPickupLocationInBookings(Long locationId);
     void nullifyDropoffLocationInBookings(Long locationId);

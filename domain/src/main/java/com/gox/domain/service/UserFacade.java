@@ -1,13 +1,10 @@
 package com.gox.domain.service;
-
-import com.gox.domain.entity.user.LoyaltyLevel;
 import com.gox.domain.entity.user.User;
 
 import java.util.List;
 
 public interface UserFacade {
     User get(Long id);
-
     User getByEmail(String email);
     User create(User user);
     List<User> getAllUsers();

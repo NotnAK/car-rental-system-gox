@@ -2,8 +2,6 @@ package com.gox.domain.entity.review;
 
 import com.gox.domain.entity.car.Car;
 import com.gox.domain.entity.user.User;
-
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 public class Review {

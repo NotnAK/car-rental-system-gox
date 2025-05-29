@@ -26,7 +26,6 @@ public class BookingEstimate {
         this.transferFee = transferFee;
         this.totalPrice = totalPrice;
     }
-    // геттеры только для чтения
     public int getDays() { return days; }
     public BigDecimal getBasePrice() { return basePrice; }
     public BigDecimal getLoyaltyDiscount() { return loyaltyDiscount; }

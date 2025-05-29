@@ -1,4 +1,4 @@
-    package com.gox;
+    package com.gox.handler;
 
     import com.gox.domain.exception.*;
     import org.springframework.http.HttpStatus;

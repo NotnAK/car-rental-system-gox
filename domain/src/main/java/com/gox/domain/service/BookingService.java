@@ -13,7 +13,7 @@ import com.gox.domain.service.booking.BookingBusyIntervalProvider;
 import com.gox.domain.service.booking.BookingCompletionHandler;
 import com.gox.domain.service.booking.BookingEstimateCalculator;
 import com.gox.domain.service.booking.BookingLoyaltyUpdater;
-import com.gox.domain.validation.api.ValidationResult;
+import com.gox.domain.validation.ValidationExecutor;
 import com.gox.domain.validation.booking.BookingValidationContext;
 import com.gox.domain.validation.api.ValidationRule;
 import com.gox.domain.validation.booking.rules.*;
@@ -69,7 +69,7 @@ public class BookingService implements BookingFacade {
     public Booking get(Long id) {
         Booking b = bookingRepository.read(id);
         if (b == null) {
-            throw new BookingNotFoundException("Booking not found: " + id);
+            throw new BookingNotFoundException("Booking not found with id: " + id);
         }
         return b;
     }
@@ -106,13 +106,12 @@ public class BookingService implements BookingFacade {
                 .end(end)
                 .build();
 
-        ValidationResult vr = new ValidationResult();
-        for (ValidationRule<BookingValidationContext> rule : validationRules) {
-            rule.validate(bookingValidationContext, vr);
-        }
-        if (vr.hasErrors()) {
-            throw new BookingValidationException(vr.getCombinedMessage());
-        }
+        ValidationExecutor.validateOrThrow(
+                bookingValidationContext,
+                this.validationRules,
+                BookingValidationException::new
+        );
+
         Car car = carRepository.read(carId);
         if (car == null) {
             throw new CarNotFoundException("Car not found with id: " + carId);
@@ -142,20 +141,18 @@ public class BookingService implements BookingFacade {
                 .actualReturnDate(actualReturnDate)
                 .start(booking.getStartDate())
                 .build();
-        ValidationResult vr = new ValidationResult();
-        for (ValidationRule<BookingValidationContext> rule : completionValidationRules) {
-            rule.validate(ctx, vr);
-        }
-        if (vr.hasErrors()) {
-            throw new BookingValidationException(vr.getCombinedMessage());
-        }
+        ValidationExecutor.validateOrThrow(
+                ctx,
+                completionValidationRules,
+                BookingValidationException::new
+        );
         Booking updated = bookingCompletionHandler.complete(booking, actualReturnDate);
         bookingLoyaltyUpdater.updateLoyalty(updated.getUser());
         return updated;
     }
     public List<Booking> getByUserId(Long userId) {
         if (userRepository.read(userId) == null) {
-            throw new CarNotFoundException("User with ID " + userId + " not found");
+            throw new UserNotFoundException("User not found with id: " + userId);
         }
         return bookingRepository.findByUserId(userId);
     }
@@ -168,7 +165,7 @@ public class BookingService implements BookingFacade {
         }
         Booking existing = bookingRepository.read(bookingId);
         if (existing == null) {
-            throw new BookingNotFoundException("Booking not found: " + bookingId);
+            throw new BookingNotFoundException("Booking not found with id: " + bookingId);
         }
         bookingRepository.delete(bookingId);
     }
