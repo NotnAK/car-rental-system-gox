@@ -49,9 +49,9 @@ public class BookingRestController implements BookingsApi {
     public ResponseEntity<BookingSummaryDto> createBooking(BookingCreateRequestDto dto) {
         Booking b = bookingFactory.create(
                 dto.getCarId(),
-                dto.getCarLocationId(),
                 dto.getPickupLocationId(),
                 dto.getDropoffLocationId(),
+                dto.getCarLocationId(),
                 currentUserService.getFullCurrentUser(),
                 dto.getStartDate(),
                 dto.getEndDate()
