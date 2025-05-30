@@ -36,13 +36,13 @@ GoX je systém na prenájom automobilov, ktorý umožňuje používateľom vyhľ
 
 | **Pojem**                | **Anglický názov** | **Definícia**                                                                                                                         |
 |--------------------------|--------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| **Používateľ**    | User               | Osoba využívajúca GoX na rezerváciu auta (CUSTOMER). Môže prezerať vozidlá, vytvárať rezervácie, hodnotiť autá a dostávať notifikácie.            |
+| **Používateľ**    | User               | Osoba využívajúca GoX na rezerváciu auta (CUSTOMER). Môže prezerať vozidlá, vytvárať rezervácie, hodnotiť autá.          |
 | **Administrátor**        | Administrator      | Používateľ s rozšírenými právami (ADMIN): správa databázy (CRUD), schvaľovanie/rušenie rezervácií.           |
 | **Vozidlo**        | Car                | Automobil dostupný na prenájom. Obsahuje informácie o značke, modeli, roku, cene za deň, stave (AVAILABLE, RENTED, UNAVAILABLE, IN_TRANSIT).       |
 | **Rezervácia** | Booking            | Záznam o prenájme vozidla na určené obdobie (od-do). Uchováva dátumy, cenu, stav a referenciu na používateľa a vozidlo.                |
 | **Recenzia**    | Review             | Hodnotenie (rating) a textový komentár, ktorý používateľ pridá po skončení prenájmu.                                                  |
 | **Wishlist**             | Wishlist           | Zoznam obľúbených vozidiel, ktoré si používateľ ukladá pre neskoršiu rýchlu rezerváciu.                                               |
-| **Pokuta**    | Penalty            | Pokuta, ktorá sa pripočíta k cene prenájmu, ak používateľ vráti vozidlo oneskorene. Systém vypočíta výšku pokuty a zašle email.        |
+| **Pokuta**    | Penalty            | Pokuta, ktorá sa pripočíta k cene prenájmu, ak používateľ vráti vozidlo oneskorene.        |
 | **Program vernosti**     | Loyalty Program    | Mechanizmus, v ktorom používateľ získava body za každú rezerváciu. Body ho posúvajú na vyššiu úroveň (napr. SILVER, GOLD) a znižujú cenu budúcich prenájmov. |
 | **Miesto vyzdvihnutia** | Pickup Location  | Adresa, kde si používateľ vyzdvihne auto.  Zvyčajne ide o adresu pobočky.                                     |
 | **Miesto odovzdania** | DropOff Location | Adresa, kde môže používateľ auto vrátiť. Za inú lokalitu než pôvodnú môže byť účtovaný extra poplatok.                         |
