@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 
 public class BookingValidationContext {
     private final Long carId;
+    private final Long carLocationId;
     private final Long pickupLocationId;
     private final Long dropoffLocationId;
     private final User user;
@@ -17,6 +18,7 @@ public class BookingValidationContext {
 
     private BookingValidationContext(Builder builder) {
         this.carId = builder.carId;
+        this.carLocationId = builder.carLocationId;
         this.pickupLocationId = builder.pickupLocationId;
         this.dropoffLocationId = builder.dropoffLocationId;
         this.user = builder.user;
@@ -32,6 +34,7 @@ public class BookingValidationContext {
 
     public static class Builder {
         private Long carId;
+        private Long carLocationId;
         private Long pickupLocationId;
         private Long dropoffLocationId;
         private User user;
@@ -41,6 +44,11 @@ public class BookingValidationContext {
         private BookingStatus status;
         public Builder carId(Long carId) {
             this.carId = carId;
+            return this;
+        }
+
+        public Builder carLocationId(Long carLocationId) {
+            this.carLocationId = carLocationId;
             return this;
         }
 
@@ -84,6 +92,9 @@ public class BookingValidationContext {
 
     public Long getCarId() {
         return carId;
+    }
+    public Long getCarLocationId() {
+        return carLocationId;
     }
 
     public Long getPickupLocationId() {

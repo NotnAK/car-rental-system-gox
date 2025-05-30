@@ -35,6 +35,7 @@ public class BookingFactory {
     public Booking create(Long carId,
                           Long pickupLocationId,
                           Long dropoffLocationId,
+                          Long carLocationId,
                           User user,
                           OffsetDateTime start,
                           OffsetDateTime end) {
@@ -43,6 +44,7 @@ public class BookingFactory {
                 carId,
                 pickupLocationId,
                 dropoffLocationId,
+                carLocationId,
                 user,
                 start,
                 end

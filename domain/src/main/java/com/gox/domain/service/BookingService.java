@@ -50,6 +50,7 @@ public class BookingService implements BookingFacade {
         this.userRepository = userRepository;
         this.validationRules = List.of(
                 new CarIdNotNullRule(),
+                new CarLocationIdNotNullRule(),
                 new PickupLocationIdNotNullRule(),
                 new DropoffLocationIdNotNullRule(),
                 new DatesNotNullRule(),
@@ -94,11 +95,13 @@ public class BookingService implements BookingFacade {
     public BookingEstimate estimate(Long carId,
                                     Long pickupLocationId,
                                     Long dropoffLocationId,
+                                    Long carLocationId,
                                     User user,
                                     OffsetDateTime start,
                                     OffsetDateTime end) {
         BookingValidationContext bookingValidationContext = BookingValidationContext.builder()
                 .carId(carId)
+                .carLocationId(carLocationId)
                 .pickupLocationId(pickupLocationId)
                 .dropoffLocationId(dropoffLocationId)
                 .user(user)
@@ -122,7 +125,10 @@ public class BookingService implements BookingFacade {
         if (locationRepository.read(dropoffLocationId) == null) {
             throw new LocationNotFoundException("Dropoff location not found with id: " + dropoffLocationId);
         }
-        return bookingEstimateCalculator.calculate(car, user, start, end, pickupLocationId, dropoffLocationId);
+        if (locationRepository.read(carLocationId) == null) {
+            throw new LocationNotFoundException("Car location not found with id: " + carLocationId);
+        }
+        return bookingEstimateCalculator.calculate(car, user, start, end, pickupLocationId, carLocationId);
     }
     @Override
     public List<BookingInterval> getBusyIntervals(Long carId) {

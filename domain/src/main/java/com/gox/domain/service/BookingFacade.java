@@ -18,6 +18,7 @@ public interface BookingFacade {
     BookingEstimate estimate(Long carId,
                              Long pickupLocationId,
                              Long dropoffLocationId,
+                             Long carLocationId,
                              User user,
                              OffsetDateTime start,
                              OffsetDateTime end);

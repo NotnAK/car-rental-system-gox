@@ -1535,6 +1535,9 @@ components:
         dropoffLocationId:
           type: integer
           format: int64
+        carLocationId:
+          type: integer
+          format: int64
 
     BookingStatus:
       type: string

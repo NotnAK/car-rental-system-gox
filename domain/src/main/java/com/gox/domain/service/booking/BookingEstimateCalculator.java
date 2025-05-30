@@ -18,13 +18,13 @@ public class BookingEstimateCalculator {
             OffsetDateTime start,
             OffsetDateTime end,
             Long pickupLocationId,
-            Long dropoffLocationId
+            Long carLocationId
     ) {
         OffsetDateTime now = OffsetDateTime.now();
         long hoursUntilStart = Duration.between(now, start).toHours();
         boolean urgent = hoursUntilStart < 10;
         BigDecimal transferFee = BigDecimal.ZERO;
-        if (!pickupLocationId.equals(dropoffLocationId) && urgent) {
+        if (!carLocationId.equals(pickupLocationId) && urgent) {
             transferFee = URGENT_TRANSFER_FEE;
         }
         long seconds = Duration.between(start, end).getSeconds();
