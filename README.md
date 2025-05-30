@@ -14,8 +14,8 @@ GoX je systém na prenájom automobilov, ktorý umožňuje používateľom vyhľ
 - **RQ05** System definuje pre každé vozidlo tieto stavy: AVAILABLE, RENTED, UNAVAILABLE, IN_TRANSIT; ak je stav UNAVAILABLE, rezervácia tohto vozidla nie je možná.
 - **RQ06** Systém umožní hodnotiť prenajaté vozidlá (rating) a písať recenzie (review).
 - **RQ07** V rámci vernostného programu získavajú pravidelní zákazníci zľavy podľa dosiahnutého levelu (STANDARD, SILVER, GOLD):
-    - PRECHOD NA SILVER po 5 úspešných rezerváciách  
-    - PRECHOD NA GOLD po 10 úspešných rezerváciách .
+    - **SILVER** – 5 % zľava po 5 úspešných rezerváciách  
+    - **GOLD**  – 10 % zľava po 10 úspešných rezerváciách
 - **RQ08** Používateľ si môže uložiť obľúbené vozidlá do „wishlistu“ a rýchlo ich rezervovať v budúcnosti.
 - **RQ09** Systém zobrazí cenu prenájmu, pričom reálna platba prebehne na pobočke.
 - **RQ10** Systém umožňuje používateľovi určiť miesto vyzdvihnutia (pickup) a miesto odovzdania (dropoff).
